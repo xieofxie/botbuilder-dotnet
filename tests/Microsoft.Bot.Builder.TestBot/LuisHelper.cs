@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.AI.Luis;
+using Microsoft.Bot.Builder.TestBot.Middleware.Telemetry;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -27,10 +28,12 @@ namespace Microsoft.BotBuilderSamples
                     "https://" + configuration["LuisAPIHostName"]);
 
                 // TODO: fix the ambiguity introduced in 4.4.n
-                var recognizer = new LuisRecognizer(luisApplication, null, false, null);
+                // var recognizer = new LuisRecognizer(luisApplication, null, false, null);
+                var recognizer = new TelemetryLuisRecognizer(luisApplication, null, false, false, true);
 
                 // The actual call to LUIS
-                var recognizerResult = await recognizer.RecognizeAsync(turnContext, cancellationToken);
+                //var recognizerResult = await recognizer.RecognizeAsync(turnContext, cancellationToken);
+                var recognizerResult = await recognizer.RecognizeAsync(turnContext, true, cancellationToken);
 
                 var (intent, score) = recognizerResult.GetTopScoringIntent();
                 if (intent == "Book_flight")

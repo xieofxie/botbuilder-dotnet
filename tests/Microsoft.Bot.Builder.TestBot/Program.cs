@@ -4,6 +4,7 @@
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.ApplicationInsights;
 
 namespace Microsoft.BotBuilderSamples
 {
@@ -21,6 +22,14 @@ namespace Microsoft.BotBuilderSamples
                     logging.AddDebug();
                     logging.AddConsole();
                 })
-                .UseStartup<Startup>();
+                .UseStartup<Startup>()
+                .ConfigureLogging(logging =>
+                {
+                    logging.AddApplicationInsights();
+
+                    // Optional: Apply filters to configure LogLevel Information or above is sent to
+                    // ApplicationInsights for all categories.
+                    logging.AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, LogLevel.Information);
+                });
     }
 }

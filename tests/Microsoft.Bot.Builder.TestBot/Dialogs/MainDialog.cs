@@ -19,11 +19,12 @@ namespace Microsoft.BotBuilderSamples
         protected readonly ILogger _logger;
 #pragma warning restore SA1401 // Fields should be private
 
-        public MainDialog(IConfiguration configuration, ILogger<MainDialog> logger)
+        public MainDialog(IConfiguration configuration, ILogger<MainDialog> logger, IBotTelemetryClient telemetryClient)
             : base(nameof(MainDialog))
         {
             _configuration = configuration;
             _logger = logger;
+            TelemetryClient = telemetryClient;
 
             AddDialog(new TextPrompt(nameof(TextPrompt)));
             AddDialog(new BookingDialog());
@@ -33,10 +34,14 @@ namespace Microsoft.BotBuilderSamples
                 ActStepAsync,
                 FinalStepAsync,
             };
-            AddDialog(new WaterfallDialog(nameof(WaterfallDialog), steps));
+            AddDialog(new WaterfallDialog(nameof(WaterfallDialog), steps)
+            {
+                TelemetryClient = telemetryClient,
+            });
 
             // The initial child Dialog to run.
             InitialDialogId = nameof(WaterfallDialog);
+
         }
 
         private async Task<DialogTurnResult> IntroStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
