@@ -15,7 +15,7 @@ namespace Microsoft.BotBuilderSamples
 {
     public static class LuisHelper
     {
-        public static async Task<BookingDetails> ExecuteLuisQuery(IConfiguration configuration, ILogger logger, ITurnContext turnContext, CancellationToken cancellationToken)
+        public static async Task<BookingDetails> ExecuteLuisQuery(IBotTelemetryClient telemetryClient, IConfiguration configuration, ILogger logger, ITurnContext turnContext, CancellationToken cancellationToken)
         {
             var bookingDetails = new BookingDetails();
 
@@ -29,7 +29,7 @@ namespace Microsoft.BotBuilderSamples
 
                 // TODO: fix the ambiguity introduced in 4.4.n
                 // var recognizer = new LuisRecognizer(luisApplication, null, false, null);
-                var recognizer = new TelemetryLuisRecognizer(luisApplication, null, false, false, true);
+                var recognizer = new TelemetryLuisRecognizer(telemetryClient, luisApplication, null, false, false, true);
 
                 // The actual call to LUIS
                 //var recognizerResult = await recognizer.RecognizeAsync(turnContext, cancellationToken);

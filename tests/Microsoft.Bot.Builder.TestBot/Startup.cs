@@ -28,10 +28,9 @@ namespace Microsoft.BotBuilderSamples
             // Create the credential provider to be used with the Bot Framework Adapter.
             services.AddSingleton<ICredentialProvider, ConfigurationCredentialProvider>();
 
-            // Create dependencies for Application Insights, Event Hub, and ASP.NET Core hosted services.
+            // Create dependencies for Application Insights, Event Hub and ASP.NET Core hosted services.
             services.AddApplicationInsightsTelemetry();
             services.AddSingleton<IBotTelemetryClient, BotTelemetryClient>();
-            //services.AddSingleton<IMiddleware, Bot.Builder.TestBot.Middleware.Telemetry.TelemetryLoggerMiddleware>();
             services.AddTransient<TelemetrySaveBodyASPMiddleware>();
             services.AddSingleton<ITelemetryInitializer, OperationCorrelationTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, TelemetryBotIdInitializer>();
@@ -59,6 +58,7 @@ namespace Microsoft.BotBuilderSamples
 
             // Create the bot as a transient. In this case the ASP Controller is expecting an IBot.
             services.AddTransient<IBot, DialogAndWelcomeBot<MainDialog>>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

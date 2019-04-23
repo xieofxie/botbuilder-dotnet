@@ -27,11 +27,6 @@ namespace Microsoft.Bot.Builder.TestBot.Middleware.Telemetry
         // Application Insights Custom Event name, logged when a message is deleted by the bot (rare case)
         public static readonly string BotMsgDeleteEvent = "BotMessageDelete";
 
-        private static readonly JsonSerializerSettings _jsonSettings = new JsonSerializerSettings
-        {
-            NullValueHandling = NullValueHandling.Ignore,
-        };
-
         private readonly IBotTelemetryClient _telemetryClient;
 
         /// <summary>

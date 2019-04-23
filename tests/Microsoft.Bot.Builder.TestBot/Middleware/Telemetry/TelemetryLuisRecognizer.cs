@@ -11,19 +11,20 @@ namespace Microsoft.Bot.Builder.TestBot.Middleware.Telemetry
 {
     public class TelemetryLuisRecognizer : LuisRecognizer
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TelemetryLuisRecognizer"/> class.
-        /// </summary>
-        /// <param name="application">The LUIS application to use to recognize text.</param>
-        /// <param name="predictionOptions">The LUIS prediction options to use.</param>
-        /// <param name="includeApiResults">TRUE to include raw LUIS API response.</param>
-        /// <param name="logOriginalMessage">TRUE to include original user message.</param>
-        /// <param name="logUserName">TRUE to include user name.</param>
-        public TelemetryLuisRecognizer(LuisApplication application, LuisPredictionOptions predictionOptions = null, bool includeApiResults = false, bool logOriginalMessage = false, bool logUserName = false)
+        private IBotTelemetryClient _telemetryClient;
+
+        public TelemetryLuisRecognizer(
+            IBotTelemetryClient telemetryClient,
+            LuisApplication application, 
+            LuisPredictionOptions predictionOptions = null, 
+            bool includeApiResults = false,    
+            bool logOriginalMessage = false, 
+            bool logUserName = false)
             : base(application, predictionOptions, includeApiResults)
         {
             LogOriginalMessage = logOriginalMessage;
             LogUsername = logUserName;
+            _telemetryClient = telemetryClient;
         }
 
         /// <summary>
@@ -86,7 +87,7 @@ namespace Microsoft.Bot.Builder.TestBot.Middleware.Telemetry
             var recognizerResult = await RecognizeAsync(context, cancellationToken);
 
             // Find the Telemetry Client
-            if (context.TurnState.TryGetValue(TelemetryLoggerMiddleware.AppInsightsServiceKey, out var telemetryClient) && recognizerResult != null)
+            if (recognizerResult != null)
             {
                 var topLuisIntent = recognizerResult.GetTopScoringIntent();
                 var intentScore = topLuisIntent.score.ToString("N2");
@@ -133,7 +134,7 @@ namespace Microsoft.Bot.Builder.TestBot.Middleware.Telemetry
                 }
 
                 // Track the event
-                ((IBotTelemetryClient)telemetryClient).TrackEvent($"{LuisTelemetryConstants.IntentPrefix}.{topLuisIntent.intent}", telemetryProperties);
+                _telemetryClient.TrackEvent($"{LuisTelemetryConstants.IntentPrefix}.{topLuisIntent.intent}", telemetryProperties);
             }
 
             return recognizerResult;
