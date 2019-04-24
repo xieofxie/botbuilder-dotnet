@@ -27,13 +27,16 @@ namespace Microsoft.BotBuilderSamples
                     configuration["LuisAPIKey"],
                     "https://" + configuration["LuisAPIHostName"]);
 
+                var luisPredictionOptions = new LuisPredictionOptions()
+                {
+                    TelemetryClient = telemetryClient,
+                };
+
                 // TODO: fix the ambiguity introduced in 4.4.n
-                // var recognizer = new LuisRecognizer(luisApplication, null, false, null);
-                var recognizer = new TelemetryLuisRecognizer(telemetryClient, luisApplication, null, false, false, true);
+                var recognizer = new LuisRecognizer(luisApplication, luisPredictionOptions, false, null);
 
                 // The actual call to LUIS
-                //var recognizerResult = await recognizer.RecognizeAsync(turnContext, cancellationToken);
-                var recognizerResult = await recognizer.RecognizeAsync(turnContext, true, cancellationToken);
+                var recognizerResult = await recognizer.RecognizeAsync(turnContext, cancellationToken);
 
                 var (intent, score) = recognizerResult.GetTopScoringIntent();
                 if (intent == "Book_flight")
