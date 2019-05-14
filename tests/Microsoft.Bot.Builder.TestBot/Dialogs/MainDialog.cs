@@ -17,7 +17,6 @@ namespace Microsoft.BotBuilderSamples
 #pragma warning disable SA1401 // Fields should be private
         protected readonly IConfiguration _configuration;
         protected readonly ILogger _logger;
-        protected readonly IBotTelemetryClient _telemetryClient;
 #pragma warning restore SA1401 // Fields should be private
 
         public MainDialog(IConfiguration configuration, ILogger<MainDialog> logger, IBotTelemetryClient telemetryClient)
@@ -25,7 +24,7 @@ namespace Microsoft.BotBuilderSamples
         {
             _configuration = configuration;
             _logger = logger;
-            _telemetryClient = telemetryClient;
+            TelemetryClient = telemetryClient;
 
             AddDialog(new TextPrompt(nameof(TextPrompt)));
             AddDialog(new BookingDialog());
@@ -64,7 +63,7 @@ namespace Microsoft.BotBuilderSamples
             // Call LUIS and gather any potential booking details. (Note the TurnContext has the response to the prompt.)
             var bookingDetails = stepContext.Result != null
                     ?
-                await LuisHelper.ExecuteLuisQuery(_telemetryClient, _configuration, _logger, stepContext.Context, cancellationToken)
+                await LuisHelper.ExecuteLuisQuery(TelemetryClient, _configuration, _logger, stepContext.Context, cancellationToken)
                     :
                 new BookingDetails();
 
