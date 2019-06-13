@@ -21,7 +21,7 @@ namespace Microsoft.Bot.Configuration.Tests
             var config2 = new BotConfiguration();
             foreach (var service in config.Services)
             {
-                service.Id = "1";
+                service.Id = String.Empty;
                 config2.ConnectService(service);
             }
 
