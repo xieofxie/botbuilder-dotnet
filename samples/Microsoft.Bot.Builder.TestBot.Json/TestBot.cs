@@ -94,7 +94,8 @@ namespace Microsoft.Bot.Builder.TestBot.Json
                         Intent="Cancel",
                         Steps = new List<IDialog>()
                         {
-                            new CancelAllDialogs()
+                            new CancelAllDialogs(),
+                            new SendActivity("I can provide help, greet you, and read quotes from FUSE Labs until you get tired")
                         }
                     },
                     new IntentRule()
