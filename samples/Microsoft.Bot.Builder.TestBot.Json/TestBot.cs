@@ -76,6 +76,7 @@ namespace Microsoft.Bot.Builder.TestBot.Json
                         {
                             new SendActivity("Here are some quotes:"),
                             new SendActivity("Type Cancel anytime if you want to go back to the main menu, or ask for more to see more quotes"),
+                            new SendActivity("Ready?"),
                             new SendActivity("'Last time I wrote C#, I ended up being hospitalized' Steve Ickman"),
                             new EndTurn(),
                             new SendActivity("'Arrrrrrrrrr' Tom"),
