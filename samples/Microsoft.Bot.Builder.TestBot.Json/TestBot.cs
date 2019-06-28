@@ -18,6 +18,7 @@ using Microsoft.Bot.Builder.Dialogs.Debugging;
 using Microsoft.Bot.Builder.Dialogs.Declarative;
 using Microsoft.Bot.Builder.Dialogs.Declarative.Resources;
 using Microsoft.Bot.Builder.Expressions.Parser;
+using Microsoft.Bot.Builder.TestBot.Json.Recognizers;
 using Microsoft.Bot.Schema;
 using static Microsoft.Bot.Builder.Dialogs.Debugging.Source;
 
@@ -34,14 +35,14 @@ namespace Microsoft.Bot.Builder.TestBot.Json
             this.dialogStateAccessor = conversationState.CreateProperty<DialogState>("RootDialogState");
             this.resourceExplorer = resourceExplorer;
 
-            // auto reload dialogs when file changes
-            this.resourceExplorer.Changed += (resources) =>
-            {
-                if (resources.Any(resource => resource.Id== ".dialog"))
-                {
-                    Task.Run(() => this.LoadDialogs());
-                }
-            };
+            //// auto reload dialogs when file changes
+            //this.resourceExplorer.Changed += (resources) =>
+            //{
+            //    if (resources.Any(resource => resource.Id== ".dialog"))
+            //    {
+            //        Task.Run(() => this.LoadDialogs());
+            //    }
+            //};
             LoadDialogs();
         }
 
@@ -50,37 +51,67 @@ namespace Microsoft.Bot.Builder.TestBot.Json
         {
             System.Diagnostics.Trace.TraceInformation("Loading resources...");
 
-            var rootDialog = new AdaptiveDialog()
+            var rootDialog = new AdaptiveDialog("planningTest")
             {
                 AutoEndDialog = false,
+                Recognizer = new PiclRecognizer("AdaptiveDemo.picl-model"),
                 Steps = new List<IDialog>()
+                {
+                },
+                Rules = new List<IRule>()
+                {
+                    new IntentRule()
+                    {
+                        Intent="Greet",
+                        Steps = new List<IDialog>()
+                        {
+                            new IfCondition()
+                            {
+                                Condition = new ExpressionEngine().Parse("user.name == null"),
+                                Steps = new List<IDialog>()
+                                {
+                                    new TextInput()
+                                    {
+                                        Prompt = new ActivityTemplate("Hello, what is your name?"),
+                                        Property = "user.name"
+                                    }
+                                }
+                            },
+                            new SendActivity("Hello {user.name}, nice to meet you!")
+                        }
+                    },
+                    new IntentRule()
+                    {
+                        Intent="Tom",
+                        Steps = new List<IDialog>()
+                        {
+                            new SendActivity("Here are some quotes:"),
+                            new SendActivity("Type Cancel anytime if you want to go back to the main menu, or ask for more to see more quotes"),
+                            new SendActivity("'I rewrote it last weekend' Steve"),
+                            new EndTurn(),
+                            new SendActivity("'We don't need types where we are going!' Steve"),
+                            new EndTurn()
+                        }
+                    },
+                    new IntentRule()
+                    {
+                        Intent="Cancel",
+                        Steps = new List<IDialog>()
+                        {
+                            new CancelAllDialogs()
+                        }
+                    },
+                    new IntentRule()
+                    {
+                        Intent="Help",
+                        Steps = new List<IDialog>()
+                        {
+                            new SendActivity("This is the Adaptive + Picl Recognizer demo."),
+                            new SendActivity("I can provide help, greet you, and read quotes from FUSE Labs until you get tired")
+                        }
+                    },
+                },
             };
-            var choiceInput = new ChoiceInput()
-            {
-                Prompt = new ActivityTemplate("What declarative sample do you want to run?"),
-                OutputBinding = "conversation.dialogChoice",
-                AlwaysPrompt = true,
-                Choices = new List<Choice>()
-            };
-
-            var handleChoice = new SwitchCondition()
-            {
-                Condition = "conversation.dialogChoice",
-                Cases = new List<Case>()
-            };
-
-            foreach (var resource in this.resourceExplorer.GetResources(".dialog").Where(r => r.Id.EndsWith(".main.dialog")))
-            {
-                var name = Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(resource.Id));
-                choiceInput.Choices.Add(new Choice(name));
-                var dialog = DeclarativeTypeLoader.Load<IDialog>(resource, this.resourceExplorer, DebugSupport.SourceRegistry);
-                handleChoice.Cases.Add(new Case($"'{name}'", new List<IDialog>() { dialog }));
-            }
-            choiceInput.Style = ListStyle.Auto;
-            rootDialog.Steps.Add(choiceInput);
-            rootDialog.Steps.Add(new SendActivity("# Running {conversation.dialogChoice}.main.dialog"));
-            rootDialog.Steps.Add(handleChoice);
-            rootDialog.Steps.Add(new RepeatDialog());
 
             this.dialogManager = new DialogManager(rootDialog);
 

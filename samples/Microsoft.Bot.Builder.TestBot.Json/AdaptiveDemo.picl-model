@@ -1,0 +1,3112 @@
+{
+  "$type": "Picl.Standard.Models.PackagedPredictionModel`5[[System.String, System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[Picl.Core.Items.EntireItem, Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[System.String, System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[Picl.Core.Items.EntireItem, Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[Picl.CrfTrainers.HcModeledItem, Picl.CrfTrainers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Standard",
+  "schema": {
+    "concepts": {
+      "1": {
+        "name": "AdaptiveDemo"
+      },
+      "1170088142": {
+        "name": "Trump"
+      },
+      "1525406064": {
+        "name": "Quote"
+      },
+      "1659685500": {
+        "name": "Cancel"
+      },
+      "1975401803": {
+        "name": "John"
+      },
+      "3689046008": {
+        "name": "Help"
+      },
+      "4266172093": {
+        "name": "Greet"
+      },
+      "48270497": {
+        "name": "Tom"
+      },
+      "786853013": {
+        "name": "Steve"
+      }
+    },
+    "relationships": [
+      {
+        "$type": "Picl.Core.Schemas.ParentChildRelationship, Picl.Core",
+        "parentConceptId": "1",
+        "childConceptId": "4266172093"
+      },
+      {
+        "$type": "Picl.Core.Schemas.ParentChildRelationship, Picl.Core",
+        "parentConceptId": "1",
+        "childConceptId": "3689046008"
+      },
+      {
+        "$type": "Picl.Core.Schemas.ParentChildRelationship, Picl.Core",
+        "parentConceptId": "1",
+        "childConceptId": "1659685500"
+      },
+      {
+        "$type": "Picl.Core.Schemas.ParentChildRelationship, Picl.Core",
+        "parentConceptId": "1",
+        "childConceptId": "1525406064"
+      },
+      {
+        "$type": "Picl.Core.Schemas.ParentChildRelationship, Picl.Core",
+        "parentConceptId": "1525406064",
+        "childConceptId": "48270497"
+      },
+      {
+        "$type": "Picl.Core.Schemas.ParentChildRelationship, Picl.Core",
+        "parentConceptId": "1525406064",
+        "childConceptId": "786853013"
+      },
+      {
+        "$type": "Picl.Core.Schemas.ParentChildRelationship, Picl.Core",
+        "parentConceptId": "1525406064",
+        "childConceptId": "1170088142"
+      },
+      {
+        "$type": "Picl.Core.Schemas.ParentChildRelationship, Picl.Core",
+        "parentConceptId": "1525406064",
+        "childConceptId": "1975401803"
+      }
+    ]
+  },
+  "partitioner": {
+    "$type": "Picl.Standard.Mappers.PassthroughMapper`2[[System.String, System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[Picl.Core.Items.EntireItem, Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Standard",
+    "bounds": {}
+  },
+  "featurizer": {
+    "$type": "Picl.Standard.Features.StackTransform`2[[System.String, System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[Picl.Core.Items.EntireItem, Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Standard",
+    "featureTransforms": [
+      {
+        "$type": "Picl.Standard.Transforms.ComposeTransform`2[[System.String, System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[Picl.Core.Features.FeatureEntries`1[[Picl.Core.Items.EntireItem, Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Standard",
+        "transforms": [
+          {
+            "$type": "Picl.Standard.Transforms.ComposeTransform`2[[System.String, System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[Picl.Core.Features.FeatureEntries`1[[Picl.Core.Items.PartRange, Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Standard",
+            "transforms": [
+              {
+                "$type": "Picl.TextItems.Mappers.TokenizeMapper, Picl.TextItems"
+              },
+              {
+                "$type": "Picl.TextItems.Features.HashedDictionaryTransform, Picl.TextItems",
+                "entryTokenizer": {
+                  "$type": "Picl.TextItems.Mappers.TokenizeMapper, Picl.TextItems"
+                },
+                "ignoreLetterCase": true,
+                "ignoreLetterIdentity": false,
+                "ignoreDigitIdentity": false,
+                "useWordStems": false,
+                "entries": [
+                  "cancel",
+                  "stop",
+                  "restart",
+                  "reset",
+                  "exit"
+                ]
+              }
+            ]
+          },
+          {
+            "$type": "Picl.Standard.Features.AggregateTransform`1[[Picl.Core.Items.PartRange, Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Standard",
+            "aggregateMethod": 2
+          }
+        ]
+      },
+      {
+        "$type": "Picl.Standard.Transforms.ComposeTransform`2[[System.String, System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[Picl.Core.Features.FeatureEntries`1[[Picl.Core.Items.EntireItem, Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Standard",
+        "transforms": [
+          {
+            "$type": "Picl.Standard.Transforms.ComposeTransform`2[[System.String, System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[Picl.Core.Features.FeatureEntries`1[[Picl.Core.Items.PartRange, Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Standard",
+            "transforms": [
+              {
+                "$type": "Picl.TextItems.Mappers.TokenizeMapper, Picl.TextItems"
+              },
+              {
+                "$type": "Picl.TextItems.Features.HashedDictionaryTransform, Picl.TextItems",
+                "entryTokenizer": {
+                  "$type": "Picl.TextItems.Mappers.TokenizeMapper, Picl.TextItems"
+                },
+                "ignoreLetterCase": true,
+                "ignoreLetterIdentity": false,
+                "ignoreDigitIdentity": false,
+                "useWordStems": false,
+                "entries": [
+                  "hi",
+                  "howdy",
+                  "hello",
+                  "sup",
+                  "what's up",
+                  "hey"
+                ]
+              }
+            ]
+          },
+          {
+            "$type": "Picl.Standard.Features.AggregateTransform`1[[Picl.Core.Items.PartRange, Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Standard",
+            "aggregateMethod": 2
+          }
+        ]
+      },
+      {
+        "$type": "Picl.Standard.Transforms.ComposeTransform`2[[System.String, System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[Picl.Core.Features.FeatureEntries`1[[Picl.Core.Items.EntireItem, Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Standard",
+        "transforms": [
+          {
+            "$type": "Picl.Standard.Transforms.ComposeTransform`2[[System.String, System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[Picl.Core.Features.FeatureEntries`1[[Picl.Core.Items.PartRange, Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Standard",
+            "transforms": [
+              {
+                "$type": "Picl.TextItems.Mappers.TokenizeMapper, Picl.TextItems"
+              },
+              {
+                "$type": "Picl.TextItems.Features.HashedDictionaryTransform, Picl.TextItems",
+                "entryTokenizer": {
+                  "$type": "Picl.TextItems.Mappers.TokenizeMapper, Picl.TextItems"
+                },
+                "ignoreLetterCase": true,
+                "ignoreLetterIdentity": false,
+                "ignoreDigitIdentity": false,
+                "useWordStems": false,
+                "entries": [
+                  "Help",
+                  "how"
+                ]
+              }
+            ]
+          },
+          {
+            "$type": "Picl.Standard.Features.AggregateTransform`1[[Picl.Core.Items.PartRange, Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Standard",
+            "aggregateMethod": 2
+          }
+        ]
+      },
+      {
+        "$type": "Picl.Standard.Transforms.ComposeTransform`2[[System.String, System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[Picl.Core.Features.FeatureEntries`1[[Picl.Core.Items.EntireItem, Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Standard",
+        "transforms": [
+          {
+            "$type": "Picl.Standard.Transforms.ComposeTransform`2[[System.String, System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[Picl.Core.Features.FeatureEntries`1[[Picl.Core.Items.PartRange, Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Standard",
+            "transforms": [
+              {
+                "$type": "Picl.TextItems.Mappers.TokenizeMapper, Picl.TextItems"
+              },
+              {
+                "$type": "Picl.TextItems.Features.HashedDictionaryTransform, Picl.TextItems",
+                "entryTokenizer": {
+                  "$type": "Picl.TextItems.Mappers.TokenizeMapper, Picl.TextItems"
+                },
+                "ignoreLetterCase": true,
+                "ignoreLetterIdentity": false,
+                "ignoreDigitIdentity": false,
+                "useWordStems": false,
+                "entries": [
+                  "john",
+                  "taylor",
+                  "serialization"
+                ]
+              }
+            ]
+          },
+          {
+            "$type": "Picl.Standard.Features.AggregateTransform`1[[Picl.Core.Items.PartRange, Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Standard",
+            "aggregateMethod": 2
+          }
+        ]
+      },
+      {
+        "$type": "Picl.Standard.Transforms.ComposeTransform`2[[System.String, System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[Picl.Core.Features.FeatureEntries`1[[Picl.Core.Items.EntireItem, Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Standard",
+        "transforms": [
+          {
+            "$type": "Picl.Standard.Transforms.ComposeTransform`2[[System.String, System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[Picl.Core.Features.FeatureEntries`1[[Picl.Core.Items.PartRange, Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Standard",
+            "transforms": [
+              {
+                "$type": "Picl.TextItems.Mappers.TokenizeMapper, Picl.TextItems"
+              },
+              {
+                "$type": "Picl.TextItems.Features.LineBreakTransform, Picl.TextItems"
+              }
+            ]
+          },
+          {
+            "$type": "Picl.Standard.Features.AggregateTransform`1[[Picl.Core.Items.PartRange, Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Standard",
+            "aggregateMethod": 2
+          }
+        ]
+      },
+      {
+        "$type": "Picl.Standard.Transforms.ComposeTransform`2[[System.String, System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[Picl.Core.Features.FeatureEntries`1[[Picl.Core.Items.EntireItem, Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Standard",
+        "transforms": [
+          {
+            "$type": "Picl.Standard.Transforms.ComposeTransform`2[[System.String, System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[Picl.Core.Features.FeatureEntries`1[[Picl.Core.Items.PartRange, Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Standard",
+            "transforms": [
+              {
+                "$type": "Picl.TextItems.Mappers.TokenizeMapper, Picl.TextItems"
+              },
+              {
+                "$type": "Picl.TextItems.Features.NoWhitespaceTransform, Picl.TextItems"
+              }
+            ]
+          },
+          {
+            "$type": "Picl.Standard.Features.AggregateTransform`1[[Picl.Core.Items.PartRange, Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Standard",
+            "aggregateMethod": 2
+          }
+        ]
+      },
+      {
+        "$type": "Picl.Standard.Transforms.ComposeTransform`2[[System.String, System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[Picl.Core.Features.FeatureEntries`1[[Picl.Core.Items.EntireItem, Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Standard",
+        "transforms": [
+          {
+            "$type": "Picl.Standard.Transforms.ComposeTransform`2[[System.String, System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[Picl.Core.Features.FeatureEntries`1[[Picl.Core.Items.PartRange, Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Standard",
+            "transforms": [
+              {
+                "$type": "Picl.TextItems.Mappers.TokenizeMapper, Picl.TextItems"
+              },
+              {
+                "$type": "Picl.TextItems.Features.HashedDictionaryTransform, Picl.TextItems",
+                "entryTokenizer": {
+                  "$type": "Picl.TextItems.Mappers.TokenizeMapper, Picl.TextItems"
+                },
+                "ignoreLetterCase": true,
+                "ignoreLetterIdentity": false,
+                "ignoreDigitIdentity": false,
+                "useWordStems": false,
+                "entries": [
+                  "Steve",
+                  "ickman",
+                  "rewrite"
+                ]
+              }
+            ]
+          },
+          {
+            "$type": "Picl.Standard.Features.AggregateTransform`1[[Picl.Core.Items.PartRange, Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Standard",
+            "aggregateMethod": 2
+          }
+        ]
+      },
+      {
+        "$type": "Picl.Standard.Transforms.ComposeTransform`2[[System.String, System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[Picl.Core.Features.FeatureEntries`1[[Picl.Core.Items.EntireItem, Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Standard",
+        "transforms": [
+          {
+            "$type": "Picl.TextItems.Mappers.TokenizeMapper, Picl.TextItems"
+          },
+          {
+            "$type": "Picl.TextItems.Features.CountTokensTransform, Picl.TextItems"
+          }
+        ]
+      },
+      {
+        "$type": "Picl.Standard.Transforms.ComposeTransform`2[[System.String, System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[Picl.Core.Features.FeatureEntries`1[[Picl.Core.Items.EntireItem, Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Standard",
+        "transforms": [
+          {
+            "$type": "Picl.Standard.Transforms.ComposeTransform`2[[System.String, System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[Picl.Core.Features.FeatureEntries`1[[Picl.Core.Items.PartRange, Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Standard",
+            "transforms": [
+              {
+                "$type": "Picl.TextItems.Mappers.TokenizeMapper, Picl.TextItems"
+              },
+              {
+                "$type": "Picl.TextItems.Features.HashedDictionaryTransform, Picl.TextItems",
+                "entryTokenizer": {
+                  "$type": "Picl.TextItems.Mappers.TokenizeMapper, Picl.TextItems"
+                },
+                "ignoreLetterCase": true,
+                "ignoreLetterIdentity": false,
+                "ignoreDigitIdentity": false,
+                "useWordStems": false,
+                "entries": [
+                  "pirate",
+                  "tom",
+                  "McConnell"
+                ]
+              }
+            ]
+          },
+          {
+            "$type": "Picl.Standard.Features.AggregateTransform`1[[Picl.Core.Items.PartRange, Picl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], Picl.Standard",
+            "aggregateMethod": 2
+          }
+        ]
+      }
+    ]
+  },
+  "model": {
+    "$type": "Picl.CrfTrainers.HcModel, Picl.CrfTrainers",
+    "schema": {
+      "concepts": {
+        "1": {
+          "name": "AdaptiveDemo"
+        },
+        "1170088142": {
+          "name": "Trump"
+        },
+        "1525406064": {
+          "name": "Quote"
+        },
+        "1659685500": {
+          "name": "Cancel"
+        },
+        "1975401803": {
+          "name": "John"
+        },
+        "3689046008": {
+          "name": "Help"
+        },
+        "4266172093": {
+          "name": "Greet"
+        },
+        "48270497": {
+          "name": "Tom"
+        },
+        "786853013": {
+          "name": "Steve"
+        }
+      },
+      "relationships": [
+        {
+          "$type": "Picl.Core.Schemas.ParentChildRelationship, Picl.Core",
+          "parentConceptId": "1",
+          "childConceptId": "4266172093"
+        },
+        {
+          "$type": "Picl.Core.Schemas.ParentChildRelationship, Picl.Core",
+          "parentConceptId": "1",
+          "childConceptId": "3689046008"
+        },
+        {
+          "$type": "Picl.Core.Schemas.ParentChildRelationship, Picl.Core",
+          "parentConceptId": "1",
+          "childConceptId": "1659685500"
+        },
+        {
+          "$type": "Picl.Core.Schemas.ParentChildRelationship, Picl.Core",
+          "parentConceptId": "1",
+          "childConceptId": "1525406064"
+        },
+        {
+          "$type": "Picl.Core.Schemas.ParentChildRelationship, Picl.Core",
+          "parentConceptId": "1525406064",
+          "childConceptId": "48270497"
+        },
+        {
+          "$type": "Picl.Core.Schemas.ParentChildRelationship, Picl.Core",
+          "parentConceptId": "1525406064",
+          "childConceptId": "786853013"
+        },
+        {
+          "$type": "Picl.Core.Schemas.ParentChildRelationship, Picl.Core",
+          "parentConceptId": "1525406064",
+          "childConceptId": "1170088142"
+        },
+        {
+          "$type": "Picl.Core.Schemas.ParentChildRelationship, Picl.Core",
+          "parentConceptId": "1525406064",
+          "childConceptId": "1975401803"
+        }
+      ]
+    },
+    "innerModel": {
+      "$type": "Picl.CrfTrainers.ExtractionModel, Picl.CrfTrainers",
+      "schema": {
+        "concepts": {
+          "1": {
+            "name": "AdaptiveDemo"
+          },
+          "1170088142": {
+            "name": "Trump"
+          },
+          "1525406064": {
+            "name": "Quote"
+          },
+          "1659685500": {
+            "name": "Cancel"
+          },
+          "1975401803": {
+            "name": "John"
+          },
+          "3689046008": {
+            "name": "Help"
+          },
+          "4266172093": {
+            "name": "Greet"
+          },
+          "48270497": {
+            "name": "Tom"
+          },
+          "786853013": {
+            "name": "Steve"
+          }
+        },
+        "relationships": [
+          {
+            "$type": "Picl.Core.Schemas.ParentChildRelationship, Picl.Core",
+            "parentConceptId": "1",
+            "childConceptId": "4266172093"
+          },
+          {
+            "$type": "Picl.Core.Schemas.ParentChildRelationship, Picl.Core",
+            "parentConceptId": "1",
+            "childConceptId": "3689046008"
+          },
+          {
+            "$type": "Picl.Core.Schemas.ParentChildRelationship, Picl.Core",
+            "parentConceptId": "1",
+            "childConceptId": "1659685500"
+          },
+          {
+            "$type": "Picl.Core.Schemas.ParentChildRelationship, Picl.Core",
+            "parentConceptId": "1",
+            "childConceptId": "1525406064"
+          },
+          {
+            "$type": "Picl.Core.Schemas.ParentChildRelationship, Picl.Core",
+            "parentConceptId": "1525406064",
+            "childConceptId": "48270497"
+          },
+          {
+            "$type": "Picl.Core.Schemas.ParentChildRelationship, Picl.Core",
+            "parentConceptId": "1525406064",
+            "childConceptId": "786853013"
+          },
+          {
+            "$type": "Picl.Core.Schemas.ParentChildRelationship, Picl.Core",
+            "parentConceptId": "1525406064",
+            "childConceptId": "1170088142"
+          },
+          {
+            "$type": "Picl.Core.Schemas.ParentChildRelationship, Picl.Core",
+            "parentConceptId": "1525406064",
+            "childConceptId": "1975401803"
+          }
+        ]
+      },
+      "parameters": {
+        "core": {
+          "startState": 38,
+          "endState": 37,
+          "hierarchy": {
+            "rootNode": {
+              "name": "Document",
+              "id": 0,
+              "children": [
+                {
+                  "name": "1",
+                  "id": 1,
+                  "children": [
+                    {
+                      "name": "4266172093",
+                      "id": 2,
+                      "children": []
+                    },
+                    {
+                      "name": "3689046008",
+                      "id": 3,
+                      "children": []
+                    },
+                    {
+                      "name": "1659685500",
+                      "id": 4,
+                      "children": []
+                    },
+                    {
+                      "name": "1525406064",
+                      "id": 5,
+                      "children": [
+                        {
+                          "name": "48270497",
+                          "id": 6,
+                          "children": []
+                        },
+                        {
+                          "name": "786853013",
+                          "id": 7,
+                          "children": []
+                        },
+                        {
+                          "name": "1170088142",
+                          "id": 8,
+                          "children": []
+                        },
+                        {
+                          "name": "1975401803",
+                          "id": 9,
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "states": [
+            {
+              "name": "Document:1:1525406064:1975401803:end",
+              "displayName": "end",
+              "moduleId": 9,
+              "index": 0
+            },
+            {
+              "name": "Document:1:1525406064:1170088142:end",
+              "displayName": "end",
+              "moduleId": 8,
+              "index": 1
+            },
+            {
+              "name": "Document:1:1525406064:786853013:end",
+              "displayName": "end",
+              "moduleId": 7,
+              "index": 2
+            },
+            {
+              "name": "Document:1:1525406064:48270497:end",
+              "displayName": "end",
+              "moduleId": 6,
+              "index": 3
+            },
+            {
+              "name": "Document:1:1525406064:exit_1975401803",
+              "displayName": "exit_1975401803",
+              "moduleId": 5,
+              "index": 4
+            },
+            {
+              "name": "Document:1:1525406064:exit_1975401803:endJunkFragment",
+              "displayName": "exit_1975401803:endJunkFragment",
+              "moduleId": 5,
+              "index": 5
+            },
+            {
+              "name": "Document:1:1525406064:exit_1975401803_goJunk",
+              "displayName": "exit_1975401803_goJunk",
+              "moduleId": 5,
+              "index": 6
+            },
+            {
+              "name": "Document:1:1525406064:exit_1170088142",
+              "displayName": "exit_1170088142",
+              "moduleId": 5,
+              "index": 7
+            },
+            {
+              "name": "Document:1:1525406064:exit_1170088142:endJunkFragment",
+              "displayName": "exit_1170088142:endJunkFragment",
+              "moduleId": 5,
+              "index": 8
+            },
+            {
+              "name": "Document:1:1525406064:exit_1170088142_goJunk",
+              "displayName": "exit_1170088142_goJunk",
+              "moduleId": 5,
+              "index": 9
+            },
+            {
+              "name": "Document:1:1525406064:exit_786853013",
+              "displayName": "exit_786853013",
+              "moduleId": 5,
+              "index": 10
+            },
+            {
+              "name": "Document:1:1525406064:exit_786853013:endJunkFragment",
+              "displayName": "exit_786853013:endJunkFragment",
+              "moduleId": 5,
+              "index": 11
+            },
+            {
+              "name": "Document:1:1525406064:exit_786853013_goJunk",
+              "displayName": "exit_786853013_goJunk",
+              "moduleId": 5,
+              "index": 12
+            },
+            {
+              "name": "Document:1:1525406064:exit_48270497",
+              "displayName": "exit_48270497",
+              "moduleId": 5,
+              "index": 13
+            },
+            {
+              "name": "Document:1:1525406064:exit_48270497:endJunkFragment",
+              "displayName": "exit_48270497:endJunkFragment",
+              "moduleId": 5,
+              "index": 14
+            },
+            {
+              "name": "Document:1:1525406064:exit_48270497_goJunk",
+              "displayName": "exit_48270497_goJunk",
+              "moduleId": 5,
+              "index": 15
+            },
+            {
+              "name": "Document:1:1525406064:exit_other",
+              "displayName": "exit_other",
+              "moduleId": 5,
+              "index": 16
+            },
+            {
+              "name": "Document:1:1525406064:end",
+              "displayName": "end",
+              "moduleId": 5,
+              "index": 17
+            },
+            {
+              "name": "Document:1:1659685500:end",
+              "displayName": "end",
+              "moduleId": 4,
+              "index": 18
+            },
+            {
+              "name": "Document:1:3689046008:end",
+              "displayName": "end",
+              "moduleId": 3,
+              "index": 19
+            },
+            {
+              "name": "Document:1:4266172093:end",
+              "displayName": "end",
+              "moduleId": 2,
+              "index": 20
+            },
+            {
+              "name": "Document:1:exit_1525406064",
+              "displayName": "exit_1525406064",
+              "moduleId": 1,
+              "index": 21
+            },
+            {
+              "name": "Document:1:exit_1525406064:endJunkFragment",
+              "displayName": "exit_1525406064:endJunkFragment",
+              "moduleId": 1,
+              "index": 22
+            },
+            {
+              "name": "Document:1:exit_1525406064_goJunk",
+              "displayName": "exit_1525406064_goJunk",
+              "moduleId": 1,
+              "index": 23
+            },
+            {
+              "name": "Document:1:exit_1659685500",
+              "displayName": "exit_1659685500",
+              "moduleId": 1,
+              "index": 24
+            },
+            {
+              "name": "Document:1:exit_1659685500:endJunkFragment",
+              "displayName": "exit_1659685500:endJunkFragment",
+              "moduleId": 1,
+              "index": 25
+            },
+            {
+              "name": "Document:1:exit_1659685500_goJunk",
+              "displayName": "exit_1659685500_goJunk",
+              "moduleId": 1,
+              "index": 26
+            },
+            {
+              "name": "Document:1:exit_3689046008",
+              "displayName": "exit_3689046008",
+              "moduleId": 1,
+              "index": 27
+            },
+            {
+              "name": "Document:1:exit_3689046008:endJunkFragment",
+              "displayName": "exit_3689046008:endJunkFragment",
+              "moduleId": 1,
+              "index": 28
+            },
+            {
+              "name": "Document:1:exit_3689046008_goJunk",
+              "displayName": "exit_3689046008_goJunk",
+              "moduleId": 1,
+              "index": 29
+            },
+            {
+              "name": "Document:1:exit_4266172093",
+              "displayName": "exit_4266172093",
+              "moduleId": 1,
+              "index": 30
+            },
+            {
+              "name": "Document:1:exit_4266172093:endJunkFragment",
+              "displayName": "exit_4266172093:endJunkFragment",
+              "moduleId": 1,
+              "index": 31
+            },
+            {
+              "name": "Document:1:exit_4266172093_goJunk",
+              "displayName": "exit_4266172093_goJunk",
+              "moduleId": 1,
+              "index": 32
+            },
+            {
+              "name": "Document:1:exit_other",
+              "displayName": "exit_other",
+              "moduleId": 1,
+              "index": 33
+            },
+            {
+              "name": "Document:1:end",
+              "displayName": "end",
+              "moduleId": 1,
+              "index": 34
+            },
+            {
+              "name": "Document:exit_1",
+              "displayName": "exit_1",
+              "moduleId": 0,
+              "index": 35
+            },
+            {
+              "name": "Document:exit_other",
+              "displayName": "exit_other",
+              "moduleId": 0,
+              "index": 36
+            },
+            {
+              "name": "Document:end",
+              "displayName": "end",
+              "moduleId": 0,
+              "index": 37
+            },
+            {
+              "name": "Document:start",
+              "displayName": "start",
+              "moduleId": 0,
+              "index": 38
+            },
+            {
+              "name": "Document:enter_1",
+              "displayName": "enter_1",
+              "moduleId": 0,
+              "index": 39
+            },
+            {
+              "name": "Document:1:start",
+              "displayName": "start",
+              "moduleId": 1,
+              "index": 40
+            },
+            {
+              "name": "Document:1:enter_1525406064",
+              "displayName": "enter_1525406064",
+              "moduleId": 1,
+              "index": 41
+            },
+            {
+              "name": "Document:1:1525406064:start",
+              "displayName": "start",
+              "moduleId": 5,
+              "index": 42
+            },
+            {
+              "name": "Document:1:1525406064:enter_1975401803",
+              "displayName": "enter_1975401803",
+              "moduleId": 5,
+              "index": 43
+            },
+            {
+              "name": "Document:1:1525406064:1975401803:start",
+              "displayName": "start",
+              "moduleId": 9,
+              "index": 44
+            },
+            {
+              "name": "Document:1:1525406064:enter_1170088142",
+              "displayName": "enter_1170088142",
+              "moduleId": 5,
+              "index": 45
+            },
+            {
+              "name": "Document:1:1525406064:1170088142:start",
+              "displayName": "start",
+              "moduleId": 8,
+              "index": 46
+            },
+            {
+              "name": "Document:1:1525406064:enter_786853013",
+              "displayName": "enter_786853013",
+              "moduleId": 5,
+              "index": 47
+            },
+            {
+              "name": "Document:1:1525406064:786853013:start",
+              "displayName": "start",
+              "moduleId": 7,
+              "index": 48
+            },
+            {
+              "name": "Document:1:1525406064:enter_48270497",
+              "displayName": "enter_48270497",
+              "moduleId": 5,
+              "index": 49
+            },
+            {
+              "name": "Document:1:1525406064:48270497:start",
+              "displayName": "start",
+              "moduleId": 6,
+              "index": 50
+            },
+            {
+              "name": "Document:1:1525406064:enter_other",
+              "displayName": "enter_other",
+              "moduleId": 5,
+              "index": 51
+            },
+            {
+              "name": "Document:1:enter_1659685500",
+              "displayName": "enter_1659685500",
+              "moduleId": 1,
+              "index": 52
+            },
+            {
+              "name": "Document:1:1659685500:start",
+              "displayName": "start",
+              "moduleId": 4,
+              "index": 53
+            },
+            {
+              "name": "Document:1:enter_3689046008",
+              "displayName": "enter_3689046008",
+              "moduleId": 1,
+              "index": 54
+            },
+            {
+              "name": "Document:1:3689046008:start",
+              "displayName": "start",
+              "moduleId": 3,
+              "index": 55
+            },
+            {
+              "name": "Document:1:enter_4266172093",
+              "displayName": "enter_4266172093",
+              "moduleId": 1,
+              "index": 56
+            },
+            {
+              "name": "Document:1:4266172093:start",
+              "displayName": "start",
+              "moduleId": 2,
+              "index": 57
+            },
+            {
+              "name": "Document:1:enter_other",
+              "displayName": "enter_other",
+              "moduleId": 1,
+              "index": 58
+            },
+            {
+              "name": "Document:enter_other",
+              "displayName": "enter_other",
+              "moduleId": 0,
+              "index": 59
+            }
+          ],
+          "edges": [
+            {
+              "type": "Token",
+              "moduleName": "Document",
+              "index": 0,
+              "stateFrom": 59,
+              "stateTo": 36,
+              "weightFunction": 77
+            },
+            {
+              "type": "Token",
+              "moduleName": "1",
+              "index": 1,
+              "stateFrom": 58,
+              "stateTo": 33,
+              "weightFunction": 42
+            },
+            {
+              "type": "Token",
+              "moduleName": "4266172093",
+              "index": 2,
+              "stateFrom": 57,
+              "stateTo": 20,
+              "weightFunction": 0
+            },
+            {
+              "type": "Token",
+              "moduleName": "3689046008",
+              "index": 3,
+              "stateFrom": 55,
+              "stateTo": 19,
+              "weightFunction": 1
+            },
+            {
+              "type": "Token",
+              "moduleName": "1659685500",
+              "index": 4,
+              "stateFrom": 53,
+              "stateTo": 18,
+              "weightFunction": 2
+            },
+            {
+              "type": "Token",
+              "moduleName": "1525406064",
+              "index": 5,
+              "stateFrom": 51,
+              "stateTo": 16,
+              "weightFunction": 7
+            },
+            {
+              "type": "Token",
+              "moduleName": "48270497",
+              "index": 6,
+              "stateFrom": 50,
+              "stateTo": 3,
+              "weightFunction": 3
+            },
+            {
+              "type": "Token",
+              "moduleName": "786853013",
+              "index": 7,
+              "stateFrom": 48,
+              "stateTo": 2,
+              "weightFunction": 4
+            },
+            {
+              "type": "Token",
+              "moduleName": "1170088142",
+              "index": 8,
+              "stateFrom": 46,
+              "stateTo": 1,
+              "weightFunction": 5
+            },
+            {
+              "type": "Token",
+              "moduleName": "1975401803",
+              "index": 9,
+              "stateFrom": 44,
+              "stateTo": 0,
+              "weightFunction": 6
+            },
+            {
+              "type": "Token",
+              "moduleName": "1525406064",
+              "index": 10,
+              "stateFrom": 15,
+              "stateTo": 13,
+              "weightFunction": 7
+            },
+            {
+              "type": "Token",
+              "moduleName": "1525406064",
+              "index": 11,
+              "stateFrom": 12,
+              "stateTo": 10,
+              "weightFunction": 7
+            },
+            {
+              "type": "Token",
+              "moduleName": "1525406064",
+              "index": 12,
+              "stateFrom": 9,
+              "stateTo": 7,
+              "weightFunction": 7
+            },
+            {
+              "type": "Token",
+              "moduleName": "1525406064",
+              "index": 13,
+              "stateFrom": 6,
+              "stateTo": 4,
+              "weightFunction": 7
+            },
+            {
+              "type": "Token",
+              "moduleName": "1",
+              "index": 14,
+              "stateFrom": 32,
+              "stateTo": 30,
+              "weightFunction": 42
+            },
+            {
+              "type": "Token",
+              "moduleName": "1",
+              "index": 15,
+              "stateFrom": 29,
+              "stateTo": 27,
+              "weightFunction": 42
+            },
+            {
+              "type": "Token",
+              "moduleName": "1",
+              "index": 16,
+              "stateFrom": 26,
+              "stateTo": 24,
+              "weightFunction": 42
+            },
+            {
+              "type": "Token",
+              "moduleName": "1",
+              "index": 17,
+              "stateFrom": 23,
+              "stateTo": 21,
+              "weightFunction": 42
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "Document",
+              "index": 18,
+              "stateFrom": 36,
+              "stateTo": 37,
+              "weightFunction": -1
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 19,
+              "stateFrom": 33,
+              "stateTo": 34,
+              "weightFunction": -1
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "4266172093",
+              "index": 20,
+              "stateFrom": 20,
+              "stateTo": 57,
+              "weightFunction": -1
+            },
+            {
+              "type": "Push",
+              "moduleName": "1",
+              "index": 21,
+              "stateFrom": 56,
+              "stateTo": 57,
+              "weightFunction": 43
+            },
+            {
+              "type": "Pop",
+              "moduleName": "4266172093",
+              "index": 22,
+              "stateFrom": 20,
+              "stateTo": 30,
+              "weightFunction": 44
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "3689046008",
+              "index": 23,
+              "stateFrom": 19,
+              "stateTo": 55,
+              "weightFunction": -1
+            },
+            {
+              "type": "Push",
+              "moduleName": "1",
+              "index": 24,
+              "stateFrom": 54,
+              "stateTo": 55,
+              "weightFunction": 45
+            },
+            {
+              "type": "Pop",
+              "moduleName": "3689046008",
+              "index": 25,
+              "stateFrom": 19,
+              "stateTo": 27,
+              "weightFunction": 46
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1659685500",
+              "index": 26,
+              "stateFrom": 18,
+              "stateTo": 53,
+              "weightFunction": -1
+            },
+            {
+              "type": "Push",
+              "moduleName": "1",
+              "index": 27,
+              "stateFrom": 52,
+              "stateTo": 53,
+              "weightFunction": 47
+            },
+            {
+              "type": "Pop",
+              "moduleName": "1659685500",
+              "index": 28,
+              "stateFrom": 18,
+              "stateTo": 24,
+              "weightFunction": 48
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 29,
+              "stateFrom": 16,
+              "stateTo": 17,
+              "weightFunction": -1
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "48270497",
+              "index": 30,
+              "stateFrom": 3,
+              "stateTo": 50,
+              "weightFunction": -1
+            },
+            {
+              "type": "Push",
+              "moduleName": "1525406064",
+              "index": 31,
+              "stateFrom": 49,
+              "stateTo": 50,
+              "weightFunction": 8
+            },
+            {
+              "type": "Pop",
+              "moduleName": "48270497",
+              "index": 32,
+              "stateFrom": 3,
+              "stateTo": 13,
+              "weightFunction": 9
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "786853013",
+              "index": 33,
+              "stateFrom": 2,
+              "stateTo": 48,
+              "weightFunction": -1
+            },
+            {
+              "type": "Push",
+              "moduleName": "1525406064",
+              "index": 34,
+              "stateFrom": 47,
+              "stateTo": 48,
+              "weightFunction": 10
+            },
+            {
+              "type": "Pop",
+              "moduleName": "786853013",
+              "index": 35,
+              "stateFrom": 2,
+              "stateTo": 10,
+              "weightFunction": 11
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1170088142",
+              "index": 36,
+              "stateFrom": 1,
+              "stateTo": 46,
+              "weightFunction": -1
+            },
+            {
+              "type": "Push",
+              "moduleName": "1525406064",
+              "index": 37,
+              "stateFrom": 45,
+              "stateTo": 46,
+              "weightFunction": 12
+            },
+            {
+              "type": "Pop",
+              "moduleName": "1170088142",
+              "index": 38,
+              "stateFrom": 1,
+              "stateTo": 7,
+              "weightFunction": 13
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1975401803",
+              "index": 39,
+              "stateFrom": 0,
+              "stateTo": 44,
+              "weightFunction": -1
+            },
+            {
+              "type": "Push",
+              "moduleName": "1525406064",
+              "index": 40,
+              "stateFrom": 43,
+              "stateTo": 44,
+              "weightFunction": 14
+            },
+            {
+              "type": "Pop",
+              "moduleName": "1975401803",
+              "index": 41,
+              "stateFrom": 0,
+              "stateTo": 4,
+              "weightFunction": 15
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 42,
+              "stateFrom": 42,
+              "stateTo": 51,
+              "weightFunction": 16
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 43,
+              "stateFrom": 42,
+              "stateTo": 49,
+              "weightFunction": 17
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 44,
+              "stateFrom": 42,
+              "stateTo": 47,
+              "weightFunction": 18
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 45,
+              "stateFrom": 42,
+              "stateTo": 45,
+              "weightFunction": 19
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 46,
+              "stateFrom": 42,
+              "stateTo": 43,
+              "weightFunction": 20
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 47,
+              "stateFrom": 13,
+              "stateTo": 15,
+              "weightFunction": -1
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 48,
+              "stateFrom": 13,
+              "stateTo": 14,
+              "weightFunction": -1
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 49,
+              "stateFrom": 14,
+              "stateTo": 49,
+              "weightFunction": 21
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 50,
+              "stateFrom": 14,
+              "stateTo": 47,
+              "weightFunction": 22
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 51,
+              "stateFrom": 14,
+              "stateTo": 45,
+              "weightFunction": 23
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 52,
+              "stateFrom": 14,
+              "stateTo": 43,
+              "weightFunction": 24
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 53,
+              "stateFrom": 14,
+              "stateTo": 17,
+              "weightFunction": -1
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 54,
+              "stateFrom": 10,
+              "stateTo": 12,
+              "weightFunction": -1
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 55,
+              "stateFrom": 10,
+              "stateTo": 11,
+              "weightFunction": -1
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 56,
+              "stateFrom": 11,
+              "stateTo": 49,
+              "weightFunction": 25
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 57,
+              "stateFrom": 11,
+              "stateTo": 47,
+              "weightFunction": 26
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 58,
+              "stateFrom": 11,
+              "stateTo": 45,
+              "weightFunction": 27
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 59,
+              "stateFrom": 11,
+              "stateTo": 43,
+              "weightFunction": 28
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 60,
+              "stateFrom": 11,
+              "stateTo": 17,
+              "weightFunction": -1
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 61,
+              "stateFrom": 7,
+              "stateTo": 9,
+              "weightFunction": -1
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 62,
+              "stateFrom": 7,
+              "stateTo": 8,
+              "weightFunction": -1
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 63,
+              "stateFrom": 8,
+              "stateTo": 49,
+              "weightFunction": 29
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 64,
+              "stateFrom": 8,
+              "stateTo": 47,
+              "weightFunction": 30
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 65,
+              "stateFrom": 8,
+              "stateTo": 45,
+              "weightFunction": 31
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 66,
+              "stateFrom": 8,
+              "stateTo": 43,
+              "weightFunction": 32
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 67,
+              "stateFrom": 8,
+              "stateTo": 17,
+              "weightFunction": -1
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 68,
+              "stateFrom": 4,
+              "stateTo": 6,
+              "weightFunction": -1
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 69,
+              "stateFrom": 4,
+              "stateTo": 5,
+              "weightFunction": -1
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 70,
+              "stateFrom": 5,
+              "stateTo": 49,
+              "weightFunction": 33
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 71,
+              "stateFrom": 5,
+              "stateTo": 47,
+              "weightFunction": 34
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 72,
+              "stateFrom": 5,
+              "stateTo": 45,
+              "weightFunction": 35
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 73,
+              "stateFrom": 5,
+              "stateTo": 43,
+              "weightFunction": 36
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 74,
+              "stateFrom": 5,
+              "stateTo": 17,
+              "weightFunction": -1
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 75,
+              "stateFrom": 16,
+              "stateTo": 51,
+              "weightFunction": 37
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 76,
+              "stateFrom": 16,
+              "stateTo": 49,
+              "weightFunction": 38
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 77,
+              "stateFrom": 16,
+              "stateTo": 47,
+              "weightFunction": 39
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 78,
+              "stateFrom": 16,
+              "stateTo": 45,
+              "weightFunction": 40
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1525406064",
+              "index": 79,
+              "stateFrom": 16,
+              "stateTo": 43,
+              "weightFunction": 41
+            },
+            {
+              "type": "Push",
+              "moduleName": "1",
+              "index": 80,
+              "stateFrom": 41,
+              "stateTo": 42,
+              "weightFunction": 49
+            },
+            {
+              "type": "Pop",
+              "moduleName": "1525406064",
+              "index": 81,
+              "stateFrom": 17,
+              "stateTo": 21,
+              "weightFunction": 50
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 82,
+              "stateFrom": 40,
+              "stateTo": 58,
+              "weightFunction": 51
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 83,
+              "stateFrom": 40,
+              "stateTo": 56,
+              "weightFunction": 52
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 84,
+              "stateFrom": 40,
+              "stateTo": 54,
+              "weightFunction": 53
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 85,
+              "stateFrom": 40,
+              "stateTo": 52,
+              "weightFunction": 54
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 86,
+              "stateFrom": 40,
+              "stateTo": 41,
+              "weightFunction": 55
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 87,
+              "stateFrom": 30,
+              "stateTo": 32,
+              "weightFunction": -1
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 88,
+              "stateFrom": 30,
+              "stateTo": 31,
+              "weightFunction": -1
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 89,
+              "stateFrom": 31,
+              "stateTo": 56,
+              "weightFunction": 56
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 90,
+              "stateFrom": 31,
+              "stateTo": 54,
+              "weightFunction": 57
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 91,
+              "stateFrom": 31,
+              "stateTo": 52,
+              "weightFunction": 58
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 92,
+              "stateFrom": 31,
+              "stateTo": 41,
+              "weightFunction": 59
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 93,
+              "stateFrom": 31,
+              "stateTo": 34,
+              "weightFunction": -1
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 94,
+              "stateFrom": 27,
+              "stateTo": 29,
+              "weightFunction": -1
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 95,
+              "stateFrom": 27,
+              "stateTo": 28,
+              "weightFunction": -1
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 96,
+              "stateFrom": 28,
+              "stateTo": 56,
+              "weightFunction": 60
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 97,
+              "stateFrom": 28,
+              "stateTo": 54,
+              "weightFunction": 61
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 98,
+              "stateFrom": 28,
+              "stateTo": 52,
+              "weightFunction": 62
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 99,
+              "stateFrom": 28,
+              "stateTo": 41,
+              "weightFunction": 63
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 100,
+              "stateFrom": 28,
+              "stateTo": 34,
+              "weightFunction": -1
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 101,
+              "stateFrom": 24,
+              "stateTo": 26,
+              "weightFunction": -1
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 102,
+              "stateFrom": 24,
+              "stateTo": 25,
+              "weightFunction": -1
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 103,
+              "stateFrom": 25,
+              "stateTo": 56,
+              "weightFunction": 64
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 104,
+              "stateFrom": 25,
+              "stateTo": 54,
+              "weightFunction": 65
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 105,
+              "stateFrom": 25,
+              "stateTo": 52,
+              "weightFunction": 66
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 106,
+              "stateFrom": 25,
+              "stateTo": 41,
+              "weightFunction": 67
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 107,
+              "stateFrom": 25,
+              "stateTo": 34,
+              "weightFunction": -1
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 108,
+              "stateFrom": 21,
+              "stateTo": 23,
+              "weightFunction": -1
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 109,
+              "stateFrom": 21,
+              "stateTo": 22,
+              "weightFunction": -1
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 110,
+              "stateFrom": 22,
+              "stateTo": 56,
+              "weightFunction": 68
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 111,
+              "stateFrom": 22,
+              "stateTo": 54,
+              "weightFunction": 69
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 112,
+              "stateFrom": 22,
+              "stateTo": 52,
+              "weightFunction": 70
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 113,
+              "stateFrom": 22,
+              "stateTo": 41,
+              "weightFunction": 71
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 114,
+              "stateFrom": 22,
+              "stateTo": 34,
+              "weightFunction": -1
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 115,
+              "stateFrom": 33,
+              "stateTo": 58,
+              "weightFunction": 72
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 116,
+              "stateFrom": 33,
+              "stateTo": 56,
+              "weightFunction": 73
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 117,
+              "stateFrom": 33,
+              "stateTo": 54,
+              "weightFunction": 74
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 118,
+              "stateFrom": 33,
+              "stateTo": 52,
+              "weightFunction": 75
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "1",
+              "index": 119,
+              "stateFrom": 33,
+              "stateTo": 41,
+              "weightFunction": 76
+            },
+            {
+              "type": "Push",
+              "moduleName": "Document",
+              "index": 120,
+              "stateFrom": 39,
+              "stateTo": 40,
+              "weightFunction": 78
+            },
+            {
+              "type": "Pop",
+              "moduleName": "1",
+              "index": 121,
+              "stateFrom": 34,
+              "stateTo": 35,
+              "weightFunction": 79
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "Document",
+              "index": 122,
+              "stateFrom": 38,
+              "stateTo": 59,
+              "weightFunction": 80
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "Document",
+              "index": 123,
+              "stateFrom": 38,
+              "stateTo": 39,
+              "weightFunction": 81
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "Document",
+              "index": 124,
+              "stateFrom": 35,
+              "stateTo": 59,
+              "weightFunction": 82
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "Document",
+              "index": 125,
+              "stateFrom": 35,
+              "stateTo": 39,
+              "weightFunction": 83
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "Document",
+              "index": 126,
+              "stateFrom": 35,
+              "stateTo": 37,
+              "weightFunction": -1
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "Document",
+              "index": 127,
+              "stateFrom": 36,
+              "stateTo": 59,
+              "weightFunction": 84
+            },
+            {
+              "type": "Epsilon",
+              "moduleName": "Document",
+              "index": 128,
+              "stateFrom": 36,
+              "stateTo": 39,
+              "weightFunction": 85
+            }
+          ]
+        },
+        "weightFunctions": {
+          "$type": "Microsoft.PICL.Runtime.Extraction.SparseConvolutionEvalDescriptor, Microsoft.PICL.Runtime",
+          "functionCount": 86,
+          "inputDimension": 9,
+          "weightFunctions": [
+            {
+              "index": 0,
+              "constant": 1.363589882850647,
+              "terms": [
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 1,
+                  "value": 25.900001277841511
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 5,
+                  "value": 0.94516980648040771
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 7,
+                  "value": 2.0072644396306316
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 5,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 7,
+                  "value": 0.0
+                }
+              ]
+            },
+            {
+              "index": 1,
+              "constant": 0.40924620628356934,
+              "terms": [
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 2,
+                  "value": 30.614816506713169
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 5,
+                  "value": 0.28366786241531372
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 7,
+                  "value": 3.5172587782147957
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 5,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 7,
+                  "value": 0.0
+                }
+              ]
+            },
+            {
+              "index": 2,
+              "constant": 1.1385140419006348,
+              "terms": [
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 0,
+                  "value": 24.768140736118085
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 5,
+                  "value": 0.789156973361969
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 7,
+                  "value": 1.9325957757283732
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 5,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 7,
+                  "value": 0.0
+                }
+              ]
+            },
+            {
+              "index": 3,
+              "constant": 0.50847917795181274,
+              "terms": [
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 5,
+                  "value": 0.35245099663734436
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 7,
+                  "value": 0.85539100845327454
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 8,
+                  "value": 19.972334556705619
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 5,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 7,
+                  "value": 0.0
+                }
+              ]
+            },
+            {
+              "index": 4,
+              "constant": 0.28839856386184692,
+              "terms": [
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 5,
+                  "value": 0.19990280270576477
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 6,
+                  "value": 19.996214222818935
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 7,
+                  "value": 1.7796091156250426
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 5,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 7,
+                  "value": 0.0
+                }
+              ]
+            },
+            {
+              "index": 5,
+              "constant": 1.1371026039123535,
+              "terms": [
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 5,
+                  "value": 0.78817951679229736
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 7,
+                  "value": 6.7525988482349817
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 5,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 7,
+                  "value": 0.0
+                }
+              ]
+            },
+            {
+              "index": 6,
+              "constant": 0.34288904070854187,
+              "terms": [
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 3,
+                  "value": 20.465145023540117
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 5,
+                  "value": 0.23767264187335968
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 7,
+                  "value": 1.9557597061502889
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 5,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 7,
+                  "value": 0.0
+                }
+              ]
+            },
+            {
+              "index": 7,
+              "constant": -0.94424498081207275,
+              "terms": []
+            },
+            {
+              "index": 8,
+              "constant": 0.027791865170001984,
+              "terms": [
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 5,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 7,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 5,
+                  "value": 0.019264116883277893
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 7,
+                  "value": -0.71729757224653667
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 8,
+                  "value": 16.361286273789915
+                }
+              ]
+            },
+            {
+              "index": 9,
+              "constant": 0.50826263427734375,
+              "terms": [
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 5,
+                  "value": 0.35230123996734619
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 7,
+                  "value": 0.85399653508871864
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 8,
+                  "value": 19.9697696262549
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 5,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 7,
+                  "value": 0.0
+                }
+              ]
+            },
+            {
+              "index": 10,
+              "constant": 0.28193894028663635,
+              "terms": [
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 5,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 7,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 5,
+                  "value": 0.19542539119720459
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 6,
+                  "value": 19.892542174476603
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 7,
+                  "value": 1.7353459874529591
+                }
+              ]
+            },
+            {
+              "index": 11,
+              "constant": 0.28839856386184692,
+              "terms": [
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 5,
+                  "value": 0.19990280270576477
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 6,
+                  "value": 19.996214222818935
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 7,
+                  "value": 1.7796091156250426
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 5,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 7,
+                  "value": 0.0
+                }
+              ]
+            },
+            {
+              "index": 12,
+              "constant": 1.1287356615066528,
+              "terms": [
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 5,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 7,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 5,
+                  "value": 0.78238087892532349
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 7,
+                  "value": 6.67833912708204
+                }
+              ]
+            },
+            {
+              "index": 13,
+              "constant": 1.1206594705581665,
+              "terms": [
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 5,
+                  "value": 0.77678155899047852
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 7,
+                  "value": 6.6995527645701713
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 5,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 7,
+                  "value": 0.0
+                }
+              ]
+            },
+            {
+              "index": 14,
+              "constant": 0.29231223464012146,
+              "terms": [
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 5,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 7,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 3,
+                  "value": 19.63070695987858
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 5,
+                  "value": 0.20261545479297638
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 7,
+                  "value": 1.6053657826971346
+                }
+              ]
+            },
+            {
+              "index": 15,
+              "constant": 0.32613956928253174,
+              "terms": [
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 3,
+                  "value": 20.224108762325841
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 5,
+                  "value": 0.22606281936168671
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 7,
+                  "value": 1.8476986186517053
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 5,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 7,
+                  "value": 0.0
+                }
+              ]
+            },
+            {
+              "index": 16,
+              "constant": -0.94451862573623657,
+              "terms": []
+            },
+            {
+              "index": 17,
+              "constant": 0.50429034233093262,
+              "terms": []
+            },
+            {
+              "index": 18,
+              "constant": 0.289120078086853,
+              "terms": []
+            },
+            {
+              "index": 19,
+              "constant": 1.1287356615066528,
+              "terms": []
+            },
+            {
+              "index": 20,
+              "constant": 0.29231223464012146,
+              "terms": []
+            },
+            {
+              "index": 21,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 22,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 23,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 24,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 25,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 26,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 27,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 28,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 29,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 30,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 31,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 32,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 33,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 34,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 35,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 36,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 37,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 38,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 39,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 40,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 41,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 42,
+              "constant": -0.58659648895263672,
+              "terms": []
+            },
+            {
+              "index": 43,
+              "constant": 1.3613320589065552,
+              "terms": [
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 5,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 7,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 1,
+                  "value": 25.884196814449751
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 5,
+                  "value": 0.94360333681106567
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 7,
+                  "value": 1.9997142003050214
+                }
+              ]
+            },
+            {
+              "index": 44,
+              "constant": 1.1929059028625488,
+              "terms": [
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 1,
+                  "value": 24.58671518925712
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 5,
+                  "value": 0.82686102390289307
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 7,
+                  "value": 1.45667334262086
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 5,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 7,
+                  "value": 0.0
+                }
+              ]
+            },
+            {
+              "index": 45,
+              "constant": 0.40857738256454468,
+              "terms": [
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 5,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 7,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 2,
+                  "value": 30.612037267158257
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 5,
+                  "value": 0.28320416808128357
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 7,
+                  "value": 3.5148404492338869
+                }
+              ]
+            },
+            {
+              "index": 46,
+              "constant": 0.40924620628356934,
+              "terms": [
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 2,
+                  "value": 30.614816506713169
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 5,
+                  "value": 0.28366786241531372
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 7,
+                  "value": 3.5172587782147957
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 5,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 7,
+                  "value": 0.0
+                }
+              ]
+            },
+            {
+              "index": 47,
+              "constant": 1.1445925235748291,
+              "terms": [
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 5,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 7,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 0,
+                  "value": 24.839476622541042
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 5,
+                  "value": 0.793371319770813
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 7,
+                  "value": 1.9519424075756433
+                }
+              ]
+            },
+            {
+              "index": 48,
+              "constant": 1.0361039638519287,
+              "terms": [
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 0,
+                  "value": 23.609342463988696
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 5,
+                  "value": 0.71817195415496826
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 7,
+                  "value": 1.602240796363283
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 5,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 7,
+                  "value": 0.0
+                }
+              ]
+            },
+            {
+              "index": 49,
+              "constant": 0.50443249940872192,
+              "terms": [
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 5,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 7,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 3,
+                  "value": 4.485220434343546
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 5,
+                  "value": 0.34964644908905029
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 6,
+                  "value": 4.485220434343546
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 7,
+                  "value": 4.6941574716419154
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 8,
+                  "value": 5.9924485759919435
+                }
+              ]
+            },
+            {
+              "index": 50,
+              "constant": 0.38772159814834595,
+              "terms": [
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 3,
+                  "value": 4.4425029357234394
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 5,
+                  "value": 0.26874807476997375
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 6,
+                  "value": 4.7205124774746992
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 7,
+                  "value": 4.1565210814332829
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 8,
+                  "value": 4.6467703268791638
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 5,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 7,
+                  "value": 0.0
+                }
+              ]
+            },
+            {
+              "index": 51,
+              "constant": -0.58715331554412842,
+              "terms": []
+            },
+            {
+              "index": 52,
+              "constant": 1.3613320589065552,
+              "terms": []
+            },
+            {
+              "index": 53,
+              "constant": 0.40857738256454468,
+              "terms": []
+            },
+            {
+              "index": 54,
+              "constant": 1.1445925235748291,
+              "terms": []
+            },
+            {
+              "index": 55,
+              "constant": 0.45348131656646729,
+              "terms": []
+            },
+            {
+              "index": 56,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 57,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 58,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 59,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 60,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 61,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 62,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 63,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 64,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 65,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 66,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 67,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 68,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 69,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 70,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 71,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 72,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 73,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 74,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 75,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 76,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 77,
+              "constant": -0.35157668590545654,
+              "terms": []
+            },
+            {
+              "index": 78,
+              "constant": 0.48040476441383362,
+              "terms": [
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 1,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 5,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 7,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 1,
+                  "value": 0.9526837156262502
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 5,
+                  "value": 0.33299121260643005
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 7,
+                  "value": 1.7356245395560279
+                }
+              ]
+            },
+            {
+              "index": 79,
+              "constant": 0.81339150667190552,
+              "terms": [
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 1,
+                  "value": 0.89163941267017321
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 5,
+                  "value": 0.56380033493041992
+                },
+                {
+                  "timeOffset": 0,
+                  "featureIndex": 7,
+                  "value": 2.7534200953975585
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 1,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 5,
+                  "value": 0.0
+                },
+                {
+                  "timeOffset": 1,
+                  "featureIndex": 7,
+                  "value": 0.0
+                }
+              ]
+            },
+            {
+              "index": 80,
+              "constant": -0.35184735059738159,
+              "terms": []
+            },
+            {
+              "index": 81,
+              "constant": 0.48040476441383362,
+              "terms": []
+            },
+            {
+              "index": 82,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 83,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 84,
+              "constant": 0.0,
+              "terms": []
+            },
+            {
+              "index": 85,
+              "constant": 0.0,
+              "terms": []
+            }
+          ]
+        },
+        "featureDetails": {
+          "featureDetails": [
+            {
+              "name": "Occured in dictionary-oe+xyr3PmBWFOHrCpkPSiA==",
+              "subFeatures": [
+                "Occured in dictionary-oe+xyr3PmBWFOHrCpkPSiA=="
+              ]
+            },
+            {
+              "name": "Occured in dictionary-nCFp5m7N+l9W5VuzQ1o0Mw==",
+              "subFeatures": [
+                "Occured in dictionary-nCFp5m7N+l9W5VuzQ1o0Mw=="
+              ]
+            },
+            {
+              "name": "Occured in dictionary-OdCsbJ3rb7Ad31CwdJUM2w==",
+              "subFeatures": [
+                "Occured in dictionary-OdCsbJ3rb7Ad31CwdJUM2w=="
+              ]
+            },
+            {
+              "name": "Occured in dictionary-MQROLedlTLOYQuljIixu+Q==",
+              "subFeatures": [
+                "Occured in dictionary-MQROLedlTLOYQuljIixu+Q=="
+              ]
+            },
+            {
+              "name": "Line Break-piT5yThLEAUi0QO5xLmc5w==",
+              "subFeatures": [
+                "Line Break-piT5yThLEAUi0QO5xLmc5w=="
+              ]
+            },
+            {
+              "name": "No Whitespace-YJw/tv7LxWXNA+ZGaUUwlA==",
+              "subFeatures": [
+                "No Whitespace-YJw/tv7LxWXNA+ZGaUUwlA=="
+              ]
+            },
+            {
+              "name": "Occured in dictionary-769Gj8HbzBcWkJty70bp3w==",
+              "subFeatures": [
+                "Occured in dictionary-769Gj8HbzBcWkJty70bp3w=="
+              ]
+            },
+            {
+              "name": "Token count-9B0FwaGP73nEpw2YKWvG+g==",
+              "subFeatures": [
+                "Token count-9B0FwaGP73nEpw2YKWvG+g=="
+              ]
+            },
+            {
+              "name": "Occured in dictionary-XIVwPVoaWlQZvUYMbGfcpA==",
+              "subFeatures": [
+                "Occured in dictionary-XIVwPVoaWlQZvUYMbGfcpA=="
+              ]
+            }
+          ]
+        }
+      },
+      "moduleMapping": {
+        "1": "1",
+        "2": "4266172093",
+        "3": "3689046008",
+        "4": "1659685500",
+        "5": "1525406064",
+        "6": "48270497",
+        "7": "786853013",
+        "8": "1170088142",
+        "9": "1975401803"
+      }
+    }
+  }
+}

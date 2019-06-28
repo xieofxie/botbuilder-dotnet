@@ -11,6 +11,10 @@
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.6.1" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="3.1.0-beta1-final" />
+    <PackageReference Include="Picl.CrfTrainers" Version="1.0.2" />
+    <PackageReference Include="Picl.Serialization" Version="1.0.2" />
+    <PackageReference Include="Picl.TextItems" Version="1.0.2" />
+    <PackageReference Include="PICL.Trainers" Version="0.17.536" />
   </ItemGroup>
 
   <ItemGroup>
@@ -31,6 +35,12 @@
     <ProjectReference Include="..\..\libraries\Microsoft.Bot.Builder.LanguageGeneration.Renderer\Microsoft.Bot.Builder.LanguageGeneration.Renderer.csproj" />
     <ProjectReference Include="..\..\libraries\Microsoft.Bot.Builder\Microsoft.Bot.Builder.csproj" />
     <ProjectReference Include="..\..\libraries\Microsoft.Bot.Connector\Microsoft.Bot.Connector.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="AdaptiveDemo.picl-model">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
