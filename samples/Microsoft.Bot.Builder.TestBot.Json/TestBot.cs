@@ -35,14 +35,6 @@ namespace Microsoft.Bot.Builder.TestBot.Json
             this.dialogStateAccessor = conversationState.CreateProperty<DialogState>("RootDialogState");
             this.resourceExplorer = resourceExplorer;
 
-            //// auto reload dialogs when file changes
-            //this.resourceExplorer.Changed += (resources) =>
-            //{
-            //    if (resources.Any(resource => resource.Id== ".dialog"))
-            //    {
-            //        Task.Run(() => this.LoadDialogs());
-            //    }
-            //};
             LoadDialogs();
         }
 
