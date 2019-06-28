@@ -45,7 +45,7 @@ namespace Microsoft.Bot.Builder.TestBot.Json.Recognizers
                 LoadModel();
 
                 // Call PICL model
-                result.Intents = RunClassificationModel(activity.Text);
+                result.Intents = RunClassificationModel(result.Text);
             }
 
             return Task.FromResult(result);
