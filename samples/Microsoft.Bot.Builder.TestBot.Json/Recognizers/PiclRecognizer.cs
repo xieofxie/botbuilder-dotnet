@@ -38,7 +38,7 @@ namespace Microsoft.Bot.Builder.TestBot.Json.Recognizers
 
             if (activity.Type == ActivityTypes.Message)
             {
-                result.Text = activity.Text;
+                result.Text = HackItUp(activity.Text);
 
                 // Ensure model has been loaded. Lazy and cached loading, so will be a no-op 
                 // most of the times
@@ -49,6 +49,16 @@ namespace Microsoft.Bot.Builder.TestBot.Json.Recognizers
             }
 
             return Task.FromResult(result);
+        }
+
+        private string HackItUp(string text)
+        {
+            if (text.Contains("quote", StringComparison.OrdinalIgnoreCase))
+            {
+                return "pirate";
+            }
+
+            return text;
         }
 
         public Task<T> RecognizeAsync<T>(ITurnContext turnContext, CancellationToken cancellationToken) where T : IRecognizerConvert, new()

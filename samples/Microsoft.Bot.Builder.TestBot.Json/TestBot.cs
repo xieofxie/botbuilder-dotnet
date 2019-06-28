@@ -79,10 +79,14 @@ namespace Microsoft.Bot.Builder.TestBot.Json
                         {
                             new SendActivity("Here are some quotes:"),
                             new SendActivity("Type Cancel anytime if you want to go back to the main menu, or ask for more to see more quotes"),
+                            new SendActivity("'Last time I wrote C#, I ended up being hospitalized' Steve Ickman"),
+                            new EndTurn(),
+                            new SendActivity("'Arrrrrrrrrr' Tom"),
+                            new EndTurn(),
                             new SendActivity("'I rewrote it last weekend' Steve"),
                             new EndTurn(),
-                            new SendActivity("'We don't need types where we are going!' Steve"),
-                            new EndTurn()
+                            new SendActivity("'If you have a request, put it in a $50 bill and leave it on my desk.' Scott"),
+                            new SendActivity("We ran out of quotes, come back soon!")
                         }
                     },
                     new IntentRule()
