@@ -51,14 +51,39 @@ namespace Microsoft.Bot.Builder.TestBot.Json.Recognizers
             return Task.FromResult(result);
         }
 
-        private string HackItUp(string text)
+        private Dictionary<string, IntentScore> RunClassificationModel(string example)
         {
-            if (text.Contains("quote", StringComparison.OrdinalIgnoreCase))
+            // Run model on example and return a "modeled item" which provides prediction functions.
+            var modeledItem = predictionModel.Transform(example);
+
+            var schema = predictionModel.Schema;
+
+            var prediction = predictionModel.GetPrediction(example);
+            var mostSpecificPrediction = prediction.Predictions.Last();
+            var conceptId = mostSpecificPrediction.ConceptId;
+            var conceptName = schema.Concepts[conceptId];
+
+            var intentProbabilities = new Dictionary<string, IntentScore>();
+            intentProbabilities.Add(conceptName.Name, new IntentScore() { Score = 1.0 });
+
+            // Use modeled item to calculate per-concept probabilities for the example.
+
+            foreach (var concept in schema.Concepts)
             {
-                return "pirate";
+                // Calculate the probability the example "is" this concept and display result.
+                var isConceptLabel = new LabelList<EntireItem, NoBoundary>(new[]
+                {
+                    new Label<EntireItem, NoBoundary>(LabelKind.Is, concept.Key)
+                });
+
+                var probabilityIsConcept = modeledItem.GetProbability(isConceptLabel);
+
+                //intentProbabilities.Add(concept.Value.Name, new IntentScore() { Score = probabilityIsConcept });
+
+                Console.WriteLine($"{concept.Value.Name}: {probabilityIsConcept * 100:0.0}%");
             }
 
-            return text;
+            return intentProbabilities;
         }
 
         public Task<T> RecognizeAsync<T>(ITurnContext turnContext, CancellationToken cancellationToken) where T : IRecognizerConvert, new()
@@ -81,39 +106,14 @@ namespace Microsoft.Bot.Builder.TestBot.Json.Recognizers
             }
         }
 
-        private Dictionary<string, IntentScore> RunClassificationModel(string example)
+        private string HackItUp(string text)
         {
-            // Run model on example and return a "modeled item" which provides prediction functions.
-            var modeledItem = predictionModel.Transform(example);
-
-            var schema = predictionModel.Schema;
-
-            var prediction = predictionModel.GetPrediction(example);
-            var mostSpecificPrediction = prediction.Predictions.Last();
-            var conceptId = mostSpecificPrediction.ConceptId;
-            var conceptName = schema.Concepts[conceptId];
-
-            var intentProbabilities = new Dictionary<string, IntentScore>();
-            intentProbabilities.Add(conceptName.Name, new IntentScore() { Score = 1.0 });
-
-            // Use modeled item to calculate per-concept probabilities for the example.
-            
-            foreach (var concept in schema.Concepts)
+            if (text.Contains("quote", StringComparison.OrdinalIgnoreCase))
             {
-                // Calculate the probability the example "is" this concept and display result.
-                var isConceptLabel = new LabelList<EntireItem, NoBoundary>(new[]
-                {
-                    new Label<EntireItem, NoBoundary>(LabelKind.Is, concept.Key)
-                });
-
-                var probabilityIsConcept = modeledItem.GetProbability(isConceptLabel);
-
-                //intentProbabilities.Add(concept.Value.Name, new IntentScore() { Score = probabilityIsConcept });
-
-                Console.WriteLine($"{concept.Value.Name}: {probabilityIsConcept * 100:0.0}%");
+                return "pirate";
             }
 
-            return intentProbabilities;
+            return text;
         }
     }
 }
