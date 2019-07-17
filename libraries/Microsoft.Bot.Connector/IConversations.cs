@@ -464,5 +464,7 @@ namespace Microsoft.Bot.Connector
         /// Thrown when a required parameter is null
         /// </exception>
         Task<HttpOperationResponse<ResourceResponse>> UploadAttachmentWithHttpMessagesAsync(string conversationId, AttachmentData attachmentUpload, Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        Task<HttpOperationResponse<ResourceResponse>> InitiateHandoffAsync(string conversationId, Activity[] activities, object handoffContext, Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

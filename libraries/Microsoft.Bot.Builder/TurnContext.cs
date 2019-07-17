@@ -364,6 +364,31 @@ namespace Microsoft.Bot.Builder
         }
 
         /// <summary>
+        /// Initiates handoff to human via adapter call
+        /// </summary>
+        public async Task<int> InitiateHandoffAsync(IActivity[] activities, object handoffContext, CancellationToken cancellationToken = default)
+        {
+            if (activities == null)
+            {
+                throw new ArgumentNullException(nameof(activities));
+            }
+
+            var conversationReference = this.Activity.GetConversationReference();
+
+            var bufferedActivities = new List<Activity>(activities.Length);
+
+            for (var index = 0; index < activities.Length; index++)
+            {
+                // Buffer the incoming activities into a List<T> since we allow the set to be manipulated by the callbacks
+                // Bind the relevant Conversation Reference properties, such as URLs and
+                // ChannelId's, to the activity we're about to send
+                bufferedActivities.Add(activities[index].ApplyConversationReference(conversationReference));
+            }
+
+            return await Adapter.InitiateHandoffAsync(this, bufferedActivities.ToArray(), handoffContext, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
         /// Frees resources.
         /// </summary>
         public void Dispose()

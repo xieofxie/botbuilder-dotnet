@@ -431,5 +431,13 @@ namespace Microsoft.Bot.Connector
                 }
             }
 
+            public static async Task<ResourceResponse> InitiateHandoffAsync(this IConversations operations, string conversationId, Activity[] activities, object handoffContext, CancellationToken cancellationToken = default(CancellationToken))
+            {
+                using (var _result = await operations.InitiateHandoffAsync(conversationId, activities, handoffContext, null, cancellationToken).ConfigureAwait(false))
+                {
+                    return _result.Body;
+                }
+            }
+
     }
 }

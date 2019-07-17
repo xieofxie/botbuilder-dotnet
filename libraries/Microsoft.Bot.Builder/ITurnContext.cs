@@ -223,6 +223,15 @@ namespace Microsoft.Bot.Builder
         Task DeleteActivityAsync(ConversationReference conversationReference, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
+        /// Initiate handoff to human agent.
+        /// </summary>
+        /// <param name="activities">Transcript of the activities that took place so far.</param>
+        /// <param name="handoffContext">Additional channel-specific content.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task<int> InitiateHandoffAsync(IActivity[] activities, object handoffContext, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
         /// Adds a response handler for send activity operations.
         /// </summary>
         /// <param name="handler">The handler to add to the context object.</param>

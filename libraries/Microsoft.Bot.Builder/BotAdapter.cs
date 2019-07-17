@@ -131,6 +131,11 @@ namespace Microsoft.Bot.Builder
             }
         }
 
+        public virtual Task<int> InitiateHandoffAsync(ITurnContext turnContext, Activity[] activities, object handoffContext, CancellationToken cancellationToken = default)
+        {
+            throw new NotSupportedException();
+        }
+
         /// <summary>
         /// Starts activity processing for the current bot turn.
         /// </summary>

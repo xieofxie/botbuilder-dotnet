@@ -843,6 +843,16 @@ namespace Microsoft.Bot.Builder
             }
         }
 
+        public override async Task<int> InitiateHandoffAsync(ITurnContext turnContext, Activity[] activities, object handoffContext, CancellationToken cancellationToken = default)
+        {
+            var connectorClient = turnContext.TurnState.Get<IConnectorClient>();
+
+            string conversationId = turnContext.Activity.Conversation.Id;
+            var response = await connectorClient.Conversations.InitiateHandoffAsync(conversationId, activities, handoffContext, cancellationToken).ConfigureAwait(false);
+
+            return 42; // this is TBD. The API will return IHandoffRequest
+        }
+
         /// <summary>
         /// Creates an OAuth client for the bot.
         /// </summary>

@@ -65,5 +65,8 @@ namespace Microsoft.Bot.Builder
 
         public Task<ResourceResponse> UpdateActivityAsync(IActivity activity, CancellationToken cancellationToken = default(CancellationToken))
             => _innerTurnContext.UpdateActivityAsync(activity, cancellationToken);
+
+        public Task<int> InitiateHandoffAsync(IActivity[] activities, object handoffContext, CancellationToken cancellationToken = default(CancellationToken))
+            => _innerTurnContext.InitiateHandoffAsync(activities, handoffContext, cancellationToken);
     }
 }

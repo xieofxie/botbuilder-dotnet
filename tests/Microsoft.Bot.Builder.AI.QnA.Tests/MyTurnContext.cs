@@ -42,6 +42,11 @@ namespace Microsoft.Bot.Builder.AI.QnA.Tests
             throw new NotImplementedException();
         }
 
+        public Task<int> InitiateHandoffAsync(IActivity[] activities, object handoffContext, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
         public ITurnContext OnDeleteActivity(DeleteActivityHandler handler)
         {
             throw new NotImplementedException();
