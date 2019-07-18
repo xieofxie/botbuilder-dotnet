@@ -66,7 +66,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Input
         /// <summary>
         /// Maximum number of times to ask the user for this value before the dilog gives up.
         /// </summary>
-        public int? MaxTurnCount { get; set; }
+        public int? MaxTurnCount { get; set; } 
 
         /// <summary>
         /// Default value for the input dialog
@@ -95,6 +95,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Input
 
         public const string TURN_COUNT_PROPERTY = "dialog.turnCount";
         public const string INPUT_PROPERTY = "turn.value";
+        public const string TURN_PROCESS_INPUT_PROPERTY = "turn.processInput";
 
         private const string PersistedOptions = "options";
         private const string PersistedState = "state";
@@ -132,11 +133,14 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Input
             }
 
             var stepCount = dc.State.GetValue<int>(DialogContextState.TURN_STEPCOUNT, 0);
+            var processInput = dc.State.GetValue<bool>(TURN_PROCESS_INPUT_PROPERTY, false);
 
-            if (stepCount > 0)
+            if (stepCount > 0 && !processInput)
             {
                 return await this.PromptUser(dc, InputState.Missing);
             }
+
+            dc.State.SetValue(TURN_PROCESS_INPUT_PROPERTY, false);
 
             var turnCount = dc.State.GetValue<int>(TURN_COUNT_PROPERTY, 0) + 1;
             dc.State.SetValue(TURN_COUNT_PROPERTY, turnCount);
