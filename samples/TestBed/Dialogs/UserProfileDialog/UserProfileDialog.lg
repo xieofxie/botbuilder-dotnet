@@ -1,1 +1,17 @@
-﻿
+﻿# GetAge
+- What is your age? \n \[Suggestions = Why? | No age | Reset profile | Cancel | Help\]
+
+# AgeReadBack
+- Thanks. I have your age as {user.profile.age}
+
+# GetName
+- What is your name? \n \[Suggestions = Why? | No name | Reset profile | Cancel | Help\]
+
+# ProfileReadBack
+- Hello {user.profile.name}, I have your age as {user.profile.age}. \n \[Suggestions = Reset profile | what can you do?]
+
+# GetAge.Invalid
+- Sorry. {turn.value} does not work. I'm looking for a value between 1 - 150.
+
+# GetName.Invalid
+- Sorry. {turn.value} does not work. I'm looking for a name that has atleast 2 characters. 

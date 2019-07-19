@@ -39,6 +39,7 @@
 - Can you please help
 - I'm not sure what I can say
 - I'm stuck
+- Help
 > - [Main-Reset](../Main/Main.lu#ResetProfile)
 - reset profile
 - forget me
@@ -47,12 +48,24 @@
 
 > Add utterances that correspond to users responding to inputs being prompted for in this dialog
 # GetUserProfile
-- my name is {userName}
-- {userName} is my name
-- you can call me {userName}
-- people call me {userName}
-- {userName}
+- my name is {personName:userName}
+- {personName:userName} is my name
+- you can call me {personName:userName}
+- people call me {personName:userName}
+- {personName:userName}
+- {age:userAge}
+- {number:userAgeAsNum}
+> Add few example labelled utterances.
+- my name is {personName:userName = john}
+- {personName:userName = Alex}
+- {number:userAgeAsNum = 35}
+- I'm {number:userAgeAsNum = 35} years old
+- {age:userAge = 35}
+- I'm {age:userAge = 42} years old
 
-> Add LUIS built in age, number prebuilt entity types to extract user's age
-$ prebuilt : age
+> Add LUIS built in number, age prebuilt entity types to extract user's age
 $ prebuilt : number
+$ prebuilt : age
+
+> Add LUIS prebuilt entity personName to extract user's name
+$ prebuilt : personName

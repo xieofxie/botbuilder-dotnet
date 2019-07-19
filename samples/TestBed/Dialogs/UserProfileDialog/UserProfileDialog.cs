@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using Microsoft.Bot.Builder.AI.Luis;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Dialogs.Adaptive;
 using Microsoft.Bot.Builder.Dialogs.Adaptive.Input;
@@ -17,46 +18,47 @@ namespace TestBed.Dialogs.UserProfileDialog
 
             var userProfileDialog = new AdaptiveDialog(nameof(AdaptiveDialog))
             {
+                Recognizer = new LuisRecognizer(new LuisApplication()
+                {
+                    ApplicationId = "36e59c60-6df9-421a-953c-edc94950220d",
+                    Endpoint = "https://westus.api.cognitive.microsoft.com",
+                    EndpointKey = "a95d07785b374f0a9d7d40700e28a285"
+                }),
+                Generator = new TemplateEngineLanguageGenerator(new TemplateEngine().AddFile(Path.Combine(".", "Dialogs", "UserProfileDialog", "UserProfileDialog.lg"))),
                 Rules = new List<IRule>()
                 {
-                    new IntentRule() {
-                        Intent = "Start",
+                    new EventRule() {
+                        Events = new List<string>()
+                        {
+                            AdaptiveEvents.BeginDialog
+                        },
                         Steps = new List<IDialog>() {
                             new NumberInput() {
-                                Prompt = new ActivityTemplate("What is your age? You can give me your age or say 'why' or 'no age' or type anything else."),
-                                Property = "user.age"
+                                Prompt = new ActivityTemplate("[GetAge]"),
+                                Property = "user.profile.age",
+                                InvalidPrompt = new ActivityTemplate("[GetAge.Invalid]"),
+                                Validations = new List<string>()
+                                {
+                                    "int(turn.value) >= 1",
+                                    "int(turn.value) <= 150"
+                                },
+                                Value = "coalesce(@personName, @userName)",
+                                DoNotInterrupt = "#GetUserProfile"
                             },
-                            new SendActivity("Thanks. I have your age as {user.age}"),
+                            new SendActivity("[AgeReadBack]"),
                             new TextInput()
                             {
-                                Prompt = new ActivityTemplate("What is your name? You can give me your name or say 'why' or 'no name' or type anything else."),
-                                Property = "user.name"
-                            },
-                            new SendActivity("Hello {user.name}, I have your age as {user.age}. You can say 'reset' to update this.")
-                        }
-                    },
-                    new IntentRule()
-                    {
-                        Intent = "Reset",
-                        Steps = new List<IDialog>()
-                        {
-                            new EditSteps()
-                            {
-                                ChangeType = StepChangeTypes.ReplaceSequence,
-                                Steps = new List<IDialog>()
+                                Prompt = new ActivityTemplate("[GetName]"),
+                                Property = "user.profile.name",
+                                InvalidPrompt = new ActivityTemplate("[GetName.Invalid]"),
+                                Validations = new List<string>()
                                 {
-                                    new SendActivity("Resetting profile"),
-                                    new DeleteProperty()
-                                    {
-                                        Property = "user.name"
-                                    },
-                                    new DeleteProperty()
-                                    {
-                                        Property = "user.age"
-                                    },
-                                    new SendActivity("I have reset your profile. You can say 'start' to get started.")
-                                }
-                            }
+                                    "length(turn.value) > 1"
+                                },
+                                Value = "coalesce(@userAge, @userAgeAsNum, @number, @age)",
+                                DoNotInterrupt = "#GetUserProfile"
+                            },
+                            new SendActivity("[ProfileReadBack]")
                         }
                     },
                     new IntentRule()
@@ -66,7 +68,7 @@ namespace TestBed.Dialogs.UserProfileDialog
                         {
                             new IfCondition()
                             {
-                                Condition = "exists(user.age)",
+                                Condition = "exists(user.profile.age)",
                                 Steps = new List<IDialog>()
                                 {
                                     new SendActivity("I need your name to address you correctly!")
@@ -87,7 +89,7 @@ namespace TestBed.Dialogs.UserProfileDialog
                             new SendActivity("You can always say 'reset' to reset this"),
                             new SetProperty()
                             {
-                                Property = "user.age",
+                                Property = "user.profile.age",
                                 Value = "30"
                             }
                         }
@@ -101,33 +103,12 @@ namespace TestBed.Dialogs.UserProfileDialog
                             new SendActivity("You can always say 'reset' to reset this"),
                             new SetProperty()
                             {
-                                Property = "user.name",
+                                Property = "user.profile.name",
                                 Value = "Human"
                             }
                         }
-                    },
-                    new IntentRule() {
-                        // This is the functional equivalent of a turn.N intent as well.
-                        Intent = "None",
-                        Steps = new List<IDialog>() {
-                            // short circuiting Interruption so consultation is terminated. 
-                            // indicate that the text needs to be processed for recognition
-                            new SetProperty()
-                            {
-                                Property = "turn.processInput",
-                                Value = "true"
-                            },
-                            new SendActivity("In None...")
-                        }
-                    },
-                    new IntentRule() {
-                        Intent = "Greeting",
-                        Steps = new List<IDialog>() {
-                            new SendActivity("Hi, I'm the test bot! You can say 'start' to get started.")
-                        }
                     }
                 },
-                Generator = new TemplateEngineLanguageGenerator(new TemplateEngine().AddFile(Path.Combine(".", "Dialogs", "UserProfileDialog", "UserProfileDialog.lg")))
             };
 
 

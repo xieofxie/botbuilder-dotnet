@@ -6,8 +6,8 @@ using Microsoft.Bot.Builder.Dialogs.Adaptive.Rules;
 using Microsoft.Bot.Builder.Dialogs.Adaptive.Steps;
 using Microsoft.Bot.Builder.LanguageGeneration;
 using Microsoft.Bot.Builder.Dialogs.Adaptive.Recognizers;
-using Microsoft.Bot.Builder.Dialogs.Adaptive.Input;
 using TestBed.Dialogs.UserProfileDialog;
+using Microsoft.Bot.Builder.AI.Luis;
 
 namespace Microsoft.BotBuilderSamples
 {
@@ -19,17 +19,24 @@ namespace Microsoft.BotBuilderSamples
             // Create instance of adaptive dialog. 
             var rootDialog = new AdaptiveDialog(nameof(AdaptiveDialog))
             {
-                Recognizer = new RegexRecognizer()
+                //Recognizer = new RegexRecognizer()
+                //{
+                //    Intents = new Dictionary<string, string>() {
+                //        { "Greeting", "(?i)hi" },
+                //        { "Start", "(?i)start" },
+                //        { "Why", "(?i)why" },
+                //        { "NoAge", "(?i)no age" },
+                //        { "NoName", "(?i)no name" },
+                //        { "Reset", "(?i)reset" }
+                //    }
+                //},
+                Recognizer = new LuisRecognizer(new LuisApplication()
                 {
-                    Intents = new Dictionary<string, string>() {
-                        { "Greeting", "(?i)hi" },
-                        { "Start", "(?i)start" },
-                        { "Why", "(?i)why" },
-                        { "NoAge", "(?i)no age" },
-                        { "NoName", "(?i)no name" },
-                        { "Reset", "(?i)reset" }
-                    }
-                },
+                    ApplicationId = "e62cc675-88c6-4673-ad43-384f45b08e34",
+                    Endpoint = "https://westus.api.cognitive.microsoft.com",
+                    EndpointKey = "a95d07785b374f0a9d7d40700e28a285"
+                }),
+                Generator = new TemplateEngineLanguageGenerator(new TemplateEngine().AddFile(Path.Combine(".", "Dialogs", "RootDialog", "RootDialog.lg"))),
                 Rules = new List<IRule>()
                 {
                     new ConversationUpdateActivityRule()
@@ -41,7 +48,7 @@ namespace Microsoft.BotBuilderSamples
                         Intent = "Greeting",
                         Steps = new List<IDialog>()
                         {
-
+                            new SendActivity("[GreetingReply]")
                         }
                     },
                     new IntentRule()
@@ -49,7 +56,7 @@ namespace Microsoft.BotBuilderSamples
                         Intent = "Help",
                         Steps = new List<IDialog>()
                         {
-
+                            new SendActivity("[GlobalHelp]")
                         }
                     },
                     new IntentRule()
@@ -57,7 +64,18 @@ namespace Microsoft.BotBuilderSamples
                         Intent = "ResetProfile",
                         Steps = new List<IDialog>()
                         {
-
+                            new EditSteps()
+                            {
+                                ChangeType = StepChangeTypes.ReplaceSequence,
+                                Steps = new List<IDialog>()
+                                {
+                                    new DeleteProperty()
+                                    {
+                                        Property = "user.profile"
+                                    },
+                                    new SendActivity("[ResetProfile]")
+                                }
+                            }
                         }
                     },
                     new IntentRule()
@@ -65,11 +83,19 @@ namespace Microsoft.BotBuilderSamples
                         Intent = "Cancel",
                         Steps = new List<IDialog>()
                         {
-
+                            new SendActivity("[Cancel]"),
+                            new CancelAllDialogs()
+                        }
+                    },
+                    new IntentRule()
+                    {
+                        Intent = "UserProfile",
+                        Steps = new List<IDialog>()
+                        {
+                            new BeginDialog(nameof(UserProfileDialog)) 
                         }
                     }
-                },
-                Generator = new TemplateEngineLanguageGenerator(new TemplateEngine().AddFile(Path.Combine(".", "Dialogs", "RootDialog", "RootDialog.lg")))
+                }
             };
 
             // Add named dialogs to the DialogSet. These names are saved in the dialog state.
@@ -97,7 +123,7 @@ namespace Microsoft.BotBuilderSamples
                             Condition = "turn.memberAdded.name != turn.activity.recipient.name",
                             Steps = new List<IDialog>()
                             {
-                                new SendActivity("Hi, I'm the test bot! \n \\[Suggestions = start\\]")
+                                new SendActivity("[WelcomeUser]")
                             }
                         }
                     }

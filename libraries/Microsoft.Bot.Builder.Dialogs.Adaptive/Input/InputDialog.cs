@@ -95,7 +95,10 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Input
 
         public const string TURN_COUNT_PROPERTY = "dialog.turnCount";
         public const string INPUT_PROPERTY = "turn.value";
-        public const string TURN_PROCESS_INPUT_PROPERTY = "turn.processInput";
+        //public const string TURN_PROCESS_INPUT_PROPERTY = "turn.processInput";
+        // the message id get interrupted
+        // use this id again the id when continue this dialog to decide whether we reprompt again or process again
+        public const string INTERRUPTED_MESSAGE_ID = "dialog.interruptedMessageID";
 
         private const string PersistedOptions = "options";
         private const string PersistedState = "state";
@@ -132,15 +135,27 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Input
                 return Dialog.EndOfTurn;
             }
 
-            var stepCount = dc.State.GetValue<int>(DialogContextState.TURN_STEPCOUNT, 0);
-            var processInput = dc.State.GetValue<bool>(TURN_PROCESS_INPUT_PROPERTY, false);
+            // var stepCount = dc.State.GetValue<int>(DialogContextState.TURN_STEPCOUNT, 0);
+            // //var processInput = dc.State.GetValue<bool>(TURN_PROCESS_INPUT_PROPERTY, false);
 
-            if (stepCount > 0 && !processInput)
+            // if (stepCount > 0)// && !processInput)
+            // {
+            //     return await this.PromptUser(dc, InputState.Missing);
+            // }
+
+            //// dc.State.SetValue(TURN_PROCESS_INPUT_PROPERTY, false);
+
+
+            var interruptedMessageId = dc.State.GetValue<string>(INTERRUPTED_MESSAGE_ID, null);
+
+            // if the messaged id = the message id we recorded when interrupted, means the same message is pushed back to this input
+            //   we won't blindly re-prompt
+            // else means the message we get interruppted is overtaked by someone else, we will re-prompt first
+            if (interruptedMessageId != null && interruptedMessageId != dc.Context.Activity.Id)
             {
+                dc.State.SetValue(INTERRUPTED_MESSAGE_ID, null); // clean up
                 return await this.PromptUser(dc, InputState.Missing);
             }
-
-            dc.State.SetValue(TURN_PROCESS_INPUT_PROPERTY, false);
 
             var turnCount = dc.State.GetValue<int>(TURN_COUNT_PROPERTY, 0) + 1;
             dc.State.SetValue(TURN_COUNT_PROPERTY, turnCount);
@@ -183,7 +198,14 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Input
                 if (this.AllowInterruptions)
                 {
                     var state = await this.RecognizeInput(dc, true).ConfigureAwait(false);
-                    return state == InputState.Valid;
+                    //return state == InputState.Valid;
+                    var valid = state == InputState.Valid;
+
+                    // track message id if it's about to be interrupted
+                    var messageID = valid ? null : dc.Context.Activity.Id;
+                    dc.State.SetValue(INTERRUPTED_MESSAGE_ID, messageID);
+
+                    return valid;
                 }
                 else
                 {

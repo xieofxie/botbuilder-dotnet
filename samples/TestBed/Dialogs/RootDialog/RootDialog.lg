@@ -1,1 +1,17 @@
-﻿
+﻿# GreetingReply
+- Hi there! I'm a demo bot! Nice to meet you. \n \[Suggestions = Get started | Reset profile]
+
+# GlobalHelp
+- Sure thing. Happy to help. This is global help and just saying - 'I'm just a demo bot'
+
+# ResetProfile
+- Sure. I've reset your profile.
+
+# Cancel
+- Sure. I've cancelled that.
+
+# WelcomeUser
+- ```
+Hello, I'm a demo bot. 
+[Suggestions = Get started]
+```
