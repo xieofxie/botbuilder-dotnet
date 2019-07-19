@@ -43,7 +43,7 @@ namespace TestBed.Dialogs.UserProfileDialog
                                     "int(turn.value) <= 150"
                                 },
                                 Value = "coalesce(@personName, @userName)",
-                                DoNotInterrupt = "#GetUserProfile"
+                                //DoNotInterrupt = "#GetUserProfile"
                             },
                             new SendActivity("[AgeReadBack]"),
                             new TextInput()
@@ -56,7 +56,7 @@ namespace TestBed.Dialogs.UserProfileDialog
                                     "length(turn.value) > 1"
                                 },
                                 Value = "coalesce(@userAge, @userAgeAsNum, @number, @age)",
-                                DoNotInterrupt = "#GetUserProfile"
+                                //DoNotInterrupt = "#GetUserProfile"
                             },
                             new SendActivity("[ProfileReadBack]")
                         }
@@ -106,6 +106,14 @@ namespace TestBed.Dialogs.UserProfileDialog
                                 Property = "user.profile.name",
                                 Value = "Human"
                             }
+                        }
+                    },
+                    new IntentRule()
+                    {
+                        Intent = "GetUserProfile",
+                        Steps = new List<IDialog>()
+                        {
+
                         }
                     }
                 },

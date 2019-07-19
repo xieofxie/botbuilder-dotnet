@@ -1,4 +1,5 @@
-﻿// Licensed under the MIT License.
+﻿ 
+// Licensed under the MIT License.
 // Copyright (c) Microsoft Corporation. All rights reserved.
 
 using System;
@@ -43,7 +44,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Input
         public string Value
         {
             get { return value?.ToString(); }
-            set {this.value = (value != null) ? new ExpressionEngine().Parse(value) : null; }
+            set { this.value = (value != null) ? new ExpressionEngine().Parse(value) : null; }
         }
 
         /// <summary>
@@ -66,7 +67,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Input
         /// <summary>
         /// Maximum number of times to ask the user for this value before the dilog gives up.
         /// </summary>
-        public int? MaxTurnCount { get; set; } 
+        public int? MaxTurnCount { get; set; }
 
         /// <summary>
         /// Default value for the input dialog
@@ -74,7 +75,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Input
         public string DefaultValue
         {
             get { return defaultValue?.ToString(); }
-            set { lock(this) defaultValue = (value != null) ? new ExpressionEngine().Parse(value) : null; }
+            set { lock (this) defaultValue = (value != null) ? new ExpressionEngine().Parse(value) : null; }
         }
 
         /// <summary>
@@ -94,11 +95,10 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Input
         }
 
         public const string TURN_COUNT_PROPERTY = "dialog.turnCount";
-        public const string INPUT_PROPERTY = "turn.value";
-        //public const string TURN_PROCESS_INPUT_PROPERTY = "turn.processInput";
         // the message id get interrupted
         // use this id again the id when continue this dialog to decide whether we reprompt again or process again
         public const string INTERRUPTED_MESSAGE_ID = "dialog.interruptedMessageID";
+        public const string INPUT_PROPERTY = "turn.value";
 
         private const string PersistedOptions = "options";
         private const string PersistedState = "state";
@@ -134,17 +134,6 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Input
             {
                 return Dialog.EndOfTurn;
             }
-
-            // var stepCount = dc.State.GetValue<int>(DialogContextState.TURN_STEPCOUNT, 0);
-            // //var processInput = dc.State.GetValue<bool>(TURN_PROCESS_INPUT_PROPERTY, false);
-
-            // if (stepCount > 0)// && !processInput)
-            // {
-            //     return await this.PromptUser(dc, InputState.Missing);
-            // }
-
-            //// dc.State.SetValue(TURN_PROCESS_INPUT_PROPERTY, false);
-
 
             var interruptedMessageId = dc.State.GetValue<string>(INTERRUPTED_MESSAGE_ID, null);
 
@@ -198,7 +187,6 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Input
                 if (this.AllowInterruptions)
                 {
                     var state = await this.RecognizeInput(dc, true).ConfigureAwait(false);
-                    //return state == InputState.Valid;
                     var valid = state == InputState.Valid;
 
                     // track message id if it's about to be interrupted
@@ -323,7 +311,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Input
             {
                 dc.State.SetValue(this.Property, null);
             }
-            
+
             // If AlwaysPrompt is set to false, try to get the Property value first.
             if (!string.IsNullOrEmpty(this.Property) && !this.AlwaysPrompt)
             {
