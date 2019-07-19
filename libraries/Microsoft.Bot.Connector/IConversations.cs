@@ -162,8 +162,8 @@ namespace Microsoft.Bot.Connector
         /// <param name='conversationId'>
         /// Conversation ID
         /// </param>
-        /// <param name='transcript'>
-        /// Transcript of activities
+        /// <param name='history'>
+        /// Historic activities
         /// </param>
         /// <param name='customHeaders'>
         /// The headers that will be added to request.
@@ -180,7 +180,7 @@ namespace Microsoft.Bot.Connector
         /// <exception cref="Microsoft.Rest.ValidationException">
         /// Thrown when a required parameter is null
         /// </exception>
-        Task<HttpOperationResponse<ResourceResponse>> SendConversationHistoryWithHttpMessagesAsync(string conversationId, Transcript transcript, Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<HttpOperationResponse<ResourceResponse>> SendConversationHistoryWithHttpMessagesAsync(string conversationId, Transcript history, Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// UpdateActivity
         /// </summary>
@@ -464,7 +464,59 @@ namespace Microsoft.Bot.Connector
         /// Thrown when a required parameter is null
         /// </exception>
         Task<HttpOperationResponse<ResourceResponse>> UploadAttachmentWithHttpMessagesAsync(string conversationId, AttachmentData attachmentUpload, Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        Task<HttpOperationResponse<ResourceResponse>> InitiateHandoffAsync(string conversationId, Activity[] activities, object handoffContext, Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken));
+        /// <summary>
+        /// InitiateHandoffAsync
+        /// </summary>
+        /// <remarks>
+        /// This method allows the bot to initiate handoff to an agent.
+        /// </remarks>
+        /// <param name='conversationId'>
+        /// Conversation ID
+        /// </param>
+        /// <param name='handoffParameters'>
+        /// Handoff initiation payload containing transcript and channel
+        /// specific data
+        /// </param>
+        /// <param name='customHeaders'>
+        /// The headers that will be added to request.
+        /// </param>
+        /// <param name='cancellationToken'>
+        /// The cancellation token.
+        /// </param>
+        /// <exception cref="ErrorResponseException">
+        /// Thrown when the operation returned an invalid status code
+        /// </exception>
+        /// <exception cref="Microsoft.Rest.SerializationException">
+        /// Thrown when unable to deserialize the response
+        /// </exception>
+        /// <exception cref="Microsoft.Rest.ValidationException">
+        /// Thrown when a required parameter is null
+        /// </exception>
+        Task<HttpOperationResponse<ResourceResponse>> HandoffWithHttpMessagesAsync(string conversationId, HandoffParameters handoffParameters, Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken));
+        /// <summary>
+        /// GetHandoffStatus
+        /// </summary>
+        /// <remarks>
+        /// Get status of handoff with given conversation Id.
+        /// </remarks>
+        /// <param name='conversationId'>
+        /// Conversation ID
+        /// </param>
+        /// <param name='customHeaders'>
+        /// The headers that will be added to request.
+        /// </param>
+        /// <param name='cancellationToken'>
+        /// The cancellation token.
+        /// </param>
+        /// <exception cref="ErrorResponseException">
+        /// Thrown when the operation returned an invalid status code
+        /// </exception>
+        /// <exception cref="Microsoft.Rest.SerializationException">
+        /// Thrown when unable to deserialize the response
+        /// </exception>
+        /// <exception cref="Microsoft.Rest.ValidationException">
+        /// Thrown when a required parameter is null
+        /// </exception>
+        Task<HttpOperationResponse<string>> GetHandoffStatusWithHttpMessagesAsync(string conversationId, Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

@@ -650,8 +650,8 @@ namespace Microsoft.Bot.Connector
         /// <param name='conversationId'>
         /// Conversation ID
         /// </param>
-        /// <param name='transcript'>
-        /// Transcript of activities
+        /// <param name='history'>
+        /// Historic activities
         /// </param>
         /// <param name='customHeaders'>
         /// Headers that will be added to request.
@@ -674,15 +674,15 @@ namespace Microsoft.Bot.Connector
         /// <return>
         /// A response object containing the response body and response headers.
         /// </return>
-        public async Task<HttpOperationResponse<ResourceResponse>> SendConversationHistoryWithHttpMessagesAsync(string conversationId, Transcript transcript, Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<HttpOperationResponse<ResourceResponse>> SendConversationHistoryWithHttpMessagesAsync(string conversationId, Transcript history, Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (conversationId == null)
             {
                 throw new ValidationException(ValidationRules.CannotBeNull, "conversationId");
             }
-            if (transcript == null)
+            if (history == null)
             {
-                throw new ValidationException(ValidationRules.CannotBeNull, "transcript");
+                throw new ValidationException(ValidationRules.CannotBeNull, "history");
             }
             // Tracing
             bool _shouldTrace = ServiceClientTracing.IsEnabled;
@@ -692,7 +692,7 @@ namespace Microsoft.Bot.Connector
                 _invocationId = ServiceClientTracing.NextInvocationId.ToString();
                 Dictionary<string, object> tracingParameters = new Dictionary<string, object>();
                 tracingParameters.Add("conversationId", conversationId);
-                tracingParameters.Add("transcript", transcript);
+                tracingParameters.Add("history", history);
                 tracingParameters.Add("cancellationToken", cancellationToken);
                 ServiceClientTracing.Enter(_invocationId, this, "SendConversationHistory", tracingParameters);
             }
@@ -722,9 +722,9 @@ namespace Microsoft.Bot.Connector
 
             // Serialize Request
             string _requestContent = null;
-            if(transcript != null)
+            if(history != null)
             {
-                _requestContent = Rest.Serialization.SafeJsonConvert.SerializeObject(transcript, Client.SerializationSettings);
+                _requestContent = Rest.Serialization.SafeJsonConvert.SerializeObject(history, Client.SerializationSettings);
                 _httpRequest.Content = new StringContent(_requestContent, System.Text.Encoding.UTF8);
                 _httpRequest.Content.Headers.ContentType =System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json; charset=utf-8");
             }
@@ -2272,13 +2272,49 @@ namespace Microsoft.Bot.Connector
             return _result;
         }
 
-        public async Task<HttpOperationResponse<ResourceResponse>> InitiateHandoffAsync(string conversationId, Activity[] transcript, object handoffContext, Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default)
+        /// <summary>
+        /// InitiateHandoffAsync
+        /// </summary>
+        /// <remarks>
+        /// This method allows the bot to initiate handoff to an agent.
+        /// </remarks>
+        /// <param name='conversationId'>
+        /// Conversation ID
+        /// </param>
+        /// <param name='handoffParameters'>
+        /// Handoff initiation payload containing transcript and channel specific data
+        /// </param>
+        /// <param name='customHeaders'>
+        /// Headers that will be added to request.
+        /// </param>
+        /// <param name='cancellationToken'>
+        /// The cancellation token.
+        /// </param>
+        /// <exception cref="ErrorResponseException">
+        /// Thrown when the operation returned an invalid status code
+        /// </exception>
+        /// <exception cref="SerializationException">
+        /// Thrown when unable to deserialize the response
+        /// </exception>
+        /// <exception cref="ValidationException">
+        /// Thrown when a required parameter is null
+        /// </exception>
+        /// <exception cref="System.ArgumentNullException">
+        /// Thrown when a required parameter is null
+        /// </exception>
+        /// <return>
+        /// A response object containing the response body and response headers.
+        /// </return>
+        public async Task<HttpOperationResponse<ResourceResponse>> HandoffWithHttpMessagesAsync(string conversationId, HandoffParameters handoffParameters, Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (transcript == null)
+            if (conversationId == null)
             {
-                throw new ValidationException(ValidationRules.CannotBeNull, "transcript");
+                throw new ValidationException(ValidationRules.CannotBeNull, "conversationId");
             }
-
+            if (handoffParameters == null)
+            {
+                throw new ValidationException(ValidationRules.CannotBeNull, "handoffParameters");
+            }
             // Tracing
             bool _shouldTrace = ServiceClientTracing.IsEnabled;
             string _invocationId = null;
@@ -2287,11 +2323,10 @@ namespace Microsoft.Bot.Connector
                 _invocationId = ServiceClientTracing.NextInvocationId.ToString();
                 Dictionary<string, object> tracingParameters = new Dictionary<string, object>();
                 tracingParameters.Add("conversationId", conversationId);
-                tracingParameters.Add("transcript", transcript);
+                tracingParameters.Add("handoffParameters", handoffParameters);
                 tracingParameters.Add("cancellationToken", cancellationToken);
-                ServiceClientTracing.Enter(_invocationId, this, "InitiateHandoffAsync", tracingParameters);
+                ServiceClientTracing.Enter(_invocationId, this, "Handoff", tracingParameters);
             }
-
             // Construct URL
             var _baseUrl = Client.BaseUri.AbsoluteUri;
             var _url = new System.Uri(new System.Uri(_baseUrl + (_baseUrl.EndsWith("/") ? "" : "/")), "v3/conversations/{conversationId}/handoff").ToString();
@@ -2303,9 +2338,10 @@ namespace Microsoft.Bot.Connector
             _httpRequest.RequestUri = new System.Uri(_url);
             // Set Headers
 
+
             if (customHeaders != null)
             {
-                foreach (var _header in customHeaders)
+                foreach(var _header in customHeaders)
                 {
                     if (_httpRequest.Headers.Contains(_header.Key))
                     {
@@ -2317,12 +2353,11 @@ namespace Microsoft.Bot.Connector
 
             // Serialize Request
             string _requestContent = null;
-            if (transcript != null)
+            if(handoffParameters != null)
             {
-                var handoffPayload = new { Activities = transcript, ChannelData = handoffContext };
-                _requestContent = Rest.Serialization.SafeJsonConvert.SerializeObject(handoffPayload, Client.SerializationSettings);
+                _requestContent = Rest.Serialization.SafeJsonConvert.SerializeObject(handoffParameters, Client.SerializationSettings);
                 _httpRequest.Content = new StringContent(_requestContent, System.Text.Encoding.UTF8);
-                _httpRequest.Content.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json; charset=utf-8");
+                _httpRequest.Content.Headers.ContentType =System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json; charset=utf-8");
             }
             // Set Credentials
             if (Client.Credentials != null)
@@ -2344,13 +2379,13 @@ namespace Microsoft.Bot.Connector
             HttpStatusCode _statusCode = _httpResponse.StatusCode;
             cancellationToken.ThrowIfCancellationRequested();
             string _responseContent = null;
-            if ((int)_statusCode != 200)
+            if ((int)_statusCode != 200 && (int)_statusCode != 201 && (int)_statusCode != 202)
             {
                 var ex = new ErrorResponseException(string.Format("Operation returned an invalid status code '{0}'", _statusCode));
                 try
                 {
                     _responseContent = await _httpResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
-                    ErrorResponse _errorBody = Rest.Serialization.SafeJsonConvert.DeserializeObject<ErrorResponse>(_responseContent, Client.DeserializationSettings);
+                    ErrorResponse _errorBody =  Rest.Serialization.SafeJsonConvert.DeserializeObject<ErrorResponse>(_responseContent, Client.DeserializationSettings);
                     if (_errorBody != null)
                     {
                         ex.Body = _errorBody;
@@ -2378,26 +2413,216 @@ namespace Microsoft.Bot.Connector
             _result.Request = _httpRequest;
             _result.Response = _httpResponse;
             // Deserialize Response
-            _responseContent = await _httpResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
-            try
+            if ((int)_statusCode == 200)
             {
-                _result.Body = Rest.Serialization.SafeJsonConvert.DeserializeObject<ResourceResponse>(_responseContent, Client.DeserializationSettings);
-            }
-            catch (JsonException ex)
-            {
-                _httpRequest.Dispose();
-                if (_httpResponse != null)
+                _responseContent = await _httpResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
+                try
                 {
-                    _httpResponse.Dispose();
+                    _result.Body = Rest.Serialization.SafeJsonConvert.DeserializeObject<ResourceResponse>(_responseContent, Client.DeserializationSettings);
                 }
-                throw new SerializationException("Unable to deserialize the response.", _responseContent, ex);
+                catch (JsonException ex)
+                {
+                    _httpRequest.Dispose();
+                    if (_httpResponse != null)
+                    {
+                        _httpResponse.Dispose();
+                    }
+                    throw new SerializationException("Unable to deserialize the response.", _responseContent, ex);
+                }
             }
-
+            // Deserialize Response
+            if ((int)_statusCode == 201)
+            {
+                _responseContent = await _httpResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
+                try
+                {
+                    _result.Body = Rest.Serialization.SafeJsonConvert.DeserializeObject<ResourceResponse>(_responseContent, Client.DeserializationSettings);
+                }
+                catch (JsonException ex)
+                {
+                    _httpRequest.Dispose();
+                    if (_httpResponse != null)
+                    {
+                        _httpResponse.Dispose();
+                    }
+                    throw new SerializationException("Unable to deserialize the response.", _responseContent, ex);
+                }
+            }
+            // Deserialize Response
+            if ((int)_statusCode == 202)
+            {
+                _responseContent = await _httpResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
+                try
+                {
+                    _result.Body = Rest.Serialization.SafeJsonConvert.DeserializeObject<ResourceResponse>(_responseContent, Client.DeserializationSettings);
+                }
+                catch (JsonException ex)
+                {
+                    _httpRequest.Dispose();
+                    if (_httpResponse != null)
+                    {
+                        _httpResponse.Dispose();
+                    }
+                    throw new SerializationException("Unable to deserialize the response.", _responseContent, ex);
+                }
+            }
             if (_shouldTrace)
             {
                 ServiceClientTracing.Exit(_invocationId, _result);
             }
             return _result;
         }
+
+        /// <summary>
+        /// GetHandoffStatus
+        /// </summary>
+        /// <remarks>
+        /// Get status of handoff with given conversation Id.
+        /// </remarks>
+        /// <param name='conversationId'>
+        /// Conversation ID
+        /// </param>
+        /// <param name='customHeaders'>
+        /// Headers that will be added to request.
+        /// </param>
+        /// <param name='cancellationToken'>
+        /// The cancellation token.
+        /// </param>
+        /// <exception cref="ErrorResponseException">
+        /// Thrown when the operation returned an invalid status code
+        /// </exception>
+        /// <exception cref="SerializationException">
+        /// Thrown when unable to deserialize the response
+        /// </exception>
+        /// <exception cref="ValidationException">
+        /// Thrown when a required parameter is null
+        /// </exception>
+        /// <exception cref="System.ArgumentNullException">
+        /// Thrown when a required parameter is null
+        /// </exception>
+        /// <return>
+        /// A response object containing the response body and response headers.
+        /// </return>
+        public async Task<HttpOperationResponse<string>> GetHandoffStatusWithHttpMessagesAsync(string conversationId, Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (conversationId == null)
+            {
+                throw new ValidationException(ValidationRules.CannotBeNull, "conversationId");
+            }
+            // Tracing
+            bool _shouldTrace = ServiceClientTracing.IsEnabled;
+            string _invocationId = null;
+            if (_shouldTrace)
+            {
+                _invocationId = ServiceClientTracing.NextInvocationId.ToString();
+                Dictionary<string, object> tracingParameters = new Dictionary<string, object>();
+                tracingParameters.Add("conversationId", conversationId);
+                tracingParameters.Add("cancellationToken", cancellationToken);
+                ServiceClientTracing.Enter(_invocationId, this, "GetHandoffStatus", tracingParameters);
+            }
+            // Construct URL
+            var _baseUrl = Client.BaseUri.AbsoluteUri;
+            var _url = new System.Uri(new System.Uri(_baseUrl + (_baseUrl.EndsWith("/") ? "" : "/")), "v3/conversations/{conversationId}/handoff").ToString();
+            _url = _url.Replace("{conversationId}", System.Uri.EscapeDataString(conversationId));
+            // Create HTTP transport objects
+            var _httpRequest = new HttpRequestMessage();
+            HttpResponseMessage _httpResponse = null;
+            _httpRequest.Method = new HttpMethod("GET");
+            _httpRequest.RequestUri = new System.Uri(_url);
+            // Set Headers
+
+
+            if (customHeaders != null)
+            {
+                foreach(var _header in customHeaders)
+                {
+                    if (_httpRequest.Headers.Contains(_header.Key))
+                    {
+                        _httpRequest.Headers.Remove(_header.Key);
+                    }
+                    _httpRequest.Headers.TryAddWithoutValidation(_header.Key, _header.Value);
+                }
+            }
+
+            // Serialize Request
+            string _requestContent = null;
+            // Set Credentials
+            if (Client.Credentials != null)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                await Client.Credentials.ProcessHttpRequestAsync(_httpRequest, cancellationToken).ConfigureAwait(false);
+            }
+            // Send Request
+            if (_shouldTrace)
+            {
+                ServiceClientTracing.SendRequest(_invocationId, _httpRequest);
+            }
+            cancellationToken.ThrowIfCancellationRequested();
+            _httpResponse = await Client.HttpClient.SendAsync(_httpRequest, cancellationToken).ConfigureAwait(false);
+            if (_shouldTrace)
+            {
+                ServiceClientTracing.ReceiveResponse(_invocationId, _httpResponse);
+            }
+            HttpStatusCode _statusCode = _httpResponse.StatusCode;
+            cancellationToken.ThrowIfCancellationRequested();
+            string _responseContent = null;
+            if ((int)_statusCode != 200)
+            {
+                var ex = new ErrorResponseException(string.Format("Operation returned an invalid status code '{0}'", _statusCode));
+                try
+                {
+                    _responseContent = await _httpResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    ErrorResponse _errorBody =  Rest.Serialization.SafeJsonConvert.DeserializeObject<ErrorResponse>(_responseContent, Client.DeserializationSettings);
+                    if (_errorBody != null)
+                    {
+                        ex.Body = _errorBody;
+                    }
+                }
+                catch (JsonException)
+                {
+                    // Ignore the exception
+                }
+                ex.Request = new HttpRequestMessageWrapper(_httpRequest, _requestContent);
+                ex.Response = new HttpResponseMessageWrapper(_httpResponse, _responseContent);
+                if (_shouldTrace)
+                {
+                    ServiceClientTracing.Error(_invocationId, ex);
+                }
+                _httpRequest.Dispose();
+                if (_httpResponse != null)
+                {
+                    _httpResponse.Dispose();
+                }
+                throw ex;
+            }
+            // Create Result
+            var _result = new HttpOperationResponse<string>();
+            _result.Request = _httpRequest;
+            _result.Response = _httpResponse;
+            // Deserialize Response
+            if ((int)_statusCode == 200)
+            {
+                _responseContent = await _httpResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
+                try
+                {
+                    _result.Body = Rest.Serialization.SafeJsonConvert.DeserializeObject<string>(_responseContent, Client.DeserializationSettings);
+                }
+                catch (JsonException ex)
+                {
+                    _httpRequest.Dispose();
+                    if (_httpResponse != null)
+                    {
+                        _httpResponse.Dispose();
+                    }
+                    throw new SerializationException("Unable to deserialize the response.", _responseContent, ex);
+                }
+            }
+            if (_shouldTrace)
+            {
+                ServiceClientTracing.Exit(_invocationId, _result);
+            }
+            return _result;
+        }
+
     }
 }

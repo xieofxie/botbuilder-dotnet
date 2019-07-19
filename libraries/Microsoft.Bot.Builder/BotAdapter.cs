@@ -131,7 +131,7 @@ namespace Microsoft.Bot.Builder
             }
         }
 
-        public virtual Task<int> InitiateHandoffAsync(ITurnContext turnContext, Activity[] activities, object handoffContext, CancellationToken cancellationToken = default)
+        public virtual Task<IHandoffRequest> InitiateHandoffAsync(ITurnContext turnContext, Activity[] activities, object handoffContext, CancellationToken cancellationToken = default)
         {
             throw new NotSupportedException();
         }

@@ -366,7 +366,7 @@ namespace Microsoft.Bot.Builder
         /// <summary>
         /// Initiates handoff to human via adapter call
         /// </summary>
-        public async Task<int> InitiateHandoffAsync(IActivity[] activities, object handoffContext, CancellationToken cancellationToken = default)
+        public async Task<IHandoffRequest> InitiateHandoffAsync(IActivity[] activities, object handoffContext, CancellationToken cancellationToken = default)
         {
             if (activities == null)
             {

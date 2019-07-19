@@ -843,14 +843,15 @@ namespace Microsoft.Bot.Builder
             }
         }
 
-        public override async Task<int> InitiateHandoffAsync(ITurnContext turnContext, Activity[] activities, object handoffContext, CancellationToken cancellationToken = default)
+        public override async Task<IHandoffRequest> InitiateHandoffAsync(ITurnContext turnContext, Activity[] activities, object handoffContext, CancellationToken cancellationToken = default)
         {
             var connectorClient = turnContext.TurnState.Get<IConnectorClient>();
 
             string conversationId = turnContext.Activity.Conversation.Id;
-            var response = await connectorClient.Conversations.InitiateHandoffAsync(conversationId, activities, handoffContext, cancellationToken).ConfigureAwait(false);
+            var handoffParameters = new HandoffParameters(activities, handoffContext);
+            var response = await connectorClient.Conversations.HandoffWithHttpMessagesAsync(conversationId, handoffParameters, null, cancellationToken).ConfigureAwait(false);
 
-            return 42; // this is TBD. The API will return IHandoffRequest
+            return new HandoffRequest(conversationId, connectorClient.Conversations);
         }
 
         /// <summary>

@@ -154,15 +154,15 @@ namespace Microsoft.Bot.Connector
             /// <param name='conversationId'>
             /// Conversation ID
             /// </param>
-            /// <param name='transcript'>
-            /// Transcript of activities
+            /// <param name='history'>
+            /// Historic activities
             /// </param>
             /// <param name='cancellationToken'>
             /// The cancellation token.
             /// </param>
-            public static async Task<ResourceResponse> SendConversationHistoryAsync(this IConversations operations, string conversationId, Transcript transcript, CancellationToken cancellationToken = default(CancellationToken))
+            public static async Task<ResourceResponse> SendConversationHistoryAsync(this IConversations operations, string conversationId, Transcript history, CancellationToken cancellationToken = default(CancellationToken))
             {
-                using (var _result = await operations.SendConversationHistoryWithHttpMessagesAsync(conversationId, transcript, null, cancellationToken).ConfigureAwait(false))
+                using (var _result = await operations.SendConversationHistoryWithHttpMessagesAsync(conversationId, history, null, cancellationToken).ConfigureAwait(false))
                 {
                     return _result.Body;
                 }
@@ -431,9 +431,50 @@ namespace Microsoft.Bot.Connector
                 }
             }
 
-            public static async Task<ResourceResponse> InitiateHandoffAsync(this IConversations operations, string conversationId, Activity[] activities, object handoffContext, CancellationToken cancellationToken = default(CancellationToken))
+            /// <summary>
+            /// InitiateHandoffAsync
+            /// </summary>
+            /// <remarks>
+            /// This method allows the bot to initiate handoff to an agent.
+            /// </remarks>
+            /// <param name='operations'>
+            /// The operations group for this extension method.
+            /// </param>
+            /// <param name='conversationId'>
+            /// Conversation ID
+            /// </param>
+            /// <param name='handoffParameters'>
+            /// Handoff initiation payload containing transcript and channel specific data
+            /// </param>
+            /// <param name='cancellationToken'>
+            /// The cancellation token.
+            /// </param>
+            public static async Task<ResourceResponse> HandoffAsync(this IConversations operations, string conversationId, HandoffParameters handoffParameters, CancellationToken cancellationToken = default(CancellationToken))
             {
-                using (var _result = await operations.InitiateHandoffAsync(conversationId, activities, handoffContext, null, cancellationToken).ConfigureAwait(false))
+                using (var _result = await operations.HandoffWithHttpMessagesAsync(conversationId, handoffParameters, null, cancellationToken).ConfigureAwait(false))
+                {
+                    return _result.Body;
+                }
+            }
+
+            /// <summary>
+            /// GetHandoffStatus
+            /// </summary>
+            /// <remarks>
+            /// Get status of handoff with given conversation Id.
+            /// </remarks>
+            /// <param name='operations'>
+            /// The operations group for this extension method.
+            /// </param>
+            /// <param name='conversationId'>
+            /// Conversation ID
+            /// </param>
+            /// <param name='cancellationToken'>
+            /// The cancellation token.
+            /// </param>
+            public static async Task<string> GetHandoffStatusAsync(this IConversations operations, string conversationId, CancellationToken cancellationToken = default(CancellationToken))
+            {
+                using (var _result = await operations.GetHandoffStatusWithHttpMessagesAsync(conversationId, null, cancellationToken).ConfigureAwait(false))
                 {
                     return _result.Body;
                 }

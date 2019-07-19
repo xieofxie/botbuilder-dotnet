@@ -228,8 +228,8 @@ namespace Microsoft.Bot.Builder
         /// <param name="activities">Transcript of the activities that took place so far.</param>
         /// <param name="handoffContext">Additional channel-specific content.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        Task<int> InitiateHandoffAsync(IActivity[] activities, object handoffContext, CancellationToken cancellationToken = default(CancellationToken));
+        /// <returns>IHandoffRequest.</returns>
+        Task<IHandoffRequest> InitiateHandoffAsync(IActivity[] activities, object handoffContext, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Adds a response handler for send activity operations.

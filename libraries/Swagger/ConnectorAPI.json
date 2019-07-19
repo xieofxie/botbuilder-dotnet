@@ -782,6 +782,109 @@
           }
         }
       }
+    },
+    "/v3/conversations/{conversationId}/handoff": {
+      "post": {
+        "tags": [
+          "Conversations"
+        ],
+        "summary": "InitiateHandoffAsync",
+        "description": "This method allows the bot to initiate handoff to an agent.",
+        "operationId": "Conversations_Handoff",
+        "consumes": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "name": "conversationId",
+            "in": "path",
+            "description": "Conversation ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "handoffParameters",
+            "in": "body",
+            "description": "Handoff initiation payload containing transcript and channel specific data",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/HandoffParameters"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "An object will be returned containing the ID for the resource.",
+            "schema": {
+              "$ref": "#/definitions/ResourceResponse"
+            }
+          },
+          "201": {
+            "description": "A ResourceResponse object will be returned containing the ID for the resource.",
+            "schema": {
+              "$ref": "#/definitions/ResourceResponse"
+            }
+          },
+          "202": {
+            "description": "An object will be returned containing the ID for the resource.",
+            "schema": {
+              "$ref": "#/definitions/ResourceResponse"
+            }
+          },
+          "default": {
+            "description": "The operation failed and the response is an error object describing the status code and failure.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Conversations"
+        ],
+        "summary": "GetHandoffStatus",
+        "description": "Get status of handoff with given conversation Id.",
+        "operationId": "Conversations_GetHandoffStatus",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "conversationId",
+            "in": "path",
+            "description": "Conversation ID",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Handoff status",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "default": {
+            "description": "The operation failed and the response is an error object describing the status code and failure.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -2659,6 +2762,23 @@
         "details": {
           "$ref": "#/definitions/PaymentDetails",
           "description": "Update payment details"
+        }
+      }
+    },
+    "HandoffParameters": {
+      "description": "Additional channel specific context",
+      "type": "object",
+      "properties": {
+        "transcript": {
+          "description": "Activities so far.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Activity"
+          }
+        },
+        "handoffContext": {
+          "description": "Channel specific payload for creating the conversation",
+          "type": "object"
         }
       }
     }
