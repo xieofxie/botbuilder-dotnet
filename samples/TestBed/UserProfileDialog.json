@@ -44,6 +44,11 @@
       "entities": []
     },
     {
+      "text": "I'm 36 years old but why do you ask?",
+      "intent": "Why",
+      "entities": []
+    },
+    {
       "text": "Sorry no name",
       "intent": "NoName",
       "entities": []
@@ -169,6 +174,11 @@
       "entities": []
     },
     {
+      "text": "Help",
+      "intent": "Interruption",
+      "entities": []
+    },
+    {
       "text": "reset profile",
       "intent": "Interruption",
       "entities": []
@@ -268,6 +278,14 @@
   ],
   "patterns": [
     {
+      "pattern": "My age is {age:userAge}, but why do you need it?",
+      "intent": "Why"
+    },
+    {
+      "pattern": "I'm {number:userAgeAsNum} but why do you need to know my age?",
+      "intent": "Why"
+    },
+    {
       "pattern": "my name is {personName:userName}",
       "intent": "GetUserProfile"
     },
@@ -285,6 +303,14 @@
     },
     {
       "pattern": "{personName:userName}",
+      "intent": "GetUserProfile"
+    },
+    {
+      "pattern": "{age:userAge}",
+      "intent": "GetUserProfile"
+    },
+    {
+      "pattern": "{number:userAgeAsNum}",
       "intent": "GetUserProfile"
     }
   ],

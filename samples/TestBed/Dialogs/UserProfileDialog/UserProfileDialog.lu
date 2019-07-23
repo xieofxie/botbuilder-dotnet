@@ -3,6 +3,9 @@
 - why do you need my name?
 - why do you need my age? 
 - why do you ask for my age? 
+- I'm 36 years old but why do you ask? 
+- My age is {age:userAge}, but why do you need it? 
+- I'm {number:userAgeAsNum} but why do you need to know my age? 
 
 # NoName
 - Sorry no name
