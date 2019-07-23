@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using Microsoft.Bot.Builder.AI.Luis;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Dialogs.Adaptive;
@@ -42,8 +43,10 @@ namespace TestBed.Dialogs.UserProfileDialog
                                     "int(turn.value) >= 1",
                                     "int(turn.value) <= 150"
                                 },
-                                Value = "coalesce(@personName, @userName)",
-                                //DoNotInterrupt = "#GetUserProfile"
+                                Value = "coalesce(@userAge, @userAgeAsNum, @number, @age)",
+                                // Only set if we go with Option 2. 
+                                // With option 2, these lines will also be removed.
+                                // DoNotInterrupt = "#GetUserProfile"
                             },
                             new SendActivity("[AgeReadBack]"),
                             new TextInput()
@@ -55,8 +58,10 @@ namespace TestBed.Dialogs.UserProfileDialog
                                 {
                                     "length(turn.value) > 1"
                                 },
-                                Value = "coalesce(@userAge, @userAgeAsNum, @number, @age)",
-                                //DoNotInterrupt = "#GetUserProfile"
+                                Value = "coalesce(@personName, @userName)",
+                                // Only set if we go with Option 2. 
+                                // With option 2, these lines will also be removed.
+                                // DoNotInterrupt = "#GetUserProfile"
                             },
                             new SendActivity("[ProfileReadBack]")
                         }
@@ -104,16 +109,27 @@ namespace TestBed.Dialogs.UserProfileDialog
                             new SetProperty()
                             {
                                 Property = "user.profile.name",
-                                Value = "Human"
+                                Value = "'Human'"
                             }
                         }
                     },
+                    // If Option 2, this entire IntentRule is not needed
                     new IntentRule()
                     {
                         Intent = "GetUserProfile",
                         Steps = new List<IDialog>()
                         {
+                            // If Option 3,
+                            // new EmitEvent("processInput")
 
+                            // If option 4, 
+                            // new StopConsultation()
+
+                            // If option 4a, 
+                            // new SetProperty() {
+                            //     Property = "turn.processInput",
+                            //     Value = "true"
+                            // }
                         }
                     }
                 },

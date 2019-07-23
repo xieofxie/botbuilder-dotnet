@@ -1,5 +1,4 @@
-﻿ 
-// Licensed under the MIT License.
+﻿// Licensed under the MIT License.
 // Copyright (c) Microsoft Corporation. All rights reserved.
 
 using System;
@@ -95,9 +94,6 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Input
         }
 
         public const string TURN_COUNT_PROPERTY = "dialog.turnCount";
-        // the message id get interrupted
-        // use this id again the id when continue this dialog to decide whether we reprompt again or process again
-        public const string INTERRUPTED_MESSAGE_ID = "dialog.interruptedMessageID";
         public const string INPUT_PROPERTY = "turn.value";
 
         private const string PersistedOptions = "options";
@@ -135,14 +131,10 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Input
                 return Dialog.EndOfTurn;
             }
 
-            var interruptedMessageId = dc.State.GetValue<string>(INTERRUPTED_MESSAGE_ID, null);
+            var stepCount = dc.State.GetValue<int>(DialogContextState.TURN_STEPCOUNT, 0);
 
-            // if the messaged id = the message id we recorded when interrupted, means the same message is pushed back to this input
-            //   we won't blindly re-prompt
-            // else means the message we get interruppted is overtaked by someone else, we will re-prompt first
-            if (interruptedMessageId != null && interruptedMessageId != dc.Context.Activity.Id)
+            if (stepCount > 0)
             {
-                dc.State.SetValue(INTERRUPTED_MESSAGE_ID, null); // clean up
                 return await this.PromptUser(dc, InputState.Missing);
             }
 
@@ -187,13 +179,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Input
                 if (this.AllowInterruptions)
                 {
                     var state = await this.RecognizeInput(dc, true).ConfigureAwait(false);
-                    var valid = state == InputState.Valid;
-
-                    // track message id if it's about to be interrupted
-                    var messageID = valid ? null : dc.Context.Activity.Id;
-                    dc.State.SetValue(INTERRUPTED_MESSAGE_ID, messageID);
-
-                    return valid;
+                    return state == InputState.Valid;
                 }
                 else
                 {
