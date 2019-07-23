@@ -45,7 +45,7 @@ namespace TestBed.Dialogs.UserProfileDialog
                                 },
                                 Value = "coalesce(@userAge, @userAgeAsNum, @number, @age)",
                                 // Only set if we go with Option 2. 
-                                // With option 2, these lines will also be removed.
+                                // With option 2, the IntentRule starting in line #102 will also be removed.
                                 // DoNotInterrupt = "#GetUserProfile"
                             },
                             new SendActivity("[AgeReadBack]"),
@@ -60,7 +60,7 @@ namespace TestBed.Dialogs.UserProfileDialog
                                 },
                                 Value = "coalesce(@personName, @userName)",
                                 // Only set if we go with Option 2. 
-                                // With option 2, these lines will also be removed.
+                                // With option 2, the IntentRule starting in line #102 will also be removed.
                                 // DoNotInterrupt = "#GetUserProfile"
                             },
                             new SendActivity("[ProfileReadBack]")
