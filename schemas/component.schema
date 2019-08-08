@@ -45,7 +45,7 @@
         },
         "role": {
             "title": "$role",
-            "description": "Defines the role played in the dialog schema [lg|expression|memoryPath|uniontype()].",
+            "description": "Defines the role played in the dialog schema [lg|expression|expression|uniontype()].",
             "type": "string",
             "pattern": "^((lg)|(expression)|(memoryPath)|(unionType)|(unionType\\([a-zA-Z][a-zA-Z0-9.]*\\)))$"
         },
