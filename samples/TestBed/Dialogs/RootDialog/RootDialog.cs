@@ -2,12 +2,13 @@
 using System.IO;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Dialogs.Adaptive;
-using Microsoft.Bot.Builder.Dialogs.Adaptive.Rules;
-using Microsoft.Bot.Builder.Dialogs.Adaptive.Steps;
 using Microsoft.Bot.Builder.LanguageGeneration;
 using Microsoft.Bot.Builder.Dialogs.Adaptive.Recognizers;
-using TestBed.Dialogs.UserProfileDialog;
 using Microsoft.Bot.Builder.AI.Luis;
+using Microsoft.Bot.Builder.Dialogs.Adaptive.Events;
+using Microsoft.Bot.Builder.Dialogs.Adaptive.Actions;
+using Microsoft.Bot.Builder.Dialogs.Adaptive.Input;
+using System;
 
 namespace Microsoft.BotBuilderSamples
 {
@@ -17,95 +18,108 @@ namespace Microsoft.BotBuilderSamples
             : base(nameof(RootDialog))
         {
             // Create instance of adaptive dialog. 
-            var rootDialog = new AdaptiveDialog(nameof(AdaptiveDialog))
-            {
-                //Recognizer = new RegexRecognizer()
-                //{
-                //    Intents = new Dictionary<string, string>() {
-                //        { "Greeting", "(?i)hi" },
-                //        { "Start", "(?i)start" },
-                //        { "Why", "(?i)why" },
-                //        { "NoAge", "(?i)no age" },
-                //        { "NoName", "(?i)no name" },
-                //        { "Reset", "(?i)reset" }
-                //    }
-                //},
-                Recognizer = new LuisRecognizer(new LuisApplication()
+var rootDialog = new AdaptiveDialog(nameof(AdaptiveDialog))
+{
+    Generator = new TemplateEngineLanguageGenerator(),
+    Recognizer = new RegexRecognizer()
+    {
+        Intents = new Dictionary<string, string>() {
+                       
+            { "Start", "(?i)start" },
+            { "why", "(?i)why" },
+            { "confirm", "(?i)(no|yes)(.*)" }
+                       
+        }
+    },
+    Events = new List<IOnEvent>()
+    {
+        new OnIntent() {
+            Intent = "Start",
+            Actions = new List<IDialog>() {
+                new TextInput() {
+                    Prompt = new ActivityTemplate("What is your name?"),
+                    Property = "user.name",
+                    AllowInterruptions = AllowInterruptions.Always,
+                    MaxTurnCount = 3,
+                    DefaultValue = "'Human'",
+                    Validations = new List<string>()
+                    {
+                        "length(turn.value) > 2",
+                        "length(turn.value) <= 300"
+                    },
+                    InvalidPrompt = new ActivityTemplate("Sorry, '{turn.value}' does not work. Give me something between 2-300 character in length. What is your name?")
+                },
+                new NumberInput()
                 {
-                    ApplicationId = "e62cc675-88c6-4673-ad43-384f45b08e34",
-                    Endpoint = "https://westus.api.cognitive.microsoft.com",
-                    EndpointKey = "a95d07785b374f0a9d7d40700e28a285"
-                }),
-                Generator = new TemplateEngineLanguageGenerator(new TemplateEngine().AddFile(Path.Combine(".", "Dialogs", "RootDialog", "RootDialog.lg"))),
-                Rules = new List<IRule>()
+                    Prompt = new ActivityTemplate("What is your age?"),
+                    Property = "user.age",
+                    AllowInterruptions = AllowInterruptions.Always,
+                    MaxTurnCount = 3,
+                    DefaultValue = "30",
+                    Validations = new List<string>()
+                    {
+                        "int(turn.value) >= 1",
+                        "int(turn.value) <= 150"
+                    },
+                    InvalidPrompt = new ActivityTemplate("Sorry, '{turn.value}' does not work. Give me something between 1-150. What is your age?")
+                },
+                new ConfirmInput()
                 {
-                    new ConversationUpdateActivityRule()
+                    Prompt = new ActivityTemplate("I have {user.name} as your name and {user.age} as your age. Does this look good to you?"),
+                    Property = "turn.confirm",
+                    AllowInterruptions = AllowInterruptions.Always
+                },
+                new IfCondition()
+                {
+                    Condition = "turn.confirm == true",
+                    Actions = new List<IDialog>()
                     {
-                        Steps = WelcomeUserSteps()
-                    },
-                    new IntentRule()
+                        new SendActivity("Sure. you are all set!")
+                    }, 
+                    ElseActions = new List<IDialog>()
                     {
-                        Intent = "Greeting",
-                        Steps = new List<IDialog>()
-                        {
-                            new SendActivity("[GreetingReply]")
-                        }
-                    },
-                    new IntentRule()
-                    {
-                        Intent = "Help",
-                        Steps = new List<IDialog>()
-                        {
-                            new SendActivity("[GlobalHelp]")
-                        }
-                    },
-                    new IntentRule()
-                    {
-                        Intent = "ResetProfile",
-                        Steps = new List<IDialog>()
-                        {
-                            new EditSteps()
-                            {
-                                ChangeType = StepChangeTypes.ReplaceSequence,
-                                Steps = new List<IDialog>()
-                                {
-                                    new DeleteProperty()
-                                    {
-                                        Property = "user.profile"
-                                    },
-                                    new SendActivity("[ResetProfile]")
-                                }
-                            }
-                        }
-                    },
-                    new IntentRule()
-                    {
-                        Intent = "Cancel",
-                        Steps = new List<IDialog>()
-                        {
-                            new SendActivity("[Cancel]"),
-                            new CancelAllDialogs()
-                        }
-                    },
-                    new IntentRule()
-                    {
-                        Intent = "UserProfile",
-                        Steps = new List<IDialog>()
-                        {
-                            new BeginDialog(nameof(UserProfileDialog)) 
-                        }
+                        new SendActivity("Ok. Here's what I have.."),
+                        new SendActivity("I have {user.name} as your name and {user.age} as your age")
                     }
+                },
+            }
+        },
+        new OnIntent()
+        {
+            Intent = "why",
+            Actions = new List<IDialog>()
+            {
+                new SendActivity("I need the information to address you correctly")
+            }
+        },
+        new OnIntent()
+        {
+            Intent = "confirm",
+            Actions = new List<IDialog>()
+            {
+                new SendActivity("In confirm..."),
+                new SetProperty()
+                {
+                    Property = "user.age",
+                    Value = "30"
+                },
+                new SetProperty()
+                {
+                    Property = "turn.processInput",
+                    Value = "true"
                 }
-            };
+            }
+        }
+    }
+};
 
             // Add named dialogs to the DialogSet. These names are saved in the dialog state.
             AddDialog(rootDialog);
-            AddDialog(new UserProfileDialog());
 
             // The initial child Dialog to run.
             InitialDialogId = nameof(AdaptiveDialog);
         }
-        private static List<IDialog> WelcomeUserSteps()
+        private static List<IDialog> WelcomeUserAction()
         {
             return new List<IDialog>()
             {
@@ -114,14 +128,14 @@ namespace Microsoft.BotBuilderSamples
                 {
                     ListProperty = "turn.activity.membersAdded",
                     ValueProperty = "turn.memberAdded",
-                    Steps = new List<IDialog>()
+                    Actions = new List<IDialog>()
                     {
                         // Note: Some channels send two conversation update events - one for the Bot added to the conversation and another for user.
                         // Filter cases where the bot itself is the recipient of the message. 
                         new IfCondition()
                         {
                             Condition = "turn.memberAdded.name != turn.activity.recipient.name",
-                            Steps = new List<IDialog>()
+                            Actions = new List<IDialog>()
                             {
                                 new SendActivity("[WelcomeUser]")
                             }
