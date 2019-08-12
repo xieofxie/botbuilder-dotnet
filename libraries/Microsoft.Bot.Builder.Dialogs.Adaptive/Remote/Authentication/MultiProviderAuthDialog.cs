@@ -264,7 +264,11 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Remote.Authentication
                         DialogIds.ProviderPrompt,
                         new PromptOptions
                         {
-                            Prompt = new Activity() { Text = "AuthProvidersPrompt" },
+                            Prompt = new Activity()
+                            {
+                                Type = ActivityTypes.Message,
+                                Text = "Which account would you like to use?"
+                            },
                             Choices = choices,
                         },
                         cancellationToken).ConfigureAwait(false);
