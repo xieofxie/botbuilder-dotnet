@@ -1,9 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version Condition=" '$(PackageVersion)' == '' ">4.5.0-local</Version>
     <Version Condition=" '$(PackageVersion)' != '' ">$(PackageVersion)</Version>
-    <PackageVersion Condition=" '$(PackageVersion)' == '' ">4.5.0-local</PackageVersion>
     <PackageVersion Condition=" '$(PackageVersion)' != '' ">$(PackageVersion)</PackageVersion>
     <Configurations>Debug;Release;Documentation;Debug - NuGet Packages;</Configurations>
   </PropertyGroup>
@@ -45,6 +43,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="AuthenticationResponses.de.json" />
+    <None Remove="AuthenticationResponses.es.json" />
+    <None Remove="AuthenticationResponses.fr.json" />
+    <None Remove="AuthenticationResponses.it.json" />
+    <None Remove="AuthenticationResponses.json" />
+    <None Remove="AuthenticationResponses.zh.json" />
     <None Remove="Schemas\baseBindingsSchema.json" />
     <None Remove="Schemas\baseDialogSchema.json" />
     <None Remove="Schemas\Dialogs\baseInputSchema.json" />
@@ -172,17 +176,47 @@
     <Content Include="Schemas\Actions\Microsoft.SendActivity.schema" />
     <Content Include="Schemas\Actions\Microsoft.EndTurn.schema" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <EmbeddedResource Include="AuthenticationResponses.de.json" />
+    <EmbeddedResource Include="AuthenticationResponses.es.json" />
+    <EmbeddedResource Include="AuthenticationResponses.fr.json" />
+    <EmbeddedResource Include="AuthenticationResponses.it.json" />
+    <EmbeddedResource Include="AuthenticationResponses.json" />
+    <EmbeddedResource Include="AuthenticationResponses.zh.json" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="AdaptiveCards" Version="1.2.0" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Bot.Builder.AI.TriggerTrees\Microsoft.Bot.Builder.AI.TriggerTrees.csproj" />
     <ProjectReference Include="..\Microsoft.Bot.Builder.ApplicationInsights\Microsoft.Bot.Builder.ApplicationInsights.csproj" />
     <ProjectReference Include="..\Microsoft.Bot.Builder.Dialogs\Microsoft.Bot.Builder.Dialogs.csproj" />
     <ProjectReference Include="..\Microsoft.Bot.Builder.Expressions.Parser\Microsoft.Bot.Builder.Expressions.Parser.csproj" />
+    <ProjectReference Include="..\Microsoft.Bot.Builder.StreamingExtensions\Microsoft.Bot.Builder.StreamingExtensions.csproj" />
+    <ProjectReference Include="..\Microsoft.Bot.Builder\Microsoft.Bot.Builder.csproj" />
     <ProjectReference Include="..\Microsoft.Bot.StreamingExtensions\Microsoft.Bot.StreamingExtensions.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="AuthenticationResponses.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>AuthenticationResponses.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="AuthenticationResponses.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>AuthenticationResponses.tt</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties schemas_4actions_4microsoft_1begindialog_1schema__JsonSchema="" /></VisualStudio></ProjectExtensions>

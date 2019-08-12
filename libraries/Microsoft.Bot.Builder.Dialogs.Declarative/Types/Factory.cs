@@ -163,6 +163,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Declarative.Types
             Register("Microsoft.SetProperty", typeof(SetProperty));
             Register("Microsoft.SwitchCondition", typeof(SwitchCondition));
             Register("Microsoft.TraceActivity", typeof(TraceActivity));
+            Register("Microsoft.RemoteCall", typeof(RemoteCall));
 
             // Inputs
             Register("Microsoft.AttachmentInput", typeof(AttachmentInput));
