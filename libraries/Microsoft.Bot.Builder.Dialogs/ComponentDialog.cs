@@ -124,7 +124,7 @@ namespace Microsoft.Bot.Builder.Dialogs
             // To avoid the container prematurely ending we need to implement this method and simply
             // ask our inner dialog stack to re-prompt.
             await RepromptDialogAsync(outerDc.Context, outerDc.ActiveDialog, cancellationToken).ConfigureAwait(false);
-            return Dialog.EndOfTurn;
+            return new DialogTurnResult(DialogTurnStatus.Waiting, result);
         }
 
         public override async Task RepromptDialogAsync(ITurnContext turnContext, DialogInstance instance, CancellationToken cancellationToken = default(CancellationToken))
