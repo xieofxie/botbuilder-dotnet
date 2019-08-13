@@ -102,12 +102,13 @@ var rootDialog = new AdaptiveDialog(nameof(AdaptiveDialog))
                 {
                     Property = "user.age",
                     Value = "30"
-                },
-                new SetProperty()
-                {
-                    Property = "turn.processInput",
-                    Value = "true"
                 }
+                //},
+                //new SetProperty()
+                //{
+                //    Property = "turn.processInput",
+                //    Value = "true"
+                //}
             }
         }
     }
