@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder.ApplicationInsights;
@@ -11,6 +12,7 @@ using Microsoft.Bot.Builder.Dialogs.Adaptive.Remote;
 using Microsoft.Bot.Builder.Dialogs.Adaptive.Remote.Authentication;
 using Microsoft.Bot.Builder.Dialogs.Adaptive.Remote.Models.Manifest;
 using Microsoft.Bot.Connector.Authentication;
+using Newtonsoft.Json;
 
 namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Actions
 {
@@ -39,6 +41,8 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Actions
 
         public SkillManifest Manifest { get; set; }
 
+        public string ManifestUrl { get; set; }
+
         public string MicrosoftAppId { get; set; }
 
         public string MicrosoftAppPassword { get; set; }
@@ -57,6 +61,16 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Actions
                 throw new ArgumentException($"{nameof(options)} cannot be a cancellation token");
             }
 
+            if (!string.IsNullOrEmpty(ManifestUrl))
+            {
+                using (var client = new HttpClient())
+                {
+                    var response = await client.GetAsync(ManifestUrl);
+                    var responseBody = await response.Content.ReadAsStringAsync();
+                    Manifest = JsonConvert.DeserializeObject<SkillManifest>(responseBody);
+                }
+            }
+
             if (dc.Dialogs.Find(Manifest.Id) == null)
             {
                 var appCredentials = new MicrosoftAppCredentials(MicrosoftAppId, MicrosoftAppPassword);
@@ -66,7 +80,6 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Actions
 
                 dc.Dialogs.Add(new SkillDialog(Manifest, credentials, telemetryClient, new UserState(new MemoryStorage()), authDialog));
             }
-
 
             return await dc.BeginDialogAsync(Manifest.Id);
         }
