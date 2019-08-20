@@ -121,7 +121,12 @@ namespace Microsoft.Bot.Builder.Adapters
                 activity.Conversation = Conversation.Conversation;
                 activity.ServiceUrl = Conversation.ServiceUrl;
 
-                var id = activity.Id = (_nextId++).ToString();
+                if (string.IsNullOrEmpty(activity.Id))
+                {
+                    activity.Id = (_nextId++).ToString();
+                }
+
+                var id = activity.Id;
             }
 
             if (activity.Timestamp == null || activity.Timestamp == default(DateTimeOffset))
@@ -175,7 +180,11 @@ namespace Microsoft.Bot.Builder.Adapters
 
                 if (string.IsNullOrEmpty(activity.Id))
                 {
-                    activity.Id = Guid.NewGuid().ToString("n");
+                    responses[index] = new ResourceResponse((_nextId++).ToString());
+                }
+                else
+                {
+                    responses[index] = new ResourceResponse(activity.Id);
                 }
 
                 if (activity.Timestamp == null)
@@ -210,8 +219,6 @@ namespace Microsoft.Bot.Builder.Adapters
                         ActiveQueue.Enqueue(activity);
                     }
                 }
-
-                responses[index] = new ResourceResponse(activity.Id);
             }
 
             return responses;

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder.Adapters;
 using Microsoft.Bot.Schema;
@@ -193,6 +194,70 @@ namespace Microsoft.Bot.Builder.Tests
             Assert.AreEqual("deleteIt", pagedResult.Items[2].AsMessageActivity().Text);
             Assert.AreEqual(ActivityTypes.MessageDelete, pagedResult.Items[3].Type);
             Assert.AreEqual(pagedResult.Items[1].Id, pagedResult.Items[3].Id);
+        }
+
+        [TestMethod]
+        [TestCategory("Middleware")]
+        public async Task Transcript_AddResourceResponseIdToSentLogActivities()
+        {
+            var transcriptStore = new MemoryTranscriptStore();
+            TestAdapter adapter = new TestAdapter()
+                .Use(new TranscriptLoggerMiddleware(transcriptStore));
+            string conversationId = null;
+
+            var fooActivity = new Activity()
+            {
+                Type = ActivityTypes.Message,
+                Text = "foo",
+                Id = "testFooId",
+            };
+
+            await new TestFlow(adapter, async (context, cancellationToken) =>
+            {
+                conversationId = context.Activity.Conversation.Id;
+                await Task.Delay(500);
+                await context.SendActivityAsync("echo:" + context.Activity.Text);
+            })
+                .Send(fooActivity)
+                    .AssertReply(activity =>
+                    {
+                        Assert.AreNotEqual(activity.Id, string.Empty);
+                        Assert.AreEqual(activity.AsMessageActivity().Text, "echo:foo");
+                    })
+                .Send("bar")
+                    .AssertReply(activity =>
+                    {
+                        Assert.AreNotEqual(activity.Id, string.Empty);
+                        Assert.AreEqual(activity.AsMessageActivity().Text, "echo:bar");
+                    })
+                .StartTestAsync();
+
+            var pagedResult = await transcriptStore.GetTranscriptActivitiesAsync("test", conversationId);
+            var items = pagedResult.Items.OrderBy(i => i.Timestamp);
+            Assert.AreEqual(4, pagedResult.Items.Length);
+            Assert.AreEqual("foo", pagedResult.Items[0].AsMessageActivity().Text);
+
+            // Transcript activities should have the id present on the activity when received
+            Assert.AreEqual(pagedResult.Items[0].AsMessageActivity().Id, "testFooId");
+            Assert.AreEqual("echo:foo", pagedResult.Items[1].AsMessageActivity().Text);
+
+            // Sent Activities in the transcript store should have the Id returned from Resource Response
+            // (the test adapter increments a number and uses this for the id)
+            Assert.AreEqual(pagedResult.Items[1].Id, "0");
+
+            Assert.AreEqual(pagedResult.Items[2].AsMessageActivity().Text, "bar");
+
+            // Received activities also auto-add the incremental from the test adapter
+            Assert.AreEqual(pagedResult.Items[2].Id, "1");
+
+            Assert.AreEqual(pagedResult.Items[3].AsMessageActivity().Text, "echo:bar");
+            Assert.AreEqual(pagedResult.Items[3].Id, "2");
+
+            foreach (var activity in pagedResult.Items)
+            {
+                Assert.IsTrue(!string.IsNullOrWhiteSpace(activity.Id));
+                Assert.IsTrue(activity.Timestamp > default(DateTimeOffset));
+            }
         }
     }
 }

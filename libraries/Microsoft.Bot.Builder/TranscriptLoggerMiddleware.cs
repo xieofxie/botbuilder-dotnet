@@ -64,9 +64,25 @@ namespace Microsoft.Bot.Builder
                 // run full pipeline
                 var responses = await nextSend().ConfigureAwait(false);
 
+                int responseIndex = 0;
                 foreach (var activity in activities)
                 {
-                    LogActivity(transcript, CloneActivity(activity));
+                    var clonedActivity = CloneActivity(activity);
+                    if (responses != null && responses.Length > 0)
+                    {
+                        // if there is no id on the activity, add the id returned from the service
+                        if (responseIndex < responses.Length)
+                        {
+                            if (string.IsNullOrEmpty(clonedActivity.Id))
+                            {
+                                clonedActivity.Id = responses[responseIndex].Id;
+                            }
+                        }
+
+                        responseIndex++;
+                    }
+
+                    LogActivity(transcript, clonedActivity);
                 }
 
                 return responses;
