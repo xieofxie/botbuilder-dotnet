@@ -3,6 +3,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -687,7 +688,7 @@ namespace Microsoft.Bot.Builder.Expressions
         {
             if (!_functions.TryGetValue(type, out var eval))
             {
-                throw new Exception($"{type} does not have an evaluator, it's not a built-in function or a customized function");
+                throw new SyntaxErrorException($"{type} does not have an evaluator, it's not a built-in function or a customized function");
             }
             return eval;
         }
@@ -1983,7 +1984,7 @@ namespace Microsoft.Bot.Builder.Expressions
                     error = $"{jsonStr} is not a valid JSON string";
                 }
             }
-            else if (jsonEntity is JObject parsed )
+            else if (jsonEntity is JObject parsed)
             {
                 jsonObj = parsed;
             }
@@ -1993,16 +1994,16 @@ namespace Microsoft.Bot.Builder.Expressions
             }
 
             if (error == null)
+            {
+                try
                 {
-                    try
-                    {
-                        value = jsonObj.SelectTokens(jpath);
-                    }
-                    catch
-                    {
-                        error = $"{jpath} is not a valid path";
-                    }
+                    value = jsonObj.SelectTokens(jpath);
                 }
+                catch
+                {
+                    error = $"{jpath} is not a valid path";
+                }
+            }
 
             if (error == null)
             {
