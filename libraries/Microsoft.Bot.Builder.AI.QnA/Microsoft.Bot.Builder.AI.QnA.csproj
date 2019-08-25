@@ -21,6 +21,12 @@
     <Summary>This library implements C# classes for building bots using Microsoft Cognitive services.</Summary>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DelaySign>false</DelaySign>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug - NuGet Packages|AnyCPU' ">
+    <DelaySign>false</DelaySign>
+  </PropertyGroup>
 	<ItemGroup>
 	  <None Remove="Microsoft.QnAMakerDialog.schema" />
 	</ItemGroup>

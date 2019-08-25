@@ -142,6 +142,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Bot.Builder.TestB
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestBed", "samples\TestBed\TestBed.csproj", "{56BE00F7-4E7C-406D-8BE1-E43BF13C6E6B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestBed-declarative", "samples\TestBed-declarative\TestBed-declarative.csproj", "{456CC174-1C1A-4866-9EB0-44D91D94967C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug - NuGet Packages|Any CPU = Debug - NuGet Packages|Any CPU
@@ -485,6 +487,12 @@ Global
 		{56BE00F7-4E7C-406D-8BE1-E43BF13C6E6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{56BE00F7-4E7C-406D-8BE1-E43BF13C6E6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{56BE00F7-4E7C-406D-8BE1-E43BF13C6E6B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{456CC174-1C1A-4866-9EB0-44D91D94967C}.Debug - NuGet Packages|Any CPU.ActiveCfg = Debug - NuGet Packages|Any CPU
+		{456CC174-1C1A-4866-9EB0-44D91D94967C}.Debug - NuGet Packages|Any CPU.Build.0 = Debug - NuGet Packages|Any CPU
+		{456CC174-1C1A-4866-9EB0-44D91D94967C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{456CC174-1C1A-4866-9EB0-44D91D94967C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{456CC174-1C1A-4866-9EB0-44D91D94967C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{456CC174-1C1A-4866-9EB0-44D91D94967C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

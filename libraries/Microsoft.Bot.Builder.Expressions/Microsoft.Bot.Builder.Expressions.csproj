@@ -41,6 +41,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Documentation|AnyCPU'">
     <DocumentationFile>bin\$(Configuration)\netstandard2.0\Microsoft.Bot.Builder.Expressions.xml</DocumentationFile>
     <CodeAnalysisRuleSet>Microsoft.Bot.Builder.Expressions.ruleset</CodeAnalysisRuleSet>
+    <DelaySign>false</DelaySign>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -52,10 +53,12 @@
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
     <CodeAnalysisRuleSet>Microsoft.Bot.Builder.Expressions.ruleset</CodeAnalysisRuleSet>
+    <DelaySign>false</DelaySign>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug - NuGet Packages|AnyCPU'">
     <CodeAnalysisRuleSet>Microsoft.Bot.Builder.Expressions.ruleset</CodeAnalysisRuleSet>
+    <DelaySign>false</DelaySign>
   </PropertyGroup>
 
   <ItemGroup>
