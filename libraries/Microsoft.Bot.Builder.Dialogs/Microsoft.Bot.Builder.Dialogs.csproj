@@ -29,7 +29,10 @@
     <DelaySign>false</DelaySign>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="Prompts\BasicPrompt.cs" />
+    <Content Include="**/*.dialog" />
+    <Content Include="**/*.lg" />
+    <Content Include="**/*.lu" />
+    <Content Include="**/*.schema" />
   </ItemGroup>
 
   <ItemGroup>

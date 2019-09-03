@@ -5,10 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder.Adapters;
+using Microsoft.Bot.Builder.Dialogs.Adaptive.Actions;
+using Microsoft.Bot.Builder.Dialogs.Adaptive.Events;
 using Microsoft.Bot.Builder.Dialogs.Adaptive.Input;
 using Microsoft.Bot.Builder.Dialogs.Adaptive.Recognizers;
-using Microsoft.Bot.Builder.Dialogs.Adaptive.Events;
-using Microsoft.Bot.Builder.Dialogs.Adaptive.Actions;
 using Microsoft.Bot.Builder.Dialogs.Declarative.Resources;
 using Microsoft.Bot.Builder.Dialogs.Declarative.Types;
 using Microsoft.Bot.Builder.Expressions;
@@ -17,7 +17,6 @@ using Microsoft.Bot.Builder.LanguageGeneration;
 using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Schema.NET;
 
 namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
 {
@@ -26,31 +25,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
     {
         public TestContext TestContext { get; set; }
 
-        public ExpressionEngine expressionEngine { get; set; } = new ExpressionEngine();
-
-        private TestFlow CreateFlow(AdaptiveDialog ruleDialog)
-        {
-            TypeFactory.Configuration = new ConfigurationBuilder().Build();
-
-            var explorer = new ResourceExplorer();
-            var storage = new MemoryStorage();
-            var convoState = new ConversationState(storage);
-            var userState = new UserState(storage);
-
-            var adapter = new TestAdapter(TestAdapter.CreateConversation(TestContext.TestName));
-            adapter
-                .UseStorage(storage)
-                .UseState(userState, convoState)
-                .Use(new RegisterClassMiddleware<ResourceExplorer>(explorer))
-                .UseLanguageGeneration(explorer)
-                .Use(new TranscriptLoggerMiddleware(new FileTranscriptLogger()));
-
-            DialogManager dm = new DialogManager(ruleDialog);
-            return new TestFlow(adapter, async (turnContext, cancellationToken) =>
-            {
-                await dm.OnTurnAsync(turnContext, cancellationToken: cancellationToken).ConfigureAwait(false);
-            });
-        }
+        public ExpressionEngine ExpressionEngine { get; set; } = new ExpressionEngine();
 
         [TestMethod]
         public async Task AdaptiveDialog_TopLevelFallback()
@@ -121,7 +96,8 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                 Actions = new List<IDialog>()
                 {
                     // Add item
-                    new TextInput() {
+                    new TextInput()
+                    {
                         AlwaysPrompt = true,
                         Prompt = new ActivityTemplate("Please add an item to todos."),
                         Property = "dialog.todo"
@@ -134,13 +110,13 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                         AlwaysPrompt = true,
                         Prompt = new ActivityTemplate("Please add an item to todos."),
                         Property = "dialog.todo"
-
                     },
                     new EditArray(EditArray.ArrayChangeType.Push, "user.todos", "dialog.todo"),
                     new SendActivity() { Activity = new ActivityTemplate("Your todos: {join(user.todos, ',')}") },
 
                     // Remove item
-                    new TextInput() {
+                    new TextInput()
+                    {
                         AlwaysPrompt = true,
                         Prompt = new ActivityTemplate("Enter a item to remove."),
                         Property = "dialog.todo"
@@ -149,7 +125,8 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                     new SendActivity() { Activity = new ActivityTemplate("Your todos: {join(user.todos, ',')}") },
 
                     // Add item and pop item
-                    new TextInput() {
+                    new TextInput()
+                    {
                         AlwaysPrompt = true,
                         Prompt = new ActivityTemplate("Please add an item to todos."),
                         Property = "dialog.todo"
@@ -211,7 +188,8 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                             Condition = "user.name == null",
                             Actions = new List<IDialog>()
                             {
-                                new TextInput() {
+                                new TextInput()
+                                {
                                     Prompt = new ActivityTemplate("Hello, what is your name?"),
                                     Property = "user.name"
                                 },
@@ -401,10 +379,10 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                 AutoEndDialog = false,
                 Recognizer = new RegexRecognizer()
                 {
-                    Intents = new Dictionary<string, string>()
+                    Intents = new List<IntentPattern>()
                     {
-                        { "JokeIntent", "joke" },
-                        { "HelloIntent", "hi|hello" }
+                        new IntentPattern("JokeIntent", "joke"),
+                        new IntentPattern( "HelloIntent", "hi|hello"),
                     }
                 },
                 Events = new List<IOnEvent>()
@@ -416,21 +394,21 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                             new IfCondition()
                             {
                                 Condition = "user.name == null",
-                                    Actions = new List<IDialog>()
+                                Actions = new List<IDialog>()
+                                {
+                                    new TextInput()
                                     {
-                                        new TextInput()
-                                        {
-                                            Prompt = new ActivityTemplate("Hello, what is your name?"),
-                                            Property = "user.name"
-                                        }
+                                        Prompt = new ActivityTemplate("Hello, what is your name?"),
+                                        Property = "user.name"
                                     }
+                                }
                             },
                             new SendActivity("Hello {user.name}, nice to meet you!")
                         },
                     },
                     new OnIntent()
                     {
-                        Intent="JokeIntent",
+                        Intent = "JokeIntent",
                         Actions = new List<IDialog>()
                         {
                             new SendActivity("Why did the chicken cross the road?"),
@@ -440,7 +418,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                     },
                     new OnIntent()
                     {
-                        Intent="HelloIntent",
+                        Intent = "HelloIntent",
                         Actions = new List<IDialog>()
                         {
                             new SendActivity("Hello {user.name}, nice to meet you!")
@@ -470,10 +448,10 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
             ruleDialog.AutoEndDialog = false;
             ruleDialog.Recognizer = new RegexRecognizer()
             {
-                Intents = new Dictionary<string, string>()
+                Intents = new List<IntentPattern>()
                 {
-                    { "JokeIntent", "(?i)joke" },
-                    { "GreetingIntent", "(?i)greeting|hi|hello" }
+                    new IntentPattern("JokeIntent", "(?i)joke"),
+                    new IntentPattern("GreetingIntent", "(?i)greeting|hi|hello"),
                 }
             };
 
@@ -500,13 +478,14 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                 },
                 new OnIntent()
                 {
-                    Intent= "GreetingIntent",
+                    Intent = "GreetingIntent",
                     Actions = new List<IDialog>()
                     {
                         new SendActivity("Hello {user.name}, nice to meet you!")
                     }
                 },
-                new OnIntent("JokeIntent",
+                new OnIntent(
+                    "JokeIntent",
                     actions: new List<IDialog>()
                     {
                         new SendActivity("Why did the chicken cross the road?"),
@@ -542,11 +521,11 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                 AutoEndDialog = false,
                 Recognizer = new RegexRecognizer()
                 {
-                    Intents = new Dictionary<string, string>()
+                    Intents = new List<IntentPattern>()
                     {
-                        { "JokeIntent", "joke"},
-                        { "GreetingIntemt", "hi|hello"},
-                        { "GoodbyeIntent", "bye|goodbye|seeya|see ya"},
+                        new IntentPattern("JokeIntent", "joke"),
+                        new IntentPattern("GreetingIntemt", "hi|hello"),
+                        new IntentPattern("GoodbyeIntent", "bye|goodbye|seeya|see ya"),
                     }
                 },
                 Events = new List<IOnEvent>()
@@ -570,19 +549,22 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                             new SendActivity("Hello {user.name}, nice to meet you!"),
                         },
                     },
-                    new OnIntent("GreetingIntemt",
+                    new OnIntent(
+                        "GreetingIntemt",
                         actions: new List<IDialog>()
                         {
                             new SendActivity("Hello {user.name}, nice to meet you!"),
                         }),
-                    new OnIntent("JokeIntent",
+                    new OnIntent(
+                        "JokeIntent",
                         actions: new List<IDialog>()
                         {
                             new SendActivity("Why did the chicken cross the road?"),
                             new EndTurn(),
                             new SendActivity("To get to the other side")
                         }),
-                    new OnIntent("GoodbyeIntent",
+                    new OnIntent(
+                        "GoodbyeIntent",
                         actions: new List<IDialog>()
                         {
                             new SendActivity("See you later aligator!"),
@@ -622,11 +604,11 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                 AutoEndDialog = false,
                 Recognizer = new RegexRecognizer()
                 {
-                    Intents = new Dictionary<string, string>()
+                    Intents = new List<IntentPattern>()
                     {
-                        { "JokeIntent", "(?i)joke"},
-                        { "GreetingIntent", "(?i)hi|hello"},
-                        { "GoodbyeIntent", "(?i)bye|goodbye|seeya|see ya"}
+                        new IntentPattern("JokeIntent", "(?i)joke"),
+                        new IntentPattern("GreetingIntent", "(?i)hi|hello"),
+                        new IntentPattern("GoodbyeIntent", "(?i)bye|goodbye|seeya|see ya"),
                     }
                 },
                 Events = new List<IOnEvent>()
@@ -640,19 +622,22 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                         },
                     },
 
-                    new OnIntent("JokeIntent",
+                    new OnIntent(
+                        "JokeIntent",
                         actions: new List<IDialog>()
                         {
                             new BeginDialog("TellJokeDialog"),
                         }),
 
-                    new OnIntent("GreetingIntent",
+                    new OnIntent(
+                        "GreetingIntent",
                         actions: new List<IDialog>()
                         {
                             new BeginDialog("Greeting"),
                         }),
 
-                    new OnIntent("GoodbyeIntent",
+                    new OnIntent(
+                        "GoodbyeIntent",
                         actions: new List<IDialog>()
                         {
                             new SendActivity("See you later aligator!"),
@@ -666,14 +651,14 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                 }
             };
 
-            innerDialog.AddDialogs(new[] {
+            innerDialog.AddDialogs(new[]
+            {
                 new AdaptiveDialog("Greeting")
                 {
                     Events = new List<IOnEvent>()
                     {
                         new OnBeginDialog()
                         {
-
                             Actions = new List<IDialog>()
                             {
                                 new IfCondition()
@@ -698,32 +683,31 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                     }
                 },
                 new AdaptiveDialog("TellJokeDialog")
+                {
+                    Events = new List<IOnEvent>()
                     {
-                        Events = new List<IOnEvent>()
+                        new OnBeginDialog()
                         {
-                            new OnBeginDialog()
+                            Actions = new List<IDialog>()
                             {
-
-                                Actions = new List<IDialog>()
-                                {
-                                    new SendActivity("Why did the chicken cross the road?"),
-                                    new EndTurn(),
-                                    new SendActivity("To get to the other side")
-                                }
+                                new SendActivity("Why did the chicken cross the road?"),
+                                new EndTurn(),
+                                new SendActivity("To get to the other side")
                             }
                         }
                     }
-                });
+                }
+            });
 
             var outerDialog = new AdaptiveDialog("outer")
             {
                 AutoEndDialog = false,
                 Recognizer = new RegexRecognizer()
                 {
-                    Intents = new Dictionary<string, string>()
+                    Intents = new List<IntentPattern>()
                     {
-                        { "BeginIntent", "(?i)begin" },
-                        { "HelpIntent", "(?i)help" }
+                        new IntentPattern("BeginIntent", "(?i)begin"),
+                        new IntentPattern("HelpIntent", "(?i)help"),
                     }
                 },
                 Events = new List<IOnEvent>()
@@ -760,7 +744,6 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
             };
             outerDialog.AddDialogs(new List<IDialog>() { innerDialog });
 
-
             await CreateFlow(outerDialog)
             .Send("hi")
                 .AssertReply("Hi, type 'begin' to start a dialog, type 'help' to get help.")
@@ -796,10 +779,10 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                 AutoEndDialog = false,
                 Recognizer = new RegexRecognizer()
                 {
-                    Intents = new Dictionary<string, string>()
+                    Intents = new List<IntentPattern>()
                     {
-                        { "SideIntent", "side" },
-                        { "CancelIntent", "cancel" },
+                        new IntentPattern("SideIntent", "side"),
+                        new IntentPattern("CancelIntent", "cancel"),
                     }
                 },
                 Events = new List<IOnEvent>()
@@ -841,17 +824,17 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                 AutoEndDialog = false,
                 Recognizer = new RegexRecognizer()
                 {
-                    Intents = new Dictionary<string, string>()
+                    Intents = new List<IntentPattern>()
                     {
-                        { "StartOuterIntent", "start" },
-                        { "RootIntent", "root" },
+                        new IntentPattern("StartOuterIntent", "start"),
+                        new IntentPattern("RootIntent", "root"),
                     }
                 },
                 Events = new List<IOnEvent>()
                 {
                     new OnIntent("StartOuterIntent", actions: new List<IDialog>() { outerDialog }),
                     new OnIntent("RootIntent", actions: new List<IDialog>() { new SendActivity("rootintent") }),
-                    new OnUnknownIntent( new List<IDialog>() { new SendActivity("rootunknown") })
+                    new OnUnknownIntent(new List<IDialog>() { new SendActivity("rootunknown") })
                 }
             };
 
@@ -890,9 +873,9 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                 AutoEndDialog = false,
                 Recognizer = new RegexRecognizer()
                 {
-                    Intents = new Dictionary<string, string>()
+                    Intents = new List<IntentPattern>()
                     {
-                        { "JokeIntent", "joke" }
+                        new IntentPattern("JokeIntent", "joke"),
                     }
                 },
                 Events = new List<IOnEvent>()
@@ -948,9 +931,9 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                 AutoEndDialog = false,
                 Recognizer = new RegexRecognizer()
                 {
-                    Intents = new Dictionary<string, string>()
+                    Intents = new List<IntentPattern>()
                     {
-                        { "JokeIntent", "joke" }
+                        new IntentPattern("JokeIntent", "joke"),
                     }
                 },
                 Events = new List<IOnEvent>()
@@ -1157,18 +1140,10 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
             await TestBindingTwoWayAcrossAdaptiveDialogs(new Dictionary<string, string>() { { "userName", "$name" } });
         }
 
-        /// <summary>
-        /// Test class to test two way binding with strongly typed options objects.
-        /// </summary>
-        class Person
-        {
-            public string userName { get; set; }
-        }
-
         [TestMethod]
         public async Task AdaptiveDialog_BindingTwoWayAcrossAdaptiveDialogs_StronglyTypedOptions()
         {
-            await TestBindingTwoWayAcrossAdaptiveDialogs(new Person() { userName = "$name" });
+            await TestBindingTwoWayAcrossAdaptiveDialogs(new Person() { UserName = "$name" });
         }
 
         [TestMethod]
@@ -1179,13 +1154,14 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                 Generator = new TemplateEngineLanguageGenerator(),
                 Recognizer = new RegexRecognizer()
                 {
-                    Intents = new Dictionary<string, string>() {
-                        { "Interruption", "(?i)interrupt" },
-                        { "Greeting", "(?i)hi" },
-                        { "Start", "(?i)start" },
-                        { "noage", "(?i)no" },
-                        { "why", "(?i)why" },
-                        { "reset", "(?i)reset" }
+                    Intents = new List<IntentPattern>()
+                    {
+                        new IntentPattern("Interruption", "(?i)interrupt"),
+                        new IntentPattern("Greeting", "(?i)hi"),
+                        new IntentPattern("Start", "(?i)start"),
+                        new IntentPattern("noage", "(?i)no"),
+                        new IntentPattern("why", "(?i)why"),
+                        new IntentPattern("reset", "(?i)reset"),
                     }
                 },
                 Events = new List<IOnEvent>()
@@ -1200,7 +1176,8 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                     new OnIntent()
                     {
                         Intent = "reset",
-                        Actions = new List<IDialog>() {
+                        Actions = new List<IDialog>()
+                        {
                             new DeleteProperty()
                             {
                                 Property = "user.name"
@@ -1208,10 +1185,13 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                             new SendActivity("Sure. I've reset your profile.")
                         }
                     },
-                    new OnIntent() {
+                    new OnIntent()
+                    {
                         Intent = "Start",
-                        Actions = new List<IDialog>() {
-                            new TextInput() {
+                        Actions = new List<IDialog>()
+                        {
+                            new TextInput()
+                            {
                                 Prompt = new ActivityTemplate("What is your name?"),
                                 Property = "user.name",
                                 AllowInterruptions = AllowInterruptions.Always
@@ -1219,11 +1199,14 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                             new SendActivity("I have {user.name} as your name")
                         }
                     },
-                    new OnIntent() {
+                    new OnIntent()
+                    {
                         Intent = "Interruption",
-                        Actions = new List<IDialog>() {
+                        Actions = new List<IDialog>()
+                        {
                             // short circuiting Interruption so consultation is terminated. 
                             new SendActivity("In Interruption..."),
+
                             // request the active input step to re-process user input. 
                             new SetProperty()
                             {
@@ -1232,9 +1215,11 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                             }
                         }
                     },
-                    new OnIntent() {
+                    new OnIntent()
+                    {
                         Intent = "Greeting",
-                        Actions = new List<IDialog>() {
+                        Actions = new List<IDialog>()
+                        {
                             new SendActivity("Hi, I'm the test bot!")
                         }
                     },
@@ -1288,17 +1273,21 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                 Generator = new TemplateEngineLanguageGenerator(),
                 Recognizer = new RegexRecognizer()
                 {
-                    Intents = new Dictionary<string, string>() {
-                        { "Interruption", "(?i)interrupt" },
-                        { "Start", "(?i)start" }
+                    Intents = new List<IntentPattern>()
+                    {
+                        new IntentPattern("Interruption", "(?i)interrupt"),
+                        new IntentPattern("Start", "(?i)start"),
                     }
                 },
                 Events = new List<IOnEvent>()
                 {
-                    new OnIntent() {
+                    new OnIntent()
+                    {
                         Intent = "Start",
-                        Actions = new List<IDialog>() {
-                            new TextInput() {
+                        Actions = new List<IDialog>()
+                        {
+                            new TextInput()
+                            {
                                 Prompt = new ActivityTemplate("What is your name?"),
                                 Property = "user.name",
                                 AllowInterruptions = AllowInterruptions.Always
@@ -1306,11 +1295,14 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                             new SendActivity("I have {user.name} as your name")
                         }
                     },
-                    new OnIntent() {
+                    new OnIntent()
+                    {
                         Intent = "Interruption",
-                        Actions = new List<IDialog>() {
+                        Actions = new List<IDialog>()
+                        {
                             // short circuiting Interruption so consultation is terminated. 
                             new SendActivity("In Interruption..."),
+
                             // request the active input step to re-process user input. 
                             new SetProperty()
                             {
@@ -1339,17 +1331,21 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                 Generator = new TemplateEngineLanguageGenerator(),
                 Recognizer = new RegexRecognizer()
                 {
-                    Intents = new Dictionary<string, string>() {
-                        { "Interruption", "(?i)interrupt" },
-                        { "Start", "(?i)start" }
+                    Intents = new List<IntentPattern>()
+                    {
+                        new IntentPattern("Interruption", "(?i)interrupt" ),
+                        new IntentPattern("Start", "(?i)start"),
                     }
                 },
                 Events = new List<IOnEvent>()
                 {
-                    new OnIntent() {
+                    new OnIntent()
+                    {
                         Intent = "Start",
-                        Actions = new List<IDialog>() {
-                            new TextInput() {
+                        Actions = new List<IDialog>()
+                        {
+                            new TextInput()
+                            {
                                 Prompt = new ActivityTemplate("What is your name?"),
                                 Property = "user.name",
                                 AllowInterruptions = AllowInterruptions.Always
@@ -1364,11 +1360,14 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                             new SendActivity("I have {user.age} as your age")
                         }
                     },
-                    new OnIntent() {
+                    new OnIntent()
+                    {
                         Intent = "Interruption",
-                        Actions = new List<IDialog>() {
+                        Actions = new List<IDialog>()
+                        {
                             // short circuiting Interruption so consultation is terminated. 
                             new SendActivity("In Interruption..."),
+
                             // request the active input step to re-process user input. 
                             new SetProperty()
                             {
@@ -1414,17 +1413,21 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                 Generator = new TemplateEngineLanguageGenerator(),
                 Recognizer = new RegexRecognizer()
                 {
-                    Intents = new Dictionary<string, string>() {
-                        { "Start", "(?i)start" },
-                        { "None", "200" }
+                    Intents = new List<IntentPattern>()
+                    {
+                        new IntentPattern("Start", "(?i)start" ),
+                        new IntentPattern("None", "200"),
                     }
                 },
                 Events = new List<IOnEvent>()
                 {
-                    new OnIntent() {
+                    new OnIntent()
+                    {
                         Intent = "Start",
-                        Actions = new List<IDialog>() {
-                            new NumberInput() {
+                        Actions = new List<IDialog>()
+                        {
+                            new NumberInput()
+                            {
                                 Prompt = new ActivityTemplate("What is your age?"),
                                 Property = "user.age",
                                 AllowInterruptions = AllowInterruptions.Always,
@@ -1438,11 +1441,14 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                             new SendActivity("I have {user.age} as your age")
                         }
                     },
-                    new OnIntent() {
+                    new OnIntent()
+                    {
                         Intent = "None",
-                        Actions = new List<IDialog>() {
+                        Actions = new List<IDialog>()
+                        {
                             // short circuiting Interruption so consultation is terminated. 
                             new SendActivity("In None..."),
+
                             // request the active input step to re-process user input. 
                             new SetProperty()
                             {
@@ -1477,16 +1483,20 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                 Generator = new TemplateEngineLanguageGenerator(),
                 Recognizer = new RegexRecognizer()
                 {
-                    Intents = new Dictionary<string, string>() {
-                        { "Start", "(?i)start" }
+                    Intents = new List<IntentPattern>()
+                    {
+                        new IntentPattern("Start", "(?i)start"),
                     }
                 },
                 Events = new List<IOnEvent>()
                 {
-                    new OnIntent() {
+                    new OnIntent()
+                    {
                         Intent = "Start",
-                        Actions = new List<IDialog>() {
-                            new NumberInput() {
+                        Actions = new List<IDialog>()
+                        {
+                            new NumberInput()
+                            {
                                 Prompt = new ActivityTemplate("What is your age?"),
                                 Property = "user.age",
                                 AllowInterruptions = AllowInterruptions.NotRecognized,
@@ -1500,11 +1510,14 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                             new SendActivity("I have {user.age} as your age")
                         }
                     },
-                    new OnIntent() {
+                    new OnIntent()
+                    {
                         Intent = "None",
-                        Actions = new List<IDialog>() {
+                        Actions = new List<IDialog>()
+                        {
                             // short circuiting Interruption so consultation is terminated. 
                             new SendActivity("In None..."),
+
                             // request the active input step to re-process user input. 
                             new SetProperty()
                             {
@@ -1536,16 +1549,20 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                 Generator = new TemplateEngineLanguageGenerator(),
                 Recognizer = new RegexRecognizer()
                 {
-                    Intents = new Dictionary<string, string>() {
-                        { "Start", "(?i)start" }
+                    Intents = new List<IntentPattern>()
+                    {
+                        new IntentPattern("Start", "(?i)start"),
                     }
                 },
                 Events = new List<IOnEvent>()
                 {
-                    new OnIntent() {
+                    new OnIntent()
+                    {
                         Intent = "Start",
-                        Actions = new List<IDialog>() {
-                            new NumberInput() {
+                        Actions = new List<IDialog>()
+                        {
+                            new NumberInput()
+                            {
                                 Prompt = new ActivityTemplate("What is your age?"),
                                 Property = "user.age",
                                 AllowInterruptions = AllowInterruptions.Always,
@@ -1554,11 +1571,14 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                             new SendActivity("I have {user.age} as your age")
                         }
                     },
-                    new OnIntent() {
+                    new OnIntent()
+                    {
                         Intent = "None",
-                        Actions = new List<IDialog>() {
+                        Actions = new List<IDialog>()
+                        {
                             // short circuiting Interruption so consultation is terminated. 
                             new SendActivity("In None..."),
+
                             // request the active input step to re-process user input. 
                             new SetProperty()
                             {
@@ -1593,16 +1613,20 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                 Generator = new TemplateEngineLanguageGenerator(),
                 Recognizer = new RegexRecognizer()
                 {
-                    Intents = new Dictionary<string, string>() {
-                        { "Start", "(?i)start" }
+                    Intents = new List<IntentPattern>()
+                    {
+                        new IntentPattern("Start", "(?i)start"),
                     }
                 },
                 Events = new List<IOnEvent>()
                 {
-                    new OnIntent() {
+                    new OnIntent()
+                    {
                         Intent = "Start",
-                        Actions = new List<IDialog>() {
-                            new NumberInput() {
+                        Actions = new List<IDialog>()
+                        {
+                            new NumberInput()
+                            {
                                 Prompt = new ActivityTemplate("What is your age?"),
                                 Property = "user.age",
                                 AllowInterruptions = AllowInterruptions.NotRecognized,
@@ -1611,11 +1635,14 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                             new SendActivity("I have {user.age} as your age")
                         }
                     },
-                    new OnIntent() {
+                    new OnIntent()
+                    {
                         Intent = "None",
-                        Actions = new List<IDialog>() {
+                        Actions = new List<IDialog>()
+                        {
                             // short circuiting Interruption so consultation is terminated. 
                             new SendActivity("In None..."),
+
                             // request the active input step to re-process user input. 
                             new SetProperty()
                             {
@@ -1649,16 +1676,20 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                 Generator = new TemplateEngineLanguageGenerator(),
                 Recognizer = new RegexRecognizer()
                 {
-                    Intents = new Dictionary<string, string>() {
-                        { "Start", "(?i)start" }
+                    Intents = new List<IntentPattern>()
+                    {
+                        new IntentPattern("Start", "(?i)start"),
                     }
                 },
                 Events = new List<IOnEvent>()
                 {
-                    new OnIntent() {
+                    new OnIntent()
+                    {
                         Intent = "Start",
-                        Actions = new List<IDialog>() {
-                            new NumberInput() {
+                        Actions = new List<IDialog>()
+                        {
+                            new NumberInput()
+                            {
                                 Prompt = new ActivityTemplate("What is your age?"),
                                 Property = "user.age",
                                 AllowInterruptions = AllowInterruptions.Never,
@@ -1666,11 +1697,14 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                             new SendActivity("I have {user.age} as your age")
                         }
                     },
-                    new OnIntent() {
+                    new OnIntent()
+                    {
                         Intent = "None",
-                        Actions = new List<IDialog>() {
+                        Actions = new List<IDialog>()
+                        {
                             // short circuiting Interruption so consultation is terminated. 
                             new SendActivity("In None..."),
+
                             // request the active input step to re-process user input. 
                             new SetProperty()
                             {
@@ -1702,16 +1736,20 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                 Generator = new TemplateEngineLanguageGenerator(),
                 Recognizer = new RegexRecognizer()
                 {
-                    Intents = new Dictionary<string, string>() {
-                        { "Start", "(?i)start" }
+                    Intents = new List<IntentPattern>()
+                    {
+                        new IntentPattern("Start", "(?i)start"),
                     }
                 },
                 Events = new List<IOnEvent>()
                 {
-                    new OnIntent() {
+                    new OnIntent()
+                    {
                         Intent = "Start",
-                        Actions = new List<IDialog>() {
-                            new NumberInput() {
+                        Actions = new List<IDialog>()
+                        {
+                            new NumberInput()
+                            {
                                 Prompt = new ActivityTemplate("What is your age?"),
                                 Property = "user.age",
                                 AllowInterruptions = AllowInterruptions.Never,
@@ -1720,11 +1758,14 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                             new SendActivity("I have {user.age} as your age")
                         }
                     },
-                    new OnIntent() {
+                    new OnIntent()
+                    {
                         Intent = "None",
-                        Actions = new List<IDialog>() {
+                        Actions = new List<IDialog>()
+                        {
                             // short circuiting Interruption so consultation is terminated. 
                             new SendActivity("In None..."),
+
                             // request the active input step to re-process user input. 
                             new SetProperty()
                             {
@@ -1756,16 +1797,20 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                 Generator = new TemplateEngineLanguageGenerator(),
                 Recognizer = new RegexRecognizer()
                 {
-                    Intents = new Dictionary<string, string>() {
-                        { "Start", "(?i)start" }
+                    Intents = new List<IntentPattern>()
+                    {
+                        new IntentPattern("Start", "(?i)start"),
                     }
                 },
                 Events = new List<IOnEvent>()
                 {
-                    new OnIntent() {
+                    new OnIntent()
+                    {
                         Intent = "Start",
-                        Actions = new List<IDialog>() {
-                            new NumberInput() {
+                        Actions = new List<IDialog>()
+                        {
+                            new NumberInput()
+                            {
                                 Prompt = new ActivityTemplate("What is your age?"),
                                 Property = "user.age",
                                 AllowInterruptions = AllowInterruptions.Never,
@@ -1779,11 +1824,14 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                             new SendActivity("I have {user.age} as your age")
                         }
                     },
-                    new OnIntent() {
+                    new OnIntent()
+                    {
                         Intent = "None",
-                        Actions = new List<IDialog>() {
+                        Actions = new List<IDialog>()
+                        {
                             // short circuiting Interruption so consultation is terminated. 
                             new SendActivity("In None..."),
+
                             // request the active input step to re-process user input. 
                             new SetProperty()
                             {
@@ -1816,16 +1864,20 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                 Generator = new TemplateEngineLanguageGenerator(),
                 Recognizer = new RegexRecognizer()
                 {
-                    Intents = new Dictionary<string, string>() {
-                        { "Start", "(?i)start" }
+                    Intents = new List<IntentPattern>()
+                    {
+                        new IntentPattern("Start", "(?i)start"),
                     }
                 },
                 Events = new List<IOnEvent>()
                 {
-                    new OnIntent() {
+                    new OnIntent()
+                    {
                         Intent = "Start",
-                        Actions = new List<IDialog>() {
-                            new NumberInput() {
+                        Actions = new List<IDialog>()
+                        {
+                            new NumberInput()
+                            {
                                 Prompt = new ActivityTemplate("What is your age?"),
                                 Property = "user.age",
                                 AllowInterruptions = AllowInterruptions.Never,
@@ -1835,11 +1887,14 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                             new SendActivity("I have {user.age} as your age")
                         }
                     },
-                    new OnIntent() {
+                    new OnIntent()
+                    {
                         Intent = "None",
-                        Actions = new List<IDialog>() {
+                        Actions = new List<IDialog>()
+                        {
                             // short circuiting Interruption so consultation is terminated. 
                             new SendActivity("In None..."),
+
                             // request the active input step to re-process user input. 
                             new SetProperty()
                             {
@@ -1929,9 +1984,9 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                 AutoEndDialog = false,
                 Recognizer = new RegexRecognizer()
                 {
-                    Intents = new Dictionary<string, string>()
+                    Intents = new List<IntentPattern>()
                     {
-                        { "SubmitIntent", "123123123" }
+                        new IntentPattern("SubmitIntent", "123123123"),
                     }
                 },
                 Events = new List<IOnEvent>()
@@ -1959,5 +2014,36 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
                .StartTestAsync();
         }
 
+        private TestFlow CreateFlow(AdaptiveDialog ruleDialog)
+        {
+            TypeFactory.Configuration = new ConfigurationBuilder().Build();
+
+            var explorer = new ResourceExplorer();
+            var storage = new MemoryStorage();
+            var convoState = new ConversationState(storage);
+            var userState = new UserState(storage);
+
+            var adapter = new TestAdapter(TestAdapter.CreateConversation(TestContext.TestName));
+            adapter
+                .UseStorage(storage)
+                .UseState(userState, convoState)
+                .Use(new RegisterClassMiddleware<ResourceExplorer>(explorer))
+                .UseLanguageGeneration(explorer)
+                .Use(new TranscriptLoggerMiddleware(new FileTranscriptLogger()));
+
+            DialogManager dm = new DialogManager(ruleDialog);
+            return new TestFlow(adapter, async (turnContext, cancellationToken) =>
+            {
+                await dm.OnTurnAsync(turnContext, cancellationToken: cancellationToken).ConfigureAwait(false);
+            });
+        }
+
+        /// <summary>
+        /// Test class to test two way binding with strongly typed options objects.
+        /// </summary>
+        private class Person
+        {
+            public string UserName { get; set; }
+        }
     }
 }
