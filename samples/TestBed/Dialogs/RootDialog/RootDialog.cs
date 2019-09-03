@@ -14,45 +14,6 @@ namespace Microsoft.BotBuilderSamples
         public RootDialog()
             : base(nameof(RootDialog))
         {
-            var dialog1 = new AdaptiveDialog("dialog1")
-            {
-                Generator = new TemplateEngineLanguageGenerator(),
-                Events = new List<IOnEvent> ()
-                {
-                    new OnBeginDialog()
-                    {
-                        Actions = new List<IDialog>()
-                        {
-                            new SendActivity("In Dialog1"),
-                            new BeginDialog()
-                            {
-                                DialogId = "dialog2"
-                            },
-                            new EndDialog()
-                        }
-                    }
-                }
-            };
-
-            var dialog2 = new AdaptiveDialog("dialog2")
-            {
-                Generator = new TemplateEngineLanguageGenerator(),
-                Events = new List<IOnEvent>()
-                {
-                   new OnBeginDialog()
-                   {
-                       Actions = new List<IDialog>()
-                       {
-                           new SendActivity("In Dialog2"),
-                           new BeginDialog()
-                           {
-                               DialogId = "dialog1"
-                           },
-                           new EndDialog()
-                       }
-                   }
-                }
-            };
             // Create instance of adaptive dialog. 
             var rootDialog = new AdaptiveDialog(nameof(AdaptiveDialog))
             {
@@ -168,11 +129,10 @@ namespace Microsoft.BotBuilderSamples
             };
 
             // Add named dialogs to the DialogSet. These names are saved in the dialog state.
-            AddDialog(dialog1);
-            AddDialog(dialog2);
+            AddDialog(rootDialog);
 
             // The initial child Dialog to run.
-            InitialDialogId = "dialog1";
+            InitialDialogId = nameof(AdaptiveDialog);
         }
         private static List<IDialog> WelcomeUserAction()
         {
