@@ -20,25 +20,17 @@ namespace Microsoft.BotBuilderSamples
                 Generator = new TemplateEngineLanguageGenerator(),
                 Recognizer = new RegexRecognizer()
                 {
-                    Intents = new Dictionary<string, string>() {
-                       
-                        { "Start", "(?i)start" },
-                        { "why", "(?i)why" },
-                        { "confirm", "(?i)(no|yes)(.*)" }
+                    Intents = new List<IntentPattern>() {
+                        new IntentPattern() {
+                            Intent = "Start",
+                            Pattern = "(?i)start"
+                        }
                        
                     }
                 },
                 //AutoEndDialog = false,
                 Events = new List<IOnEvent>()
                 {
-                    // Do not use beginDialog in root. If you must, ensure AutoEndDialog is set to false.
-                    //new OnBeginDialog()
-                    //{
-                    //    Actions = new List<IDialog>()
-                    //    {
-                    //        new SendActivity("Hello, welcome to the demo bot!")
-                    //    }
-                    //},
                     new OnConversationUpdateActivity()
                     {
                         Constraint = "toLower(turn.Activity.membersAdded[0].name) != 'bot'",
@@ -50,12 +42,32 @@ namespace Microsoft.BotBuilderSamples
                     new OnIntent() {
                         Intent = "Start",
                         Actions = new List<IDialog>() {
+                            new BeginDialog()
+                            {
+                                Id = "childDialog",
+                                Property = "$result"
+                            },
+                            new SendActivity("In outer dialog: I have {join($result, ',')")
+                        }
+                    }
+                }
+            };
+
+            var childDialog = new AdaptiveDialog("childDialog")
+            {
+                Events = new List<IOnEvent>()
+                {
+                    new OnBeginDialog()
+                    {
+                        Actions = new List<IDialog>()
+                        {
                             new TextInput() {
                                 Prompt = new ActivityTemplate("What is your name?"),
-                                Property = "user.name",
-                                AllowInterruptions = AllowInterruptions.Always,
+                                Property = "$name",
+                                AllowInterruptions = AllowInterruptions.Never,
                                 MaxTurnCount = 3,
                                 DefaultValue = "'Human'",
+                                DefaultValueResponse = new ActivityTemplate("Sorry, this is not working. For now, I've set your name as 'Human'"),
                                 Validations = new List<string>()
                                 {
                                     "length(turn.value) > 2",
@@ -66,8 +78,8 @@ namespace Microsoft.BotBuilderSamples
                             new NumberInput()
                             {
                                 Prompt = new ActivityTemplate("What is your age?"),
-                                Property = "user.age",
-                                AllowInterruptions = AllowInterruptions.Always,
+                                Property = "$age",
+                                AllowInterruptions = AllowInterruptions.Never,
                                 MaxTurnCount = 3,
                                 DefaultValue = "30",
                                 Validations = new List<string>()
@@ -77,52 +89,23 @@ namespace Microsoft.BotBuilderSamples
                                 },
                                 InvalidPrompt = new ActivityTemplate("Sorry, '{turn.value}' does not work. Give me something between 1-150. What is your age?")
                             },
-                            new ConfirmInput()
+                            new EditArray()
                             {
-                                Prompt = new ActivityTemplate("I have {user.name} as your name and {user.age} as your age. Does this look good to you?"),
-                                Property = "turn.confirm",
-                                AllowInterruptions = AllowInterruptions.Always
+                                ArrayProperty = "$result",
+                                Value = "$name",
+                                ChangeType = EditArray.ArrayChangeType.Push
                             },
-                            new IfCondition()
+                            new EditArray()
                             {
-                                Condition = "turn.confirm == true",
-                                Actions = new List<IDialog>()
-                                {
-                                    new SendActivity("Sure. you are all set!")
-                                }, 
-                                ElseActions = new List<IDialog>()
-                                {
-                                    new SendActivity("Ok. Here's what I have.."),
-                                    new SendActivity("I have {user.name} as your name and {user.age} as your age")
-                                }
+                                ArrayProperty = "$result",
+                                Value = "$age",
+                                ChangeType = EditArray.ArrayChangeType.Push
                             },
-                        }
-                    },
-                    new OnIntent()
-                    {
-                        Intent = "why",
-                        Actions = new List<IDialog>()
-                        {
-                            new SendActivity("I need the information to address you correctly")
-                        }
-                    },
-                    new OnIntent()
-                    {
-                        Intent = "confirm",
-                        Actions = new List<IDialog>()
-                        {
-                            new SendActivity("In confirm..."),
-                            new SetProperty()
+                            new SendActivity("I have {join($result, ',')"),
+                            new EndDialog()
                             {
-                                Property = "user.age",
-                                Value = "30"
+                                ResultProperty = "$result"
                             }
-                            //},
-                            //new SetProperty()
-                            //{
-                            //    Property = "turn.processInput",
-                            //    Value = "true"
-                            //}
                         }
                     }
                 }
@@ -130,6 +113,7 @@ namespace Microsoft.BotBuilderSamples
 
             // Add named dialogs to the DialogSet. These names are saved in the dialog state.
             AddDialog(rootDialog);
+            AddDialog(childDialog);
 
             // The initial child Dialog to run.
             InitialDialogId = nameof(AdaptiveDialog);
