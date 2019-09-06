@@ -32,6 +32,7 @@
     <ProjectReference Include="..\..\libraries\Microsoft.Bot.Builder.Expressions\Microsoft.Bot.Builder.Expressions.csproj" />
     <ProjectReference Include="..\..\libraries\Microsoft.Bot.Builder.Expressions.Parser\Microsoft.Bot.Builder.Expressions.Parser.csproj" />
     <ProjectReference Include="..\..\libraries\Microsoft.Bot.Builder.TemplateManager\Microsoft.Bot.Builder.TemplateManager.csproj" />
+    <ProjectReference Include="..\..\libraries\Microsoft.Bot.Connector\Microsoft.Bot.Connector.csproj" />
   </ItemGroup>
 
 </Project>
