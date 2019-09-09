@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\libraries\integration\Microsoft.Bot.Builder.Integration.AspNet.Core\Microsoft.Bot.Builder.Integration.AspNet.Core.csproj" />
+    <ProjectReference Include="..\..\libraries\Microsoft.Bot.Builder.Dialogs.Adaptive\Microsoft.Bot.Builder.Dialogs.Adaptive.csproj" />
+    <ProjectReference Include="..\..\libraries\Microsoft.Bot.Builder.Dialogs.Debugging\Microsoft.Bot.Builder.Dialogs.Debugging.csproj" />
+    <ProjectReference Include="..\..\libraries\Microsoft.Bot.Builder.Dialogs.Declarative\Microsoft.Bot.Builder.Dialogs.Declarative.csproj" />
+    <ProjectReference Include="..\..\libraries\Microsoft.Bot.Builder.LanguageGeneration.Renderer\Microsoft.Bot.Builder.LanguageGeneration.Renderer.csproj" />
+    <ProjectReference Include="..\..\libraries\Microsoft.Bot.Builder.LanguageGeneration\Microsoft.Bot.Builder.LanguageGeneration.csproj" />
+    <ProjectReference Include="..\..\tests\integration\Microsoft.Bot.Builder.Integration.AspNet.WebApi.Tests\Microsoft.Bot.Builder.Integration.AspNet.WebApi.Tests.csproj" />
+  </ItemGroup>
+
+</Project>

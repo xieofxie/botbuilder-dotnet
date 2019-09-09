@@ -1,0 +1,26 @@
+{
+    "$schema": "../../../schemas/sdk.schema",
+    "$type": "Microsoft.AdaptiveDialog",
+    "autoEndDialog": false,
+    "events": [
+        {
+            "$type": "Microsoft.OnBeginDialog",
+            "actions": [
+                {
+                    "$type": "Microsoft.SendActivity",
+                    "activity": "I found the following: {settings}"
+                },
+                {
+                    "$type": "Microsoft.TraceActivity",
+                    "value": "settings",
+                    "valueType": "String",
+                    "name": "Settings scope"
+                },
+                {
+                    "$type": "Microsoft.SendActivity",
+                    "activity": "You said '{turn.activity.text}'"
+                }
+            ]
+        }
+    ]
+}

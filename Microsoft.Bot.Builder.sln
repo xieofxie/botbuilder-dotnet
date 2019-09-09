@@ -140,6 +140,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{30C2
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestBed", "samples\TestBed\TestBed.csproj", "{653C2BA5-962F-45C1-A3E9-0392D663B187}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestBed-Declarative", "samples\TestBed-Declarative\TestBed-Declarative.csproj", "{7D680D95-E7A2-494E-B224-9D97A655121C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug - NuGet Packages|Any CPU = Debug - NuGet Packages|Any CPU
@@ -471,6 +473,12 @@ Global
 		{653C2BA5-962F-45C1-A3E9-0392D663B187}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{653C2BA5-962F-45C1-A3E9-0392D663B187}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{653C2BA5-962F-45C1-A3E9-0392D663B187}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D680D95-E7A2-494E-B224-9D97A655121C}.Debug - NuGet Packages|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D680D95-E7A2-494E-B224-9D97A655121C}.Debug - NuGet Packages|Any CPU.Build.0 = Debug|Any CPU
+		{7D680D95-E7A2-494E-B224-9D97A655121C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D680D95-E7A2-494E-B224-9D97A655121C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D680D95-E7A2-494E-B224-9D97A655121C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D680D95-E7A2-494E-B224-9D97A655121C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -533,6 +541,7 @@ Global
 		{BDCAC491-8518-4CE6-B56A-9E36936C7E70} = {4269F3C3-6B42-419B-B64A-3E6DC0F1574A}
 		{2454BBCD-77BC-4E3D-B5A6-3562BED898D6} = {AD743B78-D61F-4FBF-B620-FA83CE599A50}
 		{653C2BA5-962F-45C1-A3E9-0392D663B187} = {30C23494-3689-4931-981D-B0C0F72C0C6D}
+		{7D680D95-E7A2-494E-B224-9D97A655121C} = {30C23494-3689-4931-981D-B0C0F72C0C6D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7173C9F3-A7F9-496E-9078-9156E35D6E16}
