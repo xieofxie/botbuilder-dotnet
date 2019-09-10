@@ -2,6 +2,7 @@
     "$schema": "../../../schemas/sdk.schema",
     "$type": "Microsoft.AdaptiveDialog",
     "autoEndDialog": false,
+    "generator": "root.lg",
     "events": [
         {
             "$type": "Microsoft.OnBeginDialog",
@@ -18,7 +19,7 @@
                 },
                 {
                     "$type": "Microsoft.SendActivity",
-                    "activity": "You said '{turn.activity.text}'"
+                    "activity": "[EchoReadBack]"
                 }
             ]
         }
