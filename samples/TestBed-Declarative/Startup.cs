@@ -55,6 +55,9 @@ namespace Microsoft.BotBuilderSamples
 
             // Create the bot  In this case the ASP Controller is expecting an IBot.
             services.AddSingleton<IBot, TestBedBot>();
+
+            // Add this so settings memory scope is populated correctly.
+            //services.AddSingleton<IConfiguration>(this.Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

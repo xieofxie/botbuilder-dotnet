@@ -1,7 +1,6 @@
 {
     "$schema": "../../../schemas/sdk.schema",
     "$type": "Microsoft.AdaptiveDialog",
-    "autoEndDialog": false,
     "generator": "root.lg",
     "events": [
         {
@@ -9,17 +8,7 @@
             "actions": [
                 {
                     "$type": "Microsoft.SendActivity",
-                    "activity": "I found the following: {settings}"
-                },
-                {
-                    "$type": "Microsoft.TraceActivity",
-                    "value": "settings",
-                    "valueType": "String",
-                    "name": "Settings scope"
-                },
-                {
-                    "$type": "Microsoft.SendActivity",
-                    "activity": "[EchoReadBack]"
+                    "activity": "Hello!"
                 }
             ]
         }
