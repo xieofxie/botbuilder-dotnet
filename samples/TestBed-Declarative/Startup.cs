@@ -57,7 +57,7 @@ namespace Microsoft.BotBuilderSamples
             services.AddSingleton<IBot, TestBedBot>();
 
             // Add this so settings memory scope is populated correctly.
-            //services.AddSingleton<IConfiguration>(this.Configuration);
+            services.AddSingleton<IConfiguration>(this.Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

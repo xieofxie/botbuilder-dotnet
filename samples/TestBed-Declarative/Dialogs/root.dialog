@@ -1,5 +1,4 @@
 {
-    "$schema": "../../../schemas/sdk.schema",
     "$type": "Microsoft.AdaptiveDialog",
     "generator": "root.lg",
     "events": [
