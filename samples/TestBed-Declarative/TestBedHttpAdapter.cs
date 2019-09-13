@@ -20,6 +20,7 @@ namespace Microsoft.BotBuilderSamples
             IStorage storage, UserState userState, ConversationState conversationState, ResourceExplorer resourceExplorer)
             : base(credentialProvider)
         {
+            this.Use(new RegisterClassMiddleware<IConfiguration>(configuration));
             this.UseStorage(storage);
             this.UseState(userState, conversationState);
             this.UseResourceExplorer(resourceExplorer);
