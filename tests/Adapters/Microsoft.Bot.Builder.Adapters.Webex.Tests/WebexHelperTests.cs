@@ -5,7 +5,6 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Bot.Schema;
 using Moq;
 using Newtonsoft.Json;
@@ -16,63 +15,40 @@ namespace Microsoft.Bot.Builder.Adapters.Webex.Tests
 {
     public class WebexHelperTests
     {
+        private readonly Person _identity = JsonConvert.DeserializeObject<Person>(File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\Person.json"));
+
         [Fact]
-        public void PayloadToActivity_Should_Return_Null_With_Null_Payload()
+        public void PayloadToActivityShouldReturnNullWithNullPayload()
         {
-            Assert.Null(WebexHelper.PayloadToActivity(null));
+            Assert.Null(WebexHelper.PayloadToActivity(null, _identity));
         }
 
         [Fact]
-        public void PayloadToActivity_Should_Return_Activity()
+        public void PayloadToActivityShouldReturnActivity()
         {
             var payload = JsonConvert.DeserializeObject<WebhookEventData>(File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\Payload.json"));
-            WebexHelper.Identity = JsonConvert.DeserializeObject<Person>(File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\Person.json"));
 
-            var activity = WebexHelper.PayloadToActivity(payload);
+            var activity = WebexHelper.PayloadToActivity(payload, _identity);
 
             Assert.Equal(payload.Id, activity.Id);
             Assert.Equal(payload.ActorId, activity.From.Id);
         }
 
         [Fact]
-        public void ValidateSignature_Should_Fail_With_Missing_Signature()
+        public async void GetDecryptedMessageAsyncShouldReturnNullWithNullPayload()
         {
-            var httpRequest = new Mock<HttpRequest>();
-            httpRequest.SetupAllProperties();
-            httpRequest.SetupGet(req => req.Headers[It.IsAny<string>()]).Returns(string.Empty);
-
-            Assert.Throws<Exception>(() =>
-            {
-                WebexHelper.ValidateSignature("test_secret", httpRequest.Object, "{}");
-            });
+            Assert.Null(await WebexHelper.GetDecryptedMessageAsync(null, null, new CancellationToken()));
         }
 
         [Fact]
-        public void ValidateSignature_Should_Return_False()
+        public async void GetDecryptedMessageAsyncShouldSucceed()
         {
-            var httpRequest = new Mock<HttpRequest>();
-            httpRequest.SetupAllProperties();
-            httpRequest.Setup(req => req.Headers.ContainsKey(It.IsAny<string>())).Returns(true);
-            httpRequest.SetupGet(req => req.Headers[It.IsAny<string>()]).Returns("wrong_signature");
-            httpRequest.Object.Body = Stream.Null;
-
-            Assert.False(WebexHelper.ValidateSignature("test_secret", httpRequest.Object, "{}"));
-        }
-
-        [Fact]
-        public async void GetDecryptedMessageAsync_Should_Return_Null_With_Null_Payload()
-        {
-            Assert.Null(await WebexHelper.GetDecryptedMessageAsync(null, null));
-        }
-
-        [Fact]
-        public async void GetDecryptedMessageAsync_Should_Succeed()
-        {
+            var testOptions = new WebexAdapterOptions("Test", new Uri("http://contoso.com"), "Test");
             var payload = JsonConvert.DeserializeObject<WebhookEventData>(File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\Payload.json"));
 
             var message = JsonConvert.DeserializeObject<Message>(File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\Message.json"));
 
-            var webexApi = new Mock<WebexClientWrapper>();
+            var webexApi = new Mock<WebexClientWrapper>(testOptions);
             webexApi.SetupAllProperties();
             webexApi.Setup(x => x.GetMessageAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(message));
 
@@ -82,61 +58,61 @@ namespace Microsoft.Bot.Builder.Adapters.Webex.Tests
         }
 
         [Fact]
-        public void DecryptedMessageToActivity_Should_Return_Null_With_Null_Message()
+        public void DecryptedMessageToActivityShouldReturnNullWithNullMessage()
         {
-            Assert.Null(WebexHelper.DecryptedMessageToActivity(null));
+            Assert.Null(WebexHelper.DecryptedMessageToActivity(null, _identity));
         }
 
         [Fact]
-        public void DecryptedMessageToActivity_Should_Return_Activity_Type_SelfMessage()
+        public void DecryptedMessageToActivityShouldReturnActivityTypeSelfMessage()
         {
             var serializedPerson = "{\"id\":\"person_id\"}";
-            WebexHelper.Identity = JsonConvert.DeserializeObject<Person>(serializedPerson);
+            var identity = JsonConvert.DeserializeObject<Person>(serializedPerson);
 
             var message =
                 JsonConvert.DeserializeObject<Message>(
                     File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\Message.json"));
 
-            var activity = WebexHelper.DecryptedMessageToActivity(message);
+            var activity = WebexHelper.DecryptedMessageToActivity(message, identity);
 
             Assert.Equal(message.Id, activity.Id);
             Assert.Equal(ActivityTypes.Event, activity.Type);
         }
 
         [Fact]
-        public void DecryptedMessageToActivity_With_Html_Should_Return_Activity()
+        public void DecryptedMessageToActivityWithHtmlShouldReturnActivity()
         {
             var serializedPerson = "{\"id\":\"different_id\"}";
-            WebexHelper.Identity = JsonConvert.DeserializeObject<Person>(serializedPerson);
+            var identity = JsonConvert.DeserializeObject<Person>(serializedPerson);
 
             var message =
                 JsonConvert.DeserializeObject<Message>(
                     File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\MessageHtml.json"));
 
-            var activity = WebexHelper.DecryptedMessageToActivity(message);
+            var activity = WebexHelper.DecryptedMessageToActivity(message, identity);
 
             Assert.Equal(message.Id, activity.Id);
             Assert.Equal(message.Html, activity.Text);
         }
 
         [Fact]
-        public void DecryptedMessageToActivity_With_Html_Should_Return_Activity_When_Match()
+        public void DecryptedMessageToActivityWithHtmlShouldReturnActivityWhenMatch()
         {
             var serializedPerson = "{\"id\":\"/ciscospark://us/PEOPLE/different_id\"}";
-            WebexHelper.Identity = JsonConvert.DeserializeObject<Person>(serializedPerson);
+            var identity = JsonConvert.DeserializeObject<Person>(serializedPerson);
 
             var message =
                 JsonConvert.DeserializeObject<Message>(
                     File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\MessageHtml.json"));
 
-            var activity = WebexHelper.DecryptedMessageToActivity(message);
+            var activity = WebexHelper.DecryptedMessageToActivity(message, identity);
 
             Assert.Equal(message.Id, activity.Id);
             Assert.Equal(message.Html, activity.Text);
         }
 
         [Fact]
-        public void HandleMessageAttachments_Should_Fail_With_MoreThanOne_Attachment()
+        public void HandleMessageAttachmentsShouldFailWithMoreThanOneAttachment()
         {
             var message = JsonConvert.DeserializeObject<Message>(File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\MessageAttachments.json"));
 
@@ -147,7 +123,7 @@ namespace Microsoft.Bot.Builder.Adapters.Webex.Tests
         }
 
         [Fact]
-        public void HandleMessageAttachments_Should_Succeed()
+        public void HandleMessageAttachmentsShouldSucceed()
         {
             var message = JsonConvert.DeserializeObject<Message>(File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\Message.json"));
 
@@ -157,15 +133,14 @@ namespace Microsoft.Bot.Builder.Adapters.Webex.Tests
         }
 
         [Fact]
-        public void AttachmentActionToActivity_With_Null_Message_Should_Fail()
+        public void AttachmentActionToActivityWithNullMessageShouldFail()
         {
-            Assert.Null(WebexHelper.AttachmentActionToActivity(null));
+            Assert.Null(WebexHelper.AttachmentActionToActivity(null, _identity));
         }
 
         [Fact]
-        public void AttachmentActionToActivity_Should_Return_Activity_With_Empty_Text()
+        public void AttachmentActionToActivityShouldReturnActivityWithEmptyText()
         {
-            WebexHelper.Identity = JsonConvert.DeserializeObject<Person>(File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\Person.json"));
             var message =
                 JsonConvert.DeserializeObject<Message>(
                     File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\MessageWithInputs.json"));
@@ -173,7 +148,7 @@ namespace Microsoft.Bot.Builder.Adapters.Webex.Tests
             var data = JsonConvert.SerializeObject(message);
             var messageExtraData = JsonConvert.DeserializeObject<AttachmentActionData>(data);
 
-            var activity = WebexHelper.AttachmentActionToActivity(message);
+            var activity = WebexHelper.AttachmentActionToActivity(message, _identity);
 
             Assert.Equal(message.Id, activity.Id);
             Assert.Equal(messageExtraData.Inputs, activity.Value);
@@ -181,9 +156,8 @@ namespace Microsoft.Bot.Builder.Adapters.Webex.Tests
         }
 
         [Fact]
-        public void AttachmentActionToActivity_Should_Return_Activity_With_Text()
+        public void AttachmentActionToActivityShouldReturnActivityWithText()
         {
-            WebexHelper.Identity = JsonConvert.DeserializeObject<Person>(File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\Person.json"));
             var message =
                 JsonConvert.DeserializeObject<Message>(
                     File.ReadAllText(Directory.GetCurrentDirectory() + @"\Files\MessageWithText.json"));
@@ -191,7 +165,7 @@ namespace Microsoft.Bot.Builder.Adapters.Webex.Tests
             var data = JsonConvert.SerializeObject(message);
             var messageExtraData = JsonConvert.DeserializeObject<AttachmentActionData>(data);
 
-            var activity = WebexHelper.AttachmentActionToActivity(message);
+            var activity = WebexHelper.AttachmentActionToActivity(message, _identity);
 
             Assert.Equal(message.Id, activity.Id);
             Assert.Equal(messageExtraData.Inputs, activity.Value);

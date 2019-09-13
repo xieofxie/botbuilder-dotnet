@@ -15,8 +15,6 @@ namespace Microsoft.Bot.Builder.Adapters.Webex
 {
     public class WebexAdapter : BotAdapter
     {
-        private readonly WebexAdapterOptions _config;
-
         private readonly WebexClientWrapper _webexClient;
 
         /// <summary>
@@ -25,148 +23,11 @@ namespace Microsoft.Bot.Builder.Adapters.Webex
         /// </summary>
         /// <param name="config">An object containing API credentials, a webhook verification token and other options.</param>
         /// <param name="webexClient">A Webex API interface.</param>
-        public WebexAdapter(WebexAdapterOptions config, WebexClientWrapper webexClient)
+        public WebexAdapter(WebexClientWrapper webexClient)
         {
-            _config = config ?? throw new ArgumentNullException(nameof(config));
-
-            if (string.IsNullOrWhiteSpace(_config.AccessToken))
-            {
-                throw new Exception("AccessToken required to create controller");
-            }
-
-            if (string.IsNullOrWhiteSpace(_config.PublicAddress))
-            {
-                throw new Exception("PublicAddress parameter required to receive webhooks");
-            }
-
-            _config.PublicAddress = new Uri(_config.PublicAddress).Host;
-
             _webexClient = webexClient ?? throw new Exception("Could not create the Webex Teams API client");
 
-            _webexClient.CreateClient(_config.AccessToken);
-        }
-
-        /// <summary>
-        /// Load the bot's identity via the WebEx API.
-        /// MUST be called by BotBuilder bots in order to filter messages sent by the bot.
-        /// </summary>
-        /// <param name="cancellationToken">A cancellation token for the task.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public async Task GetIdentityAsync(CancellationToken? cancellationToken = null)
-        {
-            await _webexClient.GetMeAsync(cancellationToken).ContinueWith(
-                task => { WebexHelper.Identity = task.Result; }, TaskScheduler.Current).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// Lists all webhook subscriptions currently associated with this application.
-        /// </summary>
-        /// <param name="cancellationToken">A cancellation token for the task.</param>
-        /// <returns>A list of webhook subscriptions.</returns>
-        public async Task<WebhookList> ListWebhookSubscriptionsAsync(CancellationToken? cancellationToken = null)
-        {
-            return await _webexClient.ListWebhooksAsync(cancellationToken).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// Clears out and resets the list of webhook subscriptions.
-        /// </summary>
-        /// <param name="webhookList">List of webhook subscriptions to be deleted.</param>
-        /// <param name="cancellationToken">A cancellation token for the task.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public async Task ResetWebhookSubscriptionsAsync(WebhookList webhookList, CancellationToken? cancellationToken = null)
-        {
-            for (var i = 0; i < webhookList.ItemCount; i++)
-            {
-                await _webexClient.DeleteWebhookAsync(webhookList.Items[i], cancellationToken).ConfigureAwait(false);
-            }
-        }
-
-        /// <summary>
-        /// Register webhook subscriptions to start receiving message events and adaptive cards events.
-        /// </summary>
-        /// <param name="webhookPath">The path of the webhook endpoint like '/api/messages'.</param>
-        /// <param name="webhookList">List of webhook subscriptions associated with the application.</param>
-        /// <param name="cancellationToken">A cancellation token for the task.</param>
-        /// <returns>An array of registered <see cref="Webhook"/>.</returns>
-        public async Task<Webhook[]> RegisterWebhookSubscriptionsAsync(string webhookPath, WebhookList webhookList, CancellationToken cancellationToken)
-        {
-            var webHookName = string.IsNullOrWhiteSpace(_config.WebhookName) ? "Webex Firehose" : _config.WebhookName;
-            var webHookCardsName = string.IsNullOrWhiteSpace(_config.WebhookName) ? "Webex AttachmentActions" : $"{_config.WebhookName}_AttachmentActions)";
-
-            string hookId = null;
-            string hookCardsId = null;
-
-            for (var i = 0; i < webhookList.ItemCount; i++)
-            {
-                if (webhookList.Items[i].Name == webHookName)
-                {
-                    hookId = webhookList.Items[i].Id;
-                }
-                else if (webhookList.Items[i].Name == webHookCardsName)
-                {
-                    hookCardsId = webhookList.Items[i].Id;
-                }
-            }
-
-            var hookUrl = "https://" + _config.PublicAddress + webhookPath;
-
-            Webhook webhook;
-            Webhook cardsWebhook;
-
-            webhook = await RegisterWebhookSubscriptionAsync(hookId, webHookName, hookUrl, cancellationToken).ConfigureAwait(false);
-
-            cardsWebhook = await RegisterAdaptiveCardsWebhookSubscriptionAsync(hookCardsId, webHookCardsName, hookUrl, cancellationToken).ConfigureAwait(false);
-
-            return new Webhook[] { webhook, cardsWebhook };
-        }
-
-        /// <summary>
-        /// Register a webhook subscription with Webex Teams to start receiving message events.
-        /// </summary>
-        /// <param name="hookId">The id of the webhook to be registered.</param>
-        /// <param name="webHookName">The name of the webhook to be registered.</param>
-        /// <param name="hookUrl">The Url of the webhook.</param>
-        /// <param name="cancellationToken">A cancellation token for the task.</param>
-        /// <returns>The registered <see cref="Webhook"/>.</returns>
-        public async Task<Webhook> RegisterWebhookSubscriptionAsync(string hookId, string webHookName, string hookUrl, CancellationToken cancellationToken)
-        {
-            Webhook webhook;
-
-            if (hookId != null)
-            {
-                webhook = await _webexClient.UpdateWebhookAsync(hookId, webHookName, new Uri(hookUrl), _config.Secret, cancellationToken).ConfigureAwait(false);
-            }
-            else
-            {
-                webhook = await _webexClient.CreateWebhookAsync(webHookName, new Uri(hookUrl), EventResource.All, EventType.All, null, _config.Secret, cancellationToken).ConfigureAwait(false);
-            }
-
-            return webhook;
-        }
-
-        /// <summary>
-        /// Register a webhook subscription with Webex Teams to start receiving events related to adaptive cards.
-        /// </summary>
-        /// <param name="hookId">The id of the webhook to be registered.</param>
-        /// <param name="webHookName">The name of the webhook to be registered.</param>
-        /// <param name="hookUrl">The Url of the webhook.</param>
-        /// <param name="cancellationToken">A cancellation token for the task.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public async Task<Webhook> RegisterAdaptiveCardsWebhookSubscriptionAsync(string hookId, string webHookName, string hookUrl, CancellationToken cancellationToken)
-        {
-            Webhook webhook;
-
-            if (hookId != null)
-            {
-                webhook = await _webexClient.UpdateAdaptiveCardsWebhookAsync(hookId, webHookName, new Uri(hookUrl), _config.Secret, _config.AccessToken, cancellationToken).ConfigureAwait(false);
-            }
-            else
-            {
-                webhook = await _webexClient.CreateAdaptiveCardsWebhookAsync(webHookName, new Uri(hookUrl), EventType.All, _config.Secret, _config.AccessToken, cancellationToken).ConfigureAwait(false);
-            }
-
-            return webhook;
+            _webexClient.InitAsync().ConfigureAwait(false);
         }
 
         /// <summary>
@@ -211,7 +72,7 @@ namespace Microsoft.Bot.Builder.Adapters.Webex
                 {
                     if (activity.Attachments[0].ContentType == "application/vnd.microsoft.card.adaptive")
                     {
-                        responseId = await _webexClient.CreateMessageWithAttachmentsAsync(personIdOrEmail, activity.Text, activity.Attachments, _config.AccessToken, cancellationToken).ConfigureAwait(false);
+                        responseId = await _webexClient.CreateMessageWithAttachmentsAsync(personIdOrEmail, activity.Text, activity.Attachments, cancellationToken).ConfigureAwait(false);
                     }
                     else
                     {
@@ -300,7 +161,7 @@ namespace Microsoft.Bot.Builder.Adapters.Webex
         /// <param name="bot">A bot with logic function in the form.</param>
         /// <param name="cancellationToken">A cancellation token for the task.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public async Task ProcessAsync(HttpRequest request, HttpResponse response, IBot bot, CancellationToken cancellationToken = default)
+        public async Task ProcessAsync(HttpRequest request, HttpResponse response, IBot bot, CancellationToken cancellationToken)
         {
             if (request == null)
             {
@@ -317,6 +178,8 @@ namespace Microsoft.Bot.Builder.Adapters.Webex
                 throw new ArgumentNullException(nameof(bot));
             }
 
+            await _webexClient.GetIdentityAsync(cancellationToken).ConfigureAwait(false);
+
             WebhookEventData payload;
             string json;
 
@@ -326,12 +189,9 @@ namespace Microsoft.Bot.Builder.Adapters.Webex
                 payload = JsonConvert.DeserializeObject<WebhookEventData>(json);
             }
 
-            if (!string.IsNullOrWhiteSpace(_config.Secret))
+            if (!_webexClient.ValidateSignature(request, json))
             {
-                if (!WebexHelper.ValidateSignature(_config.Secret, request, json))
-                {
-                    throw new Exception("WARNING: Webhook received message with invalid signature. Potential malicious behavior!");
-                }
+                throw new Exception("WARNING: Webhook received message with invalid signature. Potential malicious behavior!");
             }
 
             Activity activity;
@@ -340,7 +200,7 @@ namespace Microsoft.Bot.Builder.Adapters.Webex
             {
                 var decryptedMessage = await WebexHelper.GetDecryptedMessageAsync(payload, _webexClient.GetMessageAsync, cancellationToken).ConfigureAwait(false);
 
-                activity = WebexHelper.DecryptedMessageToActivity(decryptedMessage);
+                activity = WebexHelper.DecryptedMessageToActivity(decryptedMessage, _webexClient.Identity);
             }
             else if (payload.Resource.Name == "attachmentActions" && payload.EventType == EventType.Created)
             {
@@ -350,13 +210,13 @@ namespace Microsoft.Bot.Builder.Adapters.Webex
 
                 var jsongData = JsonConvert.DeserializeObject<AttachmentActionData>(data);
 
-                var decryptedMessage = await _webexClient.GetAttachmentActionAsync(jsongData.Id, _config.AccessToken, cancellationToken).ConfigureAwait(false);
+                var decryptedMessage = await _webexClient.GetAttachmentActionAsync(jsongData.Id, cancellationToken).ConfigureAwait(false);
 
-                activity = WebexHelper.AttachmentActionToActivity(decryptedMessage);
+                activity = WebexHelper.AttachmentActionToActivity(decryptedMessage, _webexClient.Identity);
             }
             else
             {
-                activity = WebexHelper.PayloadToActivity(payload);
+                activity = WebexHelper.PayloadToActivity(payload, _webexClient.Identity);
             }
 
             using (var context = new TurnContext(this, activity))
