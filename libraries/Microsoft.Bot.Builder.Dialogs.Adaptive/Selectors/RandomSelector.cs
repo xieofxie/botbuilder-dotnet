@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Bot.Builder.Dialogs.Adaptive.TriggerHandlers;
 using Microsoft.Bot.Builder.Expressions;
 using Microsoft.Bot.Builder.Expressions.Parser;
 
@@ -12,9 +11,9 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Selectors
     /// <summary>
     /// Select a random true rule implementation of IRuleSelector.
     /// </summary>
-    public class RandomSelector : ITriggerSelector
+    public class RandomSelector : IEventSelector
     {
-        private List<TriggerHandler> _triggerHandlers;
+        private List<IOnEvent> _rules;
         private bool _evaluate;
         private Random _rand;
         private int _seed = -1;
@@ -37,9 +36,9 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Selectors
             }
         }
 
-        public void Initialize(IEnumerable<TriggerHandler> triggerHandlers, bool evaluate)
+        public void Initialize(IEnumerable<IOnEvent> rules, bool evaluate)
         {
-            _triggerHandlers = triggerHandlers.ToList();
+            _rules = rules.ToList();
             _evaluate = evaluate;
             if (_rand == null)
             {
@@ -50,12 +49,12 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Selectors
         public Task<IReadOnlyList<int>> Select(SequenceContext context, CancellationToken cancel = default(CancellationToken))
         {
             var candidates = new List<int>();
-            for (var i = 0; i < _triggerHandlers.Count; ++i)
+            for (var i = 0; i < _rules.Count; ++i)
             {
                 if (_evaluate)
                 {
-                    var triggerHandler = _triggerHandlers[i];
-                    var expression = triggerHandler.GetExpression(_parser);
+                    var rule = _rules[i];
+                    var expression = rule.GetExpression(_parser);
                     var (value, error) = expression.TryEvaluate(context.State);
                     var eval = error == null && (bool)value;
                     if (eval == true)

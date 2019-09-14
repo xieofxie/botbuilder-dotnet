@@ -8,14 +8,12 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Bot.Builder.Dialogs.Adaptive.TriggerHandlers;
+using Microsoft.Bot.Builder.Dialogs.Adaptive.Events;
 using Microsoft.Bot.Builder.Dialogs.Adaptive.Selectors;
 using Microsoft.Bot.Builder.Dialogs.Debugging;
 using Microsoft.Bot.Builder.LanguageGeneration;
 using Microsoft.Bot.Schema;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 using static Microsoft.Bot.Builder.Dialogs.Debugging.DebugSupport;
 
 namespace Microsoft.Bot.Builder.Dialogs.Adaptive
@@ -46,17 +44,26 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive
         /// <summary>
         /// Gets or sets recognizer for processing incoming user input.
         /// </summary>
+        /// <value>
+        /// Recognizer for processing incoming user input.
+        /// </value>
         public IRecognizer Recognizer { get; set; }
 
         /// <summary>
         /// Gets or sets language Generator override.
         /// </summary>
+        /// <value>
+        /// Language Generator override.
+        /// </value>
         public ILanguageGenerator Generator { get; set; }
 
         /// <summary>
-        /// Gets or sets trigger handlers to respond to conditions which modifying the executing plan. 
+        /// Gets or sets rules for handling events to dynamic modifying the executing plan. 
         /// </summary>
-        public virtual List<TriggerHandler> Triggers { get; set; } = new List<TriggerHandler>();
+        /// <value>
+        /// Rules for handling events to dynamic modifying the executing plan. 
+        /// </value>
+        public virtual List<IOnEvent> Events { get; set; } = new List<IOnEvent>();
 
         /// <summary>
         /// Gets or sets a value indicating whether to end the dialog when there are no actions to execute.
@@ -76,10 +83,13 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive
         /// <value>
         /// The selector for picking the possible events to execute.
         /// </value>
-        public ITriggerSelector Selector { get; set; }
+        public IEventSelector Selector { get; set; }
 
         /// <summary>
         /// Gets or sets the property to return as the result when the dialog ends when there are no more Actions and AutoEndDialog = true.
+        /// </summary>
+        /// <value>
+        /// The property to return as the result when the dialog ends when there are no more Actions and AutoEndDialog = true.
         /// </value>
         public string DefaultResultProperty { get; set; } = "dialog.result";
 
@@ -167,17 +177,17 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive
             }
         }
 
-        public void AddTriggerHandler(TriggerHandler trigger)
+        public void AddEvent(IOnEvent evt)
         {
-            trigger.Actions.ForEach(action => _dialogs.Add(action));
-            this.Triggers.Add(trigger);
+            evt.Actions.ForEach(action => _dialogs.Add(action));
+            this.Events.Add(evt);
         }
 
-        public void AddTriggerHandlers(IEnumerable<TriggerHandler> triggers)
+        public void AddEvents(IEnumerable<IOnEvent> events)
         {
-            foreach (var evt in triggers)
+            foreach (var evt in events)
             {
-                this.AddTriggerHandler(evt);
+                this.AddEvent(evt);
             }
         }
 
@@ -499,7 +509,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive
             var selection = await Selector.Select(sequenceContext, cancellationToken).ConfigureAwait(false);
             if (selection.Any())
             {
-                var evt = Triggers[selection.First()];
+                var evt = Events[selection.First()];
                 await sequenceContext.DebuggerStepAsync(evt, dialogEvent, cancellationToken).ConfigureAwait(false);
                 System.Diagnostics.Trace.TraceInformation($"Executing Dialog: {this.Id} Rule[{selection}]: {evt.GetType().Name}: {evt.GetExpression(null)}");
                 var changes = await evt.ExecuteAsync(sequenceContext).ConfigureAwait(false);
@@ -541,7 +551,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive
                 {
                     installedDependencies = true;
 
-                    foreach (var @event in this.Triggers)
+                    foreach (var @event in this.Events)
                     {
                         AddDialogs(@event.Actions);
                     }
@@ -556,7 +566,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive
                         };
                     }
 
-                    this.Selector.Initialize(this.Triggers, true);
+                    this.Selector.Initialize(this.Events, true);
                 }
             }
         }

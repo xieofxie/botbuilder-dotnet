@@ -2,7 +2,7 @@
     "$schema": "../../app.schema",
     "$type": "Microsoft.AdaptiveDialog",
     "$id": "root",
-    "triggers": [
+    "events": [
         {
             "$type": "Microsoft.OnBeginDialog",
             "actions": [

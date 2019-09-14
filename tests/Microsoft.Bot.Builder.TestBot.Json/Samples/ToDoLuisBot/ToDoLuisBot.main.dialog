@@ -5,7 +5,7 @@
     "autoEndDialog": false,
     "generator": "ToDoLuisBot.lg",
     "recognizer": "ToDoLuis.lu",
-    "triggers": [
+    "events": [
         {
             "$type": "Microsoft.OnBeginDialog",
             "actions": [

@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Bot.Builder.Dialogs.Adaptive.TriggerHandlers;
 using Microsoft.Bot.Builder.Expressions;
 using Microsoft.Bot.Builder.Expressions.Parser;
 
@@ -11,9 +10,9 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Selectors
     /// <summary>
     /// Select between two rule selectors based on a condition.
     /// </summary>
-    public class ConditionalSelector : ITriggerSelector
+    public class ConditionalSelector : IEventSelector
     {
-        private IReadOnlyList<TriggerHandler> _triggerHandlers;
+        private IReadOnlyList<IOnEvent> _rules;
         private bool _evaluate;
         private Expression condition;
 
@@ -35,7 +34,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Selectors
         /// <value>
         /// Selector if <see cref="Condition"/> is true.
         /// </value>
-        public ITriggerSelector IfTrue { get; set; }
+        public IEventSelector IfTrue { get; set; }
 
         /// <summary>
         /// Gets or sets selector if <see cref="Condition"/> is false.
@@ -43,11 +42,11 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Selectors
         /// <value>
         /// Selector if <see cref="Condition"/> is false.
         /// </value>
-        public ITriggerSelector IfFalse { get; set; }
+        public IEventSelector IfFalse { get; set; }
 
-        public void Initialize(IEnumerable<TriggerHandler> triggerHandlers, bool evaluate = true)
+        public void Initialize(IEnumerable<IOnEvent> rules, bool evaluate = true)
         {
-            _triggerHandlers = triggerHandlers.ToList();
+            _rules = rules.ToList();
             _evaluate = evaluate;
         }
 
@@ -55,16 +54,16 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Selectors
         {
             var (value, error) = condition.TryEvaluate(context.State);
             var eval = error == null && (bool)value;
-            ITriggerSelector selector;
+            IEventSelector selector;
             if (eval)
             {
                 selector = IfTrue;
-                IfTrue.Initialize(_triggerHandlers, _evaluate);
+                IfTrue.Initialize(_rules, _evaluate);
             }
             else
             {
                 selector = IfFalse;
-                IfFalse.Initialize(_triggerHandlers, _evaluate);
+                IfFalse.Initialize(_rules, _evaluate);
             }
 
             return await selector.Select(context, cancel).ConfigureAwait(false);

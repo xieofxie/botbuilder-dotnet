@@ -26,7 +26,7 @@
             }
         ]
     },
-    "triggers": [
+    "events": [
         {
             "$type": "Microsoft.OnIntent",
             "intent": "End",
