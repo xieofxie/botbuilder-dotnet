@@ -8,6 +8,10 @@
                 {
                     "$type": "Microsoft.SendActivity",
                     "activity": "Hello!"
+                },
+                {
+                    "$type": "Microsoft.TraceActivity",
+                    "activity": "{settings}"
                 }
             ]
         }

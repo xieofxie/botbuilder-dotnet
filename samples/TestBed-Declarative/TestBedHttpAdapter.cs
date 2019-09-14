@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.Bot.Builder;
-using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Dialogs.Adaptive;
 using Microsoft.Bot.Builder.Dialogs.Debugging;
 using Microsoft.Bot.Builder.Dialogs.Declarative;
@@ -25,10 +24,12 @@ namespace Microsoft.BotBuilderSamples
             this.UseState(userState, conversationState);
             this.UseResourceExplorer(resourceExplorer);
             this.UseLanguageGeneration(resourceExplorer);
+            this.UseAdaptiveDialogs();
             this.UseDebugger(configuration.GetValue<int>("debugport", 4712), events: new Events<AdaptiveEvents>());
 
             this.OnTurnError = async (turnContext, exception) =>
             {
+
                 // Log any leaked exception from the application.
                 logger.LogError($"Exception caught : {exception.Message}");
 
