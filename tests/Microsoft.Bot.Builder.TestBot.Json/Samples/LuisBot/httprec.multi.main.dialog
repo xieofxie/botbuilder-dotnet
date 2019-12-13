@@ -1,0 +1,38 @@
+{
+  "$kind": "Microsoft.AdaptiveDialog",
+  "autoEndDialog": false,
+  "recognizer": {
+    "$kind": "Microsoft.MultiLanguageRecognizer",
+    "recognizers": {
+      "en": {
+        "$kind": "Microsoft.HttpRecognizer",
+        "method": "GET",
+        "url": "http://localhost:8000/get_intent_list?query=@{uriComponent(turn.activity.text)}",
+        "intents": "\\{\"None\":\\{\"score\":\"1\"\\}\\}",
+        "entities": "{\"Add\": [ @{join(foreach(intent_list,y,join(foreach(where(y,x,x.intent=='Add'),x,concat('{\"value\":',x.entities[0].entity,'}')),',')),',')} ], \"Del\": [ @{join(foreach(intent_list,y,join(foreach(where(y,x,x.intent=='Del'),x,concat('{\"value\":',x.entities[0].entity,'}')),',')),',')} ]}"
+      }
+    }
+  },
+  "triggers": [
+    {
+      "$kind": "Microsoft.OnBeginDialog",
+      "actions": [
+        {
+          "$kind": "Microsoft.SendActivity",
+          "activity": "Example: increase 20 and i want to decrease 20. add 30 and then del 20 please"
+        }
+      ]
+    },
+    {
+      "$kind": "Microsoft.OnIntent",
+      "intent": "None",
+      "actions": [
+        {
+          "$kind": "Microsoft.SendActivity",
+          "activity": "Result @{sum(foreach(@@Add, x, x.value)) - sum(foreach(@@Del, x, x.value))}"
+        }
+      ]
+    }
+  ],
+  "$schema": "../../app.schema"
+}

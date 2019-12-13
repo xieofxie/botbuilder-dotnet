@@ -1,0 +1,50 @@
+{
+  "$kind": "Microsoft.AdaptiveDialog",
+  "autoEndDialog": false,
+  "recognizer": {
+    "$kind": "Microsoft.MultiLanguageRecognizer",
+    "recognizers": {
+      "en": {
+        "$kind": "Microsoft.HttpRecognizer",
+        "method": "POST",
+        "url": "",
+        "body": {
+          "input": "@{turn.activity.text}"
+        },
+        "intents": "\\{@{join(foreach(cats,cat,concat(cat.key,':{\"score\":\"',string(cat.value),'\"}')),',')}\\}"
+      }
+    }
+  },
+  "triggers": [
+    {
+      "$kind": "Microsoft.OnBeginDialog",
+      "actions": [
+        {
+          "$kind": "Microsoft.SendActivity",
+          "activity": "Example: the movie is not good"
+        }
+      ]
+    },
+    {
+      "$kind": "Microsoft.OnIntent",
+      "intent": "POSITIVE",
+      "actions": [
+        {
+          "$kind": "Microsoft.SendActivity",
+          "activity": "Thanks~"
+        }
+      ]
+    },
+    {
+      "$kind": "Microsoft.OnIntent",
+      "intent": "NEGATIVE",
+      "actions": [
+        {
+          "$kind": "Microsoft.SendActivity",
+          "activity": "Sorry to here that."
+        }
+      ]
+    }
+  ],
+  "$schema": "../../app.schema"
+}
