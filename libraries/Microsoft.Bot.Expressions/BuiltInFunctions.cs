@@ -12,10 +12,12 @@ using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Xml;
 using System.Xml.Linq;
 using Microsoft.Bot.Expressions.Memory;
 using Microsoft.Recognizers.Text.DataTypes.TimexExpression;
+using Moq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -40,7 +42,11 @@ namespace Microsoft.Bot.Expressions
         /// Random number generator used for expressions.
         /// </summary>
         /// <remarks>This is exposed so that you can explicitly seed the random number generator for tests.</remarks>
+#if DEBUG
+        public static readonly Random Randomizer = new MockRandom().Object;
+#else
         public static readonly Random Randomizer = new Random();
+#endif
 
         /// <summary>
         /// The default date time format string.
@@ -3570,5 +3576,47 @@ namespace Microsoft.Bot.Expressions
             lookup.Add("concat", lookup[ExpressionType.Concat]);
             return lookup;
         }
+
+#if DEBUG
+        private class MockRandom : Mock<Random>
+        {
+            private Semaphore _semaphore;
+            private readonly int _millisecondsTimeout;
+
+            public MockRandom(int millisecondsTimeout = 3000)
+            {
+                _millisecondsTimeout = millisecondsTimeout;
+                Setup(x => x.Next(It.IsAny<int>(), It.IsAny<int>())).Returns((int min, int max) => Next(min, max));
+            }
+
+            private int Next(int min, int max)
+            {
+                // If it is called by multiple threads at the same time, the first thread will throw the exception so it is fine even though the second one is waiting;
+                // If called by one thread at one time, semaphore will always be clear and nothing happens (only time passed).
+                lock (this)
+                {
+                    if (_semaphore == null)
+                    {
+                        _semaphore = new Semaphore(0, 1);
+                    }
+                    else
+                    {
+                        _semaphore.Release();
+                    }
+                }
+
+                if (_semaphore.WaitOne(_millisecondsTimeout))
+                {
+                    throw new Exception("Random Next is called by multiple threads at the same time!");
+                }
+                else
+                {
+                    _semaphore = null;
+                }
+
+                return min;
+            }
+        }
+#endif
     }
 }

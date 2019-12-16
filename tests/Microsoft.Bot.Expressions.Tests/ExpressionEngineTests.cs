@@ -6,6 +6,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using Microsoft.Bot.Expressions;
 using Microsoft.Bot.Expressions.Memory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -780,6 +781,29 @@ namespace Microsoft.Bot.Expressions.Tests
             exp = parser.Parse("json(x).b");
             (path, left, err) = BuiltInFunctions.TryAccumulatePath(exp, memory);
             Assert.AreEqual(path, "b");
+        }
+
+        [TestMethod]
+        public void TestConcurrency()
+        {
+            var input = "rand(1, 2)";
+            var expected = 1;
+            var parsed = new ExpressionEngine().Parse(input);
+            Assert.IsNotNull(parsed);
+
+            var t = new Thread(() =>
+            {
+                var (actual, msg) = parsed.TryEvaluate(new object());
+                Assert.AreEqual(null, msg);
+                AssertObjectEquals(expected, actual);
+            });
+
+            t.Start();
+            var (actual, msg) = parsed.TryEvaluate(new object());
+            Assert.AreEqual(null, msg);
+            AssertObjectEquals(expected, actual);
+
+            t.Join();
         }
 
         private void AssertObjectEquals(object expected, object actual)
