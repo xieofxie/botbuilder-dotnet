@@ -83,6 +83,9 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Testing
         [JsonProperty("script")]
         public List<TestAction> Script { get; set; } = new List<TestAction>();
 
+        [JsonProperty("mock")]
+        public List<TestMock> Mock { get; set; } = new List<TestMock>();
+
         /// <summary>
         /// Gets or sets a value indicating whether trace activities should be passed to the test script.
         /// </summary>
@@ -117,6 +120,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Testing
                 var userState = new UserState(storage);
                 adapter = (TestAdapter)new TestAdapter(TestAdapter.CreateConversation(testName))
                     .Use(new RegisterClassMiddleware<IConfiguration>(TypeFactory.Configuration))
+                    .Use(new MockMiddleware(Mock))
                     .UseStorage(storage)
                     .UseState(userState, convoState)
                     .UseResourceExplorer(resourceExplorer)

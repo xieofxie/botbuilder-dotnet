@@ -1,0 +1,42 @@
+﻿{
+    "$schema": "../../../../schemas/sdk.schema",
+    "$kind": "Microsoft.Test.Script",
+    "dialog": {
+        "$kind": "Microsoft.AdaptiveDialog",
+        "id": "httpRequestTest",
+        "triggers": [
+            {
+                "$kind": "Microsoft.OnUnknownIntent",
+                "actions": [
+                    {
+                        "$kind": "Microsoft.HttpRequest",
+                        "method": "GET",
+                        "url": "http://mock",
+                        "mockable": true,
+                        "resultProperty": "dialog.httpResult"
+                    },
+                    {
+                        "$kind": "Microsoft.Test.AssertCondition",
+                        "condition": "dialog.httpResult.content.text == 'HttpRequest Result'",
+                        "description": "httpResult should be correct"
+                    }
+                ]
+            }
+        ],
+        "defaultResultProperty": "dialog.result"
+    },
+    "script": [
+        {
+            "$kind": "Microsoft.Test.UserSays",
+            "text": "hi"
+        }
+    ],
+    "mock": [
+        {
+            "$kind": "Microsoft.Test.HttpRequestMock",
+            "method": "GET",
+            "url": "http://mock",
+            "responseContent": "{\"text\":\"HttpRequest Result\"}"
+        }
+    ]
+}

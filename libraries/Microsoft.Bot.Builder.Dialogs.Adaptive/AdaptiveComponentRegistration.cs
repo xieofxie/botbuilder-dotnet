@@ -14,6 +14,7 @@ using Microsoft.Bot.Builder.Dialogs.Adaptive.Selectors;
 using Microsoft.Bot.Builder.Dialogs.Adaptive.Testing;
 using Microsoft.Bot.Builder.Dialogs.Adaptive.Testing.Actions;
 using Microsoft.Bot.Builder.Dialogs.Adaptive.Testing.TestActions;
+using Microsoft.Bot.Builder.Dialogs.Adaptive.Testing.TestMocks;
 using Microsoft.Bot.Builder.Dialogs.Debugging;
 using Microsoft.Bot.Builder.Dialogs.Declarative;
 using Microsoft.Bot.Builder.Dialogs.Declarative.Converters;
@@ -143,12 +144,16 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive
             yield return new TypeRegistration<AssertReply>(AssertReply.DeclarativeType);
             yield return new TypeRegistration<AssertReplyOneOf>(AssertReplyOneOf.DeclarativeType);
             yield return new TypeRegistration<AssertReplyActivity>(AssertReplyActivity.DeclarativeType);
+
+            // test mocks
+            yield return new TypeRegistration<HttpRequestMock>(HttpRequestMock.DeclarativeType);
         }
 
         public override IEnumerable<JsonConverter> GetConverters(ISourceMap sourceMap, IRefResolver refResolver, Stack<string> paths)
         {
             yield return new InterfaceConverter<OnCondition>(refResolver, sourceMap, paths);
             yield return new InterfaceConverter<TestAction>(refResolver, sourceMap, paths);
+            yield return new InterfaceConverter<TestMock>(refResolver, sourceMap, paths);
             yield return new InterfaceConverter<EntityRecognizer>(refResolver, sourceMap, paths);
             yield return new InterfaceConverter<ITriggerSelector>(refResolver, sourceMap, paths);
             yield return new ExpressionPropertyConverter<ChoiceSet>();

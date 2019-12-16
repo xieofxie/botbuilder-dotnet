@@ -118,6 +118,12 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
         }
 
         [TestMethod]
+        public async Task Action_HttpRequest()
+        {
+            await TestUtils.RunTestScript();
+        }
+
+        [TestMethod]
         public async Task Action_IfCondition()
         {
             await TestUtils.RunTestScript();
