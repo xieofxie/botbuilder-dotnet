@@ -1,0 +1,126 @@
+{
+    "$schema": "../../app.schema",
+    "$kind": "Microsoft.AdaptiveDialog",
+    "autoEndDialog": false,
+    "recognizer": {
+        "$kind": "Microsoft.LuisRecognizer",
+        "applicationId": "{settings.luis.CacheableId}",
+        "endpoint": "{settings.luis.endpoint}",
+        "endpointKey": "{settings.luis.endpointKey}",
+        "failureStrategy": "CacheAndFallback",
+        "failureFallback": {
+            "$kind": "Microsoft.RegexRecognizer",
+            "intents": [
+                {
+                    "$kind": "Microsoft.IntentPattern",
+                    "intent": "Weather",
+                    "pattern": "(?i)weather( (?:in|of|about) (?<location>.+))?"
+                },
+                {
+                    "$kind": "Microsoft.IntentPattern",
+                    "intent": "TurnOn",
+                    "pattern": "(?i)turn on"
+                },
+                {
+                    "$kind": "Microsoft.IntentPattern",
+                    "intent": "TurnOff",
+                    "pattern": "(?i)turn off"
+                }
+            ]
+        }     
+    },
+    "triggers": [
+        {
+            "$kind": "Microsoft.OnBeginDialog",
+            "actions": [
+                {
+                    "$kind": "Microsoft.SendActivity",
+                    "activity": "Hi! I'm your home assistant. Try \"what's the weather\" or \"turn on lights\" to get started."
+                }
+            ]
+        },
+        {
+            "$kind": "Microsoft.OnIntent",
+            "intent": "Weather",
+            "actions": [
+                {
+                    "$kind": "Microsoft.SetProperty",
+                    "property": "turn.location",
+                    "value": "if(@geographyV2,getProperty(@geographyV2,'location'),@location)"
+                },
+                {
+                    "$kind": "Microsoft.HttpRequest",
+                    "url": "http://dataservice.accuweather.com/locations/v1/search?q=@{if(turn.location,turn.location,'seattle')}&apikey=@{settings.WeatherApiKey}",
+                    "method": "GET",
+                    "resultProperty": "turn.locationSearch",
+                    "failureStrategy": "CacheAndFallback",
+                    "failureFallback": [
+                        {
+                            "$kind": "Microsoft.GotoAction",
+                            "actionId": "done"
+                        }
+                    ]
+                },
+                {
+                    "$kind": "Microsoft.HttpRequest",
+                    "url": "http://dataservice.accuweather.com/currentconditions/v1/@{turn.locationSearch.content[0].Key}?apikey=@{settings.WeatherApiKey}",
+                    "method": "GET",
+                    "resultProperty": "turn.weather",
+                    "failureStrategy": "CacheAndFallback",
+                    "failureFallback": [
+                        {
+                            "$kind": "Microsoft.GotoAction",
+                            "actionId": "done"
+                        }
+                    ]
+                },
+                {
+                    "id": "done",
+                    "$kind": "Microsoft.IfCondition",
+                    "condition": "turn.weather != null",
+                    "actions": [
+                        {
+                            "$kind": "Microsoft.SendActivity",
+                            "activity": "Today's weather is @{turn.weather.content[0].WeatherText}@{if(turn.location,concat(' in ',turn.location),'')}."
+                        }
+                    ],
+                    "elseActions": [
+                        {
+                            "$kind": "Microsoft.SendActivity",
+                            "activity": "Sorry, can't search weather now."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "$kind": "Microsoft.OnIntent",
+            "intent": "TurnOn",
+            "actions": [
+                {
+                    "$kind": "Microsoft.SendActivity",
+                    "activity": "Your light is turned on."
+                }
+            ]
+        },
+        {
+            "$kind": "Microsoft.OnIntent",
+            "intent": "TurnOff",
+            "actions": [
+                {
+                    "$kind": "Microsoft.SendActivity",
+                    "activity": "Your light is turned off."
+                }
+            ]
+        },
+        {
+            "$kind": "Microsoft.OnUnknownIntent",
+            "actions": [
+                {
+                    "$kind": "Microsoft.SendActivity",
+                    "activity": "I'm sorry I can't help with that. Try \"what's the weather\" or \"turn on lights\"."
+                }
+            ]
+        }
+    ]
+}

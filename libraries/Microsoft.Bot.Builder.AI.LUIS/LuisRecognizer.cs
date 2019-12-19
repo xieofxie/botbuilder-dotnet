@@ -45,6 +45,10 @@ namespace Microsoft.Bot.Builder.AI.Luis
 #pragma warning restore CS0169 // Field is never used
         private readonly LuisRecognizerOptions _luisRecognizerOptions;
 
+        private readonly Dictionary<string, RecognizerResult> _failureCache = new Dictionary<string, RecognizerResult>();
+
+        private DialogContext _tempDialogContext;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="LuisRecognizer"/> class.
         /// </summary>
@@ -139,6 +143,12 @@ namespace Microsoft.Bot.Builder.AI.Luis
         [JsonIgnore]
         public IBotTelemetryClient TelemetryClient { get; }
 
+        [JsonProperty("failureStrategy")]
+        public FailureStrategy FailureStrategy { get; set; } = FailureStrategy.None;
+
+        [JsonProperty("failureFallback")]
+        public Recognizer FailureFallback { get; set; }
+
         /// <summary>
         /// Returns the name of the top scoring intent from a set of LUIS results.
         /// </summary>
@@ -201,6 +211,7 @@ namespace Microsoft.Bot.Builder.AI.Luis
 
         public override Task<RecognizerResult> RecognizeAsync(DialogContext dialogContext, CancellationToken cancellationToken = default)
         {
+            _tempDialogContext = dialogContext;
             return this.RecognizeAsync(dialogContext.Context, cancellationToken);
         }
 
@@ -355,6 +366,8 @@ namespace Microsoft.Bot.Builder.AI.Luis
 
         public override async Task<RecognizerResult> RecognizeAsync(DialogContext dialogContext, string text, string locale, CancellationToken cancellationToken = default)
         {
+            _tempDialogContext = dialogContext;
+
             // TODO: Review how to better integrate this--it assumes the turn context contains the text/locale
             var context = dialogContext.Context;
             if (context.Activity == null || context.Activity.Type != ActivityTypes.Message || context.Activity.Text != text || context.Activity.Locale != locale)
@@ -484,9 +497,43 @@ namespace Microsoft.Bot.Builder.AI.Luis
         private async Task<RecognizerResult> RecognizeInternalAsync(ITurnContext turnContext, LuisRecognizerOptions predictionOptions, Dictionary<string, string> telemetryProperties, Dictionary<string, double> telemetryMetrics, CancellationToken cancellationToken)
         {
             var recognizer = predictionOptions ?? _luisRecognizerOptions;
-            var result = await recognizer.RecognizeInternalAsync(turnContext, DefaultHttpClient, cancellationToken).ConfigureAwait(false);
-            await OnRecognizerResultAsync(result, turnContext, telemetryProperties, telemetryMetrics, cancellationToken).ConfigureAwait(false);
-            return result;
+            try
+            {
+                var result = await recognizer.RecognizeInternalAsync(turnContext, DefaultHttpClient, cancellationToken).ConfigureAwait(false);
+                if (FailureStrategy == FailureStrategy.Cache || FailureStrategy == FailureStrategy.CacheAndFallback)
+                {
+                    _failureCache[turnContext.Activity.Text] = result;
+                }
+
+                await OnRecognizerResultAsync(result, turnContext, telemetryProperties, telemetryMetrics, cancellationToken).ConfigureAwait(false);
+                return result;
+            }
+            catch (Exception e)
+            {
+                if (FailureStrategy == FailureStrategy.Cache || FailureStrategy == FailureStrategy.CacheAndFallback)
+                {
+                    if (_failureCache.ContainsKey(turnContext.Activity.Text))
+                    {
+                        return _failureCache[turnContext.Activity.Text];
+                    }
+                    else if (FailureStrategy == FailureStrategy.CacheAndFallback)
+                    {
+                        return await FailureFallback.RecognizeAsync(_tempDialogContext, cancellationToken).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        throw e;
+                    }
+                }
+                else if (FailureStrategy == FailureStrategy.Fallback)
+                {
+                    return await FailureFallback.RecognizeAsync(_tempDialogContext, cancellationToken).ConfigureAwait(false);
+                }
+                else
+                {
+                    throw e;
+                }
+            }
         }
 
         /// <summary>

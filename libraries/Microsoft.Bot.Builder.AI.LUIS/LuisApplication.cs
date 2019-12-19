@@ -3,7 +3,10 @@
 
 using System;
 using System.Web;
+using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Configuration;
+using Microsoft.Bot.Schema;
+using Newtonsoft.Json;
 
 namespace Microsoft.Bot.Builder.AI.Luis
 {
@@ -97,6 +100,12 @@ namespace Microsoft.Bot.Builder.AI.Luis
         /// LUIS endpoint where application is hosted.
         /// </value>
         public string Endpoint { get; set; }
+
+        [JsonProperty("failureStrategy")]
+        public FailureStrategy FailureStrategy { get; set; } = FailureStrategy.None;
+
+        [JsonProperty("failureFallback")]
+        public Recognizer FailureFallback { get; set; }
 
         private static (string applicationId, string endpointKey, string endpoint) Parse(string applicationEndpoint)
         {

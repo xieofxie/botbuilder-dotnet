@@ -25,7 +25,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Declarative.Loaders
             // simpler json format
             if (obj["applicationId"]?.Type == JTokenType.String)
             {
-                var luisApplication = obj.ToObject<LuisApplication>();
+                var luisApplication = obj.ToObject<LuisApplication>(serializer);
                 luisApplication.ApplicationId = configuration.LoadSetting(luisApplication.ApplicationId);
                 luisApplication.Endpoint = configuration.LoadSetting(luisApplication.Endpoint);
                 luisApplication.EndpointKey = configuration.LoadSetting(luisApplication.EndpointKey);
@@ -35,7 +35,10 @@ namespace Microsoft.Bot.Builder.Dialogs.Declarative.Loaders
                     options.PredictionOptions = obj["predictionOptions"].ToObject<AI.LuisV3.LuisPredictionOptions>();
                 }
 
-                return new LuisRecognizer(options);
+                var result = new LuisRecognizer(options);
+                result.FailureStrategy = luisApplication.FailureStrategy;
+                result.FailureFallback = luisApplication.FailureFallback;
+                return result;
             }
 
             // Else, just assume it is the verbose structure with LuisService as inner object

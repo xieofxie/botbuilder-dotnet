@@ -23,12 +23,17 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Actions
     /// <summary>
     /// Action for performing an HttpRequest.
     /// </summary>
-    public class HttpRequest : Dialog
+    public class HttpRequest : Dialog, IDialogDependencies
     {
         [JsonProperty("$kind")]
         public const string DeclarativeType = "Microsoft.HttpRequest";
 
         private Expression disabled;
+
+        // TODO only url now
+        private readonly Dictionary<string, Tuple<Result, object>> _failureCache = new Dictionary<string, Tuple<Result, object>>();
+
+        private ActionScope failureFallbackScope;
 
         public HttpRequest(HttpMethod method, string url, string inputProperty, Dictionary<string, string> headers = null, JObject body = null, [CallerFilePath] string callerPath = "", [CallerLineNumber] int callerLine = 0)
         {
@@ -147,6 +152,30 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Actions
         [JsonProperty("resultProperty")]
         public string ResultProperty { get; set; }
 
+        [JsonProperty("failureStrategy")]
+        public FailureStrategy FailureStrategy { get; set; } = FailureStrategy.None;
+
+        [JsonProperty("failureFallback")]
+        public List<Dialog> FailureFallback { get; set; }
+
+        protected ActionScope FailureFallbackScope
+        {
+            get
+            {
+                if (failureFallbackScope == null)
+                {
+                    failureFallbackScope = new ActionScope(this.FailureFallback) { Id = $"FailureFallback{this.Id}" };
+                }
+
+                return failureFallbackScope;
+            }
+        }
+
+        public virtual IEnumerable<Dialog> GetDependencies()
+        {
+            yield return this.FailureFallbackScope;
+        }
+
         public override async Task<DialogTurnResult> BeginDialogAsync(DialogContext dc, object options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (options is CancellationToken)
@@ -198,73 +227,110 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Actions
             traceInfo.request.method = this.Method.ToString();
             traceInfo.request.url = instanceUrl;
 
-            HttpResponseMessage response = null;
+            Result requestResult;
+            object content;
 
-            switch (this.Method)
+            try
             {
-                case HttpMethod.POST:
-                    if (instanceBody == null)
-                    {
-                        response = await client.PostAsync(instanceUrl, null);
-                    }
-                    else
-                    {
-                        var postContent = new StringContent(instanceBody.ToString(), Encoding.UTF8, "application/json");
-                        traceInfo.request.content = instanceBody.ToString();
-                        traceInfo.request.headers = JObject.FromObject(postContent?.Headers.ToDictionary(t => t.Key, t => (object)t.Value?.FirstOrDefault()));
-                        response = await client.PostAsync(instanceUrl, postContent);
-                    }
+                HttpResponseMessage response = null;
 
-                    break;
+                switch (this.Method)
+                {
+                    case HttpMethod.POST:
+                        if (instanceBody == null)
+                        {
+                            response = await client.PostAsync(instanceUrl, null);
+                        }
+                        else
+                        {
+                            var postContent = new StringContent(instanceBody.ToString(), Encoding.UTF8, "application/json");
+                            traceInfo.request.content = instanceBody.ToString();
+                            traceInfo.request.headers = JObject.FromObject(postContent?.Headers.ToDictionary(t => t.Key, t => (object)t.Value?.FirstOrDefault()));
+                            response = await client.PostAsync(instanceUrl, postContent);
+                        }
 
-                case HttpMethod.PATCH:
-                    if (instanceBody == null)
-                    {
-                        var request = new HttpRequestMessage(new System.Net.Http.HttpMethod("PATCH"), instanceUrl);
-                        response = await client.SendAsync(request);
-                    }
-                    else
-                    {
-                        var request = new HttpRequestMessage(new System.Net.Http.HttpMethod("PATCH"), instanceUrl);
-                        request.Content = new StringContent(instanceBody.ToString(), Encoding.UTF8, "application/json");
-                        traceInfo.request.content = instanceBody.ToString();
-                        traceInfo.request.headers = JObject.FromObject(request.Content.Headers.ToDictionary(t => t.Key, t => (object)t.Value?.FirstOrDefault()));
-                        response = await client.SendAsync(request);
-                    }
+                        break;
 
-                    break;
+                    case HttpMethod.PATCH:
+                        if (instanceBody == null)
+                        {
+                            var request = new HttpRequestMessage(new System.Net.Http.HttpMethod("PATCH"), instanceUrl);
+                            response = await client.SendAsync(request);
+                        }
+                        else
+                        {
+                            var request = new HttpRequestMessage(new System.Net.Http.HttpMethod("PATCH"), instanceUrl);
+                            request.Content = new StringContent(instanceBody.ToString(), Encoding.UTF8, "application/json");
+                            traceInfo.request.content = instanceBody.ToString();
+                            traceInfo.request.headers = JObject.FromObject(request.Content.Headers.ToDictionary(t => t.Key, t => (object)t.Value?.FirstOrDefault()));
+                            response = await client.SendAsync(request);
+                        }
 
-                case HttpMethod.PUT:
-                    if (instanceBody == null)
-                    {
-                        response = await client.PutAsync(instanceUrl, null);
-                    }
-                    else
-                    {
-                        var putContent = new StringContent(instanceBody.ToString(), Encoding.UTF8, "application/json");
-                        traceInfo.request.content = instanceBody.ToString();
-                        traceInfo.request.headers = JObject.FromObject(putContent.Headers.ToDictionary(t => t.Key, t => (object)t.Value?.FirstOrDefault()));
-                        response = await client.PutAsync(instanceUrl, putContent);
-                    }
+                        break;
 
-                    break;
+                    case HttpMethod.PUT:
+                        if (instanceBody == null)
+                        {
+                            response = await client.PutAsync(instanceUrl, null);
+                        }
+                        else
+                        {
+                            var putContent = new StringContent(instanceBody.ToString(), Encoding.UTF8, "application/json");
+                            traceInfo.request.content = instanceBody.ToString();
+                            traceInfo.request.headers = JObject.FromObject(putContent.Headers.ToDictionary(t => t.Key, t => (object)t.Value?.FirstOrDefault()));
+                            response = await client.PutAsync(instanceUrl, putContent);
+                        }
 
-                case HttpMethod.DELETE:
-                    response = await client.DeleteAsync(instanceUrl);
-                    break;
+                        break;
 
-                case HttpMethod.GET:
-                    response = await client.GetAsync(instanceUrl);
-                    break;
+                    case HttpMethod.DELETE:
+                        response = await client.DeleteAsync(instanceUrl);
+                        break;
+
+                    case HttpMethod.GET:
+                        response = await client.GetAsync(instanceUrl);
+                        break;
+                }
+
+                requestResult = new Result(response.Headers)
+                {
+                    StatusCode = (int)response.StatusCode,
+                    ReasonPhrase = response.ReasonPhrase,
+                };
+
+                content = (object)await response.Content.ReadAsStringAsync();
+
+                if (FailureStrategy == FailureStrategy.Cache || FailureStrategy == FailureStrategy.CacheAndFallback)
+                {
+                    _failureCache[instanceUrl] = new Tuple<Result, object>(requestResult, content);
+                }
             }
-
-            Result requestResult = new Result(response.Headers)
+            catch (Exception e)
             {
-                StatusCode = (int)response.StatusCode,
-                ReasonPhrase = response.ReasonPhrase,
-            };
-
-            object content = (object)await response.Content.ReadAsStringAsync();
+                if (FailureStrategy == FailureStrategy.Cache || FailureStrategy == FailureStrategy.CacheAndFallback)
+                {
+                    if (_failureCache.ContainsKey(instanceUrl))
+                    {
+                        (requestResult, content) = _failureCache[instanceUrl];
+                    }
+                    else if (FailureStrategy == FailureStrategy.CacheAndFallback)
+                    {
+                        return await dc.ReplaceDialogAsync(this.FailureFallbackScope.Id, cancellationToken: cancellationToken).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        throw e;
+                    }
+                }
+                else if (FailureStrategy == FailureStrategy.Fallback)
+                {
+                    return await dc.ReplaceDialogAsync(this.FailureFallbackScope.Id, cancellationToken: cancellationToken).ConfigureAwait(false);
+                }
+                else
+                {
+                    throw e;
+                }
+            }
 
             switch (this.ResponseType)
             {

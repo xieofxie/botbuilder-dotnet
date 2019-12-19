@@ -33,6 +33,7 @@ namespace Microsoft.Bot.Builder.TestBot.Json
                 new TypeRegistration<JavascriptAction>("Testbot.JavascriptAction")
             };
 
+            this.Use(new RegisterClassMiddleware<IConfiguration>(configuration));
             this.UseResourceExplorer(resourceExplorer, registrations);
             this.UseAdaptiveDialogs();
             this.UseQnAMaker();
