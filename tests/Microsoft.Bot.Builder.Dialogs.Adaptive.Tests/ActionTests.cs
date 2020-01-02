@@ -10,8 +10,10 @@ using Microsoft.Bot.Builder.Dialogs.Adaptive.Input;
 using Microsoft.Bot.Builder.Dialogs.Adaptive.Recognizers;
 using Microsoft.Bot.Builder.Dialogs.Adaptive.Templates;
 using Microsoft.Bot.Builder.Dialogs.Adaptive.Testing;
+using Microsoft.Bot.Builder.Dialogs.Adaptive.Testing.MockHttpRequest;
 using Microsoft.Bot.Builder.Dialogs.Choices;
 using Microsoft.Bot.Schema;
+using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
@@ -19,6 +21,8 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
     [TestClass]
     public class ActionTests
     {
+        private readonly string testDirectory = PathUtils.NormalizePath(@"..\..\..\..\..\tests\Microsoft.Bot.Builder.Dialogs.Adaptive.Tests\Tests\ActionTests\");
+
         public TestContext TestContext { get; set; }
 
         [TestMethod]
@@ -115,6 +119,16 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
         public async Task Action_ForeachPage_Partial()
         {
             await TestUtils.RunTestScript();
+        }
+
+        [TestMethod]
+        public async Task Action_HttpRequest()
+        {
+            var config = new ConfigurationBuilder()
+                .AddInMemoryCollection()
+                .UseMockHttpRequest(testDirectory)
+                .Build();
+            await TestUtils.RunTestScript(configuration: config);
         }
 
         [TestMethod]

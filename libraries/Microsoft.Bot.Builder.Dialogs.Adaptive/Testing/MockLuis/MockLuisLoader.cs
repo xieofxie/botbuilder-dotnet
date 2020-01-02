@@ -34,7 +34,7 @@ namespace Microsoft.Bot.Builder.MockLuis
                     var start = name.LastIndexOf('.') + 1;
                     var end = name.LastIndexOf('}');
                     name = name.Substring(start, end - start);
-                }   
+                }
                 
                 luisApplication.ApplicationId = configuration.LoadSetting(luisApplication.ApplicationId);
                 luisApplication.Endpoint = configuration.LoadSetting(luisApplication.Endpoint);

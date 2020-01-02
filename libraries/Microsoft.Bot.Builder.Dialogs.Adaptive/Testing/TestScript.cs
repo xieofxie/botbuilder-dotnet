@@ -11,6 +11,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder.Adapters;
 using Microsoft.Bot.Builder.Dialogs.Adaptive.Testing.Actions;
+using Microsoft.Bot.Builder.Dialogs.Adaptive.Testing.MockHttpRequest;
 using Microsoft.Bot.Builder.Dialogs.Adaptive.Testing.TestActions;
 using Microsoft.Bot.Builder.Dialogs.Declarative;
 using Microsoft.Bot.Builder.Dialogs.Declarative.Resources;
@@ -123,6 +124,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Testing
                     .UseAdaptiveDialogs()
                     .UseLanguageGeneration(resourceExplorer)
                     .UseMockLuis()
+                    .UseMockHttpRequest(TypeFactory.Configuration)
                     .Use(new TranscriptLoggerMiddleware(new FileTranscriptLogger()));
 
                 adapter.OnTurnError += (context, err) => context.SendActivityAsync(err.Message);

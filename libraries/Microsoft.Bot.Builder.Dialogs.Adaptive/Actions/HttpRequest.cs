@@ -136,7 +136,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Actions
                 throw new ArgumentException($"{nameof(options)} cannot be a cancellation token");
             }
 
-            var client = new HttpClient();
+            var client = options is HttpClient ? options as HttpClient : new HttpClient();
 
             // Single command running with a copy of the original data
             client.DefaultRequestHeaders.Clear();

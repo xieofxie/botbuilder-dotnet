@@ -1,0 +1,8 @@
+﻿{
+    "RequestContent": "",
+    "Method": "Get",
+    "Uri": "http://mock",
+    "ResponseContent": "{\"text\":\"HttpRequest Result\"}",
+    "StatusCode": "OK",
+    "ReasonPhrase": ""
+}
