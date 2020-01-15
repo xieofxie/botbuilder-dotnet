@@ -2,17 +2,19 @@
   "$kind": "Microsoft.AdaptiveDialog",
   "autoEndDialog": false,
   "recognizer": {
-    "$kind": "Microsoft.MultiLanguageRecognizer",
-    "recognizers": {
-      "en": {
-        "$kind": "Microsoft.HttpRecognizer",
-        "method": "POST",
-        "url": "",
-        "body": {
-          "input": "@{turn.activity.text}"
-        },
-        "intents": "\\{@{join(foreach(cats,cat,concat(cat.key,':{\"score\":\"',string(cat.value),'\"}')),',')}\\}"
-      }
+    "$kind": "Microsoft.LuisRecognizer",
+    "applicationId": "{settings.luis.CacheableId}",
+    "endpoint": "{settings.luis.endpoint}",
+    "endpointKey": "{settings.luis.endpointKey}",
+    "failureStrategy": "CacheAndFallback",
+    "failureFallback": {
+      "$kind": "Microsoft.HttpRecognizer",
+      "method": "POST",
+      "url": " http://localhost:8000/score",
+      "body": {
+        "input": "@{turn.activity.text}"
+      },
+      "intents": "\\{@{join(foreach(cats,cat,concat(cat.key,':{\"score\":\"',string(cat.value),'\"}')),',')}\\}"
     }
   },
   "triggers": [
@@ -41,7 +43,7 @@
       "actions": [
         {
           "$kind": "Microsoft.SendActivity",
-          "activity": "Sorry to here that."
+          "activity": "Sorry to hear that."
         }
       ]
     }

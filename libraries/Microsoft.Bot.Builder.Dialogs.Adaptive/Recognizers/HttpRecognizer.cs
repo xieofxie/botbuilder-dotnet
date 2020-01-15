@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -52,6 +53,23 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Recognizers
 
         [JsonProperty("entities")]
         public string Entities { get; set; }
+
+        public override Task<RecognizerResult> RecognizeAsync(DialogContext dialogContext, CancellationToken cancellationToken = default)
+        {
+            return this.RecognizeAsync(dialogContext.Context, cancellationToken);
+        }
+
+        public override async Task<RecognizerResult> RecognizeAsync(DialogContext dialogContext, string text, string locale, CancellationToken cancellationToken = default)
+        {
+            // TODO: Review how to better integrate this--it assumes the turn context contains the text/locale
+            var context = dialogContext.Context;
+            if (context.Activity == null || context.Activity.Type != ActivityTypes.Message || context.Activity.Text != text || context.Activity.Locale != locale)
+            {
+                throw new ArgumentException("TurnContext is different than text");
+            }
+
+            return await RecognizeAsync(dialogContext.Context, cancellationToken).ConfigureAwait(false);
+        }
 
         public async Task<RecognizerResult> RecognizeAsync(ITurnContext turnContext, CancellationToken cancellationToken)
         {
