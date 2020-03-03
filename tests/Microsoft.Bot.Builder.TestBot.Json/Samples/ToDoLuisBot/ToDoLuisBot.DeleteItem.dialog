@@ -68,6 +68,7 @@
                             ],
                             "prompt": "Which list do you want to remove?",
                             "style": "SuggestedAction",
+                            "allowInterruptions": false,
                             "alwaysPrompt": true
                         }
                     ]
@@ -90,6 +91,7 @@
                         {
                             "$kind": "Microsoft.TextInput",
                             "prompt": "Please enter the title of your item.",
+                            "allowInterruptions": false,
                             "property": "dialog.item"
                         }
                     ]
@@ -109,7 +111,7 @@
                     "$kind": "Microsoft.EditArray",
                     "changeType": "remove",
                     "itemsProperty": "user.lists[dialog.listName]",
-                    "value": "dialog.item"
+                    "value": "=dialog.item"
                 },
                 {
                     "$kind": "Microsoft.SendActivity",

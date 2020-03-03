@@ -107,7 +107,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive
             yield return new DeclarativeType<RecognizerSet>(RecognizerSet.DeclarativeType);
             yield return new DeclarativeType<CrossTrainedRecognizerSet>(CrossTrainedRecognizerSet.DeclarativeType);
             yield return new DeclarativeType<ValueRecognizer>(ValueRecognizer.DeclarativeType);
-            yield return new TypeRegistration<HttpRecognizer>(HttpRecognizer.DeclarativeType);
+            yield return new DeclarativeType<HttpRecognizer>(HttpRecognizer.DeclarativeType);
             
             // Entity recognizers
             yield return new DeclarativeType<AgeEntityRecognizer>(AgeEntityRecognizer.DeclarativeType);

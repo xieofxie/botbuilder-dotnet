@@ -8,10 +8,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using AdaptiveExpressions;
 using Microsoft.Bot.Builder.Dialogs.Adaptive.Actions;
 using Microsoft.Bot.Builder.Dialogs.Adaptive.Templates;
 using Microsoft.Bot.Builder.TraceExtensions;
-using Microsoft.Bot.Expressions;
 using Microsoft.Bot.Schema;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -19,13 +19,12 @@ using Newtonsoft.Json.Linq;
 
 namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Recognizers
 {
-    public class HttpRecognizer : IRecognizer
+    public class HttpRecognizer : Recognizer
     {
         [JsonProperty("$kind")]
         public const string DeclarativeType = "Microsoft.HttpRecognizer";
 
-        private static readonly HttpClient Client = new HttpClient();
-
+        [JsonConstructor]
         public HttpRecognizer()
         {
         }
@@ -53,16 +52,10 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Recognizers
         [JsonProperty("entities")]
         public string Entities { get; set; }
 
-        public async Task<RecognizerResult> RecognizeAsync(ITurnContext turnContext, CancellationToken cancellationToken)
+        public override async Task<RecognizerResult> RecognizeAsync(DialogContext dialogContext, Activity activity, CancellationToken cancellationToken)
         {
-            // Process only messages
-            if (turnContext.Activity.Type != ActivityTypes.Message)
-            {
-                return await Task.FromResult(new RecognizerResult() { Text = turnContext.Activity.Text });
-            }
-
             // Identify matched intents
-            var utterance = turnContext.Activity.Text ?? string.Empty;
+            var utterance = activity.Text ?? string.Empty;
 
             var result = new RecognizerResult()
             {
@@ -71,7 +64,8 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Recognizers
             };
 
             // Single command running with a copy of the original data
-            Client.DefaultRequestHeaders.Clear();
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Clear();
 
             JToken instanceBody = null;
             if (this.Body != null)
@@ -82,6 +76,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Recognizers
             var instanceHeaders = Headers == null ? null : new Dictionary<string, string>(Headers);
 
             // TODO add other valid memories
+            var turnContext = dialogContext.Context;
             var data = new { turn = turnContext.TurnState[ScopePath.TURN] };
 
             var instanceUrl = await new TextTemplate(this.Url).BindToData(turnContext, data).ConfigureAwait(false);
@@ -97,7 +92,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Recognizers
             {
                 foreach (var unit in instanceHeaders)
                 {
-                    Client.DefaultRequestHeaders.Add(
+                    client.DefaultRequestHeaders.Add(
                         await new TextTemplate(unit.Key).BindToData(turnContext, data),
                         await new TextTemplate(unit.Value).BindToData(turnContext, data));
                 }
@@ -116,14 +111,14 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Recognizers
                 case HttpRequest.HttpMethod.POST:
                     if (instanceBody == null)
                     {
-                        response = await Client.PostAsync(instanceUrl, null);
+                        response = await client.PostAsync(instanceUrl, null);
                     }
                     else
                     {
                         var postContent = new StringContent(instanceBody.ToString(), Encoding.UTF8, "application/json");
                         traceInfo.request.content = instanceBody.ToString();
                         traceInfo.request.headers = JObject.FromObject(postContent?.Headers.ToDictionary(t => t.Key, t => (object)t.Value?.FirstOrDefault()));
-                        response = await Client.PostAsync(instanceUrl, postContent);
+                        response = await client.PostAsync(instanceUrl, postContent);
                     }
 
                     break;
@@ -132,7 +127,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Recognizers
                     if (instanceBody == null)
                     {
                         var request = new HttpRequestMessage(new System.Net.Http.HttpMethod("PATCH"), instanceUrl);
-                        response = await Client.SendAsync(request);
+                        response = await client.SendAsync(request);
                     }
                     else
                     {
@@ -140,7 +135,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Recognizers
                         request.Content = new StringContent(instanceBody.ToString(), Encoding.UTF8, "application/json");
                         traceInfo.request.content = instanceBody.ToString();
                         traceInfo.request.headers = JObject.FromObject(request.Content.Headers.ToDictionary(t => t.Key, t => (object)t.Value?.FirstOrDefault()));
-                        response = await Client.SendAsync(request);
+                        response = await client.SendAsync(request);
                     }
 
                     break;
@@ -148,24 +143,24 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Recognizers
                 case HttpRequest.HttpMethod.PUT:
                     if (instanceBody == null)
                     {
-                        response = await Client.PutAsync(instanceUrl, null);
+                        response = await client.PutAsync(instanceUrl, null);
                     }
                     else
                     {
                         var putContent = new StringContent(instanceBody.ToString(), Encoding.UTF8, "application/json");
                         traceInfo.request.content = instanceBody.ToString();
                         traceInfo.request.headers = JObject.FromObject(putContent.Headers.ToDictionary(t => t.Key, t => (object)t.Value?.FirstOrDefault()));
-                        response = await Client.PutAsync(instanceUrl, putContent);
+                        response = await client.PutAsync(instanceUrl, putContent);
                     }
 
                     break;
 
                 case HttpRequest.HttpMethod.DELETE:
-                    response = await Client.DeleteAsync(instanceUrl);
+                    response = await client.DeleteAsync(instanceUrl);
                     break;
 
                 case HttpRequest.HttpMethod.GET:
-                    response = await Client.GetAsync(instanceUrl);
+                    response = await client.GetAsync(instanceUrl);
                     break;
             }
 
@@ -201,13 +196,6 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Recognizers
             // await turnContext.TraceActivityAsync("HttpRecognizer", (object)traceInfo, valueType: "Microsoft.HttpRecognizer", label: this.Id).ConfigureAwait(false);
 
             return result;
-        }
-
-        public async Task<T> RecognizeAsync<T>(ITurnContext turnContext, CancellationToken cancellationToken)
-    where T : IRecognizerConvert, new()
-        {
-            var result = await this.RecognizeAsync(turnContext, cancellationToken).ConfigureAwait(false);
-            return JObject.FromObject(result).ToObject<T>();
         }
 
         private async Task ReplaceJTokenRecursively(ITurnContext turnContext, JToken token, object data)

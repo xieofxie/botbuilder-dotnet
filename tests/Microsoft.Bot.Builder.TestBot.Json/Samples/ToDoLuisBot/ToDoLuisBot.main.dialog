@@ -3,7 +3,12 @@
     "$kind": "Microsoft.AdaptiveDialog",
     "autoEndDialog": false,
     "generator": "ToDoLuisBot.lg",
-    "recognizer": "ToDoLuis.lu",
+    "recognizer": {
+        "$kind": "Microsoft.HttpRecognizer",
+        "method": "Get",
+        "url": "http://localhost:5000/recognize/${uriComponent(turn.activity.text)}",
+        "intents": "\\{${join(foreach(cats,cat,concat(cat.key,':{\"score\":\"',string(cat.value),'\"}')),',')}\\}"
+    },
     "triggers": [
         {
             "$kind": "Microsoft.OnBeginDialog",
