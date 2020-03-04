@@ -21,8 +21,7 @@ from spacy.util import minibatch, compounding
 import os
 import json
 
-Root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
-OutputDir = os.path.join(Root, "tools\\output")
+from common import common
 
 Intents = []
 
@@ -33,7 +32,7 @@ Intents = []
     n_iter=("Number of training iterations", "option", "n", int),
     init_tok2vec=("Pretrained tok2vec weights", "option", "t2v", Path),
 )
-def main(model=None, output_dir=OutputDir, n_iter=20, n_texts=2000, init_tok2vec=None):
+def main(model=None, output_dir=common.OutputCategoryDir, n_iter=20, n_texts=2000, init_tok2vec=None):
     if output_dir is not None:
         output_dir = Path(output_dir)
         if not output_dir.exists():
@@ -122,14 +121,9 @@ def main(model=None, output_dir=OutputDir, n_iter=20, n_texts=2000, init_tok2vec
 
 
 def load_data(limit=0, split=0.8):
-    LuFile = os.path.join(Root, "tests\\Microsoft.Bot.Builder.TestBot.Json\\Samples\\ToDoLuisBot\\ToDoLuis.lu")
-    JsonFile = os.path.join(Root, "tests\\Microsoft.Bot.Builder.TestBot.Json\\Samples\\ToDoLuisBot\\ToDoLuis.json")
-    cmd = "bf luis:convert --in {0} --out {1}".format(LuFile, JsonFile)
-    os.system(cmd)
+    data = common.load_json()
 
     train_data = []
-    with open(JsonFile) as f:
-        data = json.load(f)
 
     for intent in data["intents"]:
         Intents.append(intent["name"])

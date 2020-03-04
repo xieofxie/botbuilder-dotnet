@@ -2,8 +2,7 @@ from flask import Flask
 import spacy
 import os
 
-Root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
-OutputDir = os.path.join(Root, "tools\\output")
+from common import common
 
 app = Flask(__name__)
 nlp = None
@@ -16,5 +15,5 @@ def recognize(query):
     }
 
 if __name__ == '__main__':
-    nlp = spacy.load(OutputDir)
+    nlp = spacy.load(common.OutputCategoryDir)
     app.run()
