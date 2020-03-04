@@ -7,7 +7,8 @@
         "$kind": "Microsoft.HttpRecognizer",
         "method": "Get",
         "url": "http://localhost:5000/recognize/${uriComponent(turn.activity.text)}",
-        "intents": "\\{${join(foreach(cats,cat,concat(cat.key,':{\"score\":\"',string(cat.value),'\"}')),',')}\\}"
+        "intents": "\\{${join(foreach(cats,cat,concat(cat.key,':{\"score\":\"',string(cat.value),'\"}')),',')}\\}",
+        "entities": "{\"TaskContentML\": [ ${join(foreach(where(ents,x,x[0]=='TaskContentML'),x,concat('\"',x[1],'\"')),',')} ], \"ListType\": [ ${join(foreach(where(ents,x,x[0]=='ListType'),x,concat('\"',x[1],'\"')),',')} ]}"
     },
     "triggers": [
         {

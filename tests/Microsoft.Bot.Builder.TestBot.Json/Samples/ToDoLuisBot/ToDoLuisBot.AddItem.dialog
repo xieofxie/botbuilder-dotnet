@@ -8,7 +8,7 @@
             "actions": [
                 {
                     "$kind": "Microsoft.SetProperty",
-                    "value": "=@promptContentML",
+                    "value": "=@TaskContentML",
                     "property": "dialog.item"
                 },
                 {
