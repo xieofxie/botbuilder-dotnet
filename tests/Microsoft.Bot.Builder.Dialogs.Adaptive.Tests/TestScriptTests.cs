@@ -5,6 +5,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Microsoft.Bot.Builder.Dialogs.Adaptive.Actions;
+using Microsoft.Bot.Builder.Dialogs.Adaptive.Testing.Mocks;
 using Microsoft.Bot.Builder.Dialogs.Declarative.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -21,7 +23,8 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
         public static void ClassInitialize(TestContext context)
         {
             ResourceExplorer = new ResourceExplorer()
-                .AddFolder(Path.Combine(TestUtils.GetProjectPath(), "Tests", nameof(TestScriptTests)), monitorChanges: false);
+                .AddFolder(Path.Combine(TestUtils.GetProjectPath(), "Tests", nameof(TestScriptTests)), monitorChanges: false)
+                .RegisterType(HttpRequest.Kind, typeof(MockHttpRequest));
         }
 
 #if AUTO
@@ -72,6 +75,12 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
 
         [TestMethod]
         public async Task TestScriptTests_AssertReply_User()
+        {
+            await TestUtils.RunTestScript(ResourceExplorer);
+        }
+
+        [TestMethod]
+        public async Task TestScriptTests_HttpRequestMock()
         {
             await TestUtils.RunTestScript(ResourceExplorer);
         }

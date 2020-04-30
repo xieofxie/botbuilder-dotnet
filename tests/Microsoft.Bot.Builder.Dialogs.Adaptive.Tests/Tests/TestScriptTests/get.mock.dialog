@@ -1,0 +1,17 @@
+﻿{
+    "$schema": "../../../tests.schema",
+    "$kind": "Microsoft.Test.HttpRequestSequenceMock",
+    "method": "GET",
+    "url": "http://127.0.0.1",
+    "responses": [
+        {
+            "responseType": "Binary",
+            "content": "Wm1seWMzUWdaMlYwSUhKbGNYVmxjM1E9"
+        },
+        {
+            "content": {
+                "data": "second get request"
+            }
+        }
+    ]
+}

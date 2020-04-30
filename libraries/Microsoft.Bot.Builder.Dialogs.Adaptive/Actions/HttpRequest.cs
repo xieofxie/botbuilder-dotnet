@@ -131,7 +131,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Actions
         /// <summary>
         /// Gets or sets the content type for the body of the http operation.
         /// </summary>
-        /// <value>Content type such as "application/json" or "test/plain".  Default is "application/json".</value>
+        /// <value>Content type such as "application/json" or "text/plain".  Default is "application/json".</value>
         [DefaultValue("application/json")]
         [JsonProperty("contentType")]
         public StringExpression ContentType { get; set; } = "application/json";
@@ -196,7 +196,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Actions
                 return await dc.EndDialogAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
             }
 
-            var client = new HttpClient();
+            var client = options is HttpClient ? options as HttpClient : new HttpClient();
 
             // Single command running with a copy of the original data
             client.DefaultRequestHeaders.Clear();

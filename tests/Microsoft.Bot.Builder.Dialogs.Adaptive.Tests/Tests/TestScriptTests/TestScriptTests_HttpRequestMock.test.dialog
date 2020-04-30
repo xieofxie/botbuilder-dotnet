@@ -1,0 +1,109 @@
+﻿{
+    "$schema": "../../../schemas/sdk.schema",
+    "$kind": "Microsoft.Test.Script",
+    "description": "Test HttpRequestMock",
+    "httpRequestMocks": [
+        "get.mock",
+        "post.mock"
+    ],
+    "dialog": {
+        "$kind": "Microsoft.AdaptiveDialog",
+        "triggers": [
+            {
+                "$kind": "Microsoft.OnBeginDialog",
+                "actions": [
+                    {
+                        "$kind": "Microsoft.HttpRequest",
+                        "responseType": "Binary",
+                        "method": "GET",
+                        "url": "http://127.0.0.1",
+                        "resultProperty": "dialog.result"
+                    },
+                    {
+                        "$kind": "Microsoft.SendActivity",
+                        "activity": "${base64ToString(base64(dialog.result.content))}"
+                    },
+                    {
+                        "$kind": "Microsoft.HttpRequest",
+                        "responseType": "Json",
+                        "method": "GET",
+                        "url": "http://127.0.0.1",
+                        "resultProperty": "dialog.result"
+                    },
+                    {
+                        "$kind": "Microsoft.SendActivity",
+                        "activity": "${dialog.result.content.data}"
+                    },
+                    {
+                        "$kind": "Microsoft.HttpRequest",
+                        "responseType": "Json",
+                        "method": "POST",
+                        "url": "http://127.0.0.1",
+                        "resultProperty": "dialog.result",
+                        "body": {
+                            "data": "data"
+                        }
+                    },
+                    {
+                        "$kind": "Microsoft.SendActivity",
+                        "activity": "${dialog.result.content}"
+                    },
+                    {
+                        "$kind": "Microsoft.HttpRequest",
+                        "responseType": "Json",
+                        "method": "POST",
+                        "url": "http://127.0.0.1",
+                        "resultProperty": "dialog.result",
+                        "body": {
+                            "data": "data"
+                        }
+                    },
+                    {
+                        "$kind": "Microsoft.SendActivity",
+                        "activity": "${dialog.result.content.data}"
+                    },
+                    {
+                        "$kind": "Microsoft.HttpRequest",
+                        "responseType": "Json",
+                        "method": "POST",
+                        "url": "http://127.0.0.1",
+                        "resultProperty": "dialog.result",
+                        "body": {
+                            "data": "data"
+                        }
+                    },
+                    {
+                        "$kind": "Microsoft.SendActivity",
+                        "activity": "${dialog.result.content.data}"
+                    }
+                ]
+            }
+        ]
+    },
+    "script": [
+        {
+            "$kind": "Microsoft.Test.UserSays",
+            "text": "hello"
+        },
+        {
+            "$kind": "Microsoft.Test.AssertReply",
+            "text": "first get request"
+        },
+        {
+            "$kind": "Microsoft.Test.AssertReply",
+            "text": "second get request"
+        },
+        {
+            "$kind": "Microsoft.Test.AssertReply",
+            "text": "first post request"
+        },
+        {
+            "$kind": "Microsoft.Test.AssertReply",
+            "text": "second post request"
+        },
+        {
+            "$kind": "Microsoft.Test.AssertReply",
+            "text": "second post request"
+        }
+    ]
+}

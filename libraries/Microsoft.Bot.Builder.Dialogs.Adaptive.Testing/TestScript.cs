@@ -9,12 +9,16 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder.Adapters;
+using Microsoft.Bot.Builder.Dialogs.Adaptive.Actions;
+using Microsoft.Bot.Builder.Dialogs.Adaptive.Testing.HttpRequestMocks;
+using Microsoft.Bot.Builder.Dialogs.Adaptive.Testing.Mocks;
 using Microsoft.Bot.Builder.Dialogs.Adaptive.Testing.TestActions;
 using Microsoft.Bot.Builder.Dialogs.Declarative.Resources;
 using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using RichardSzalay.MockHttp;
 
 namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Testing
 {
@@ -72,6 +76,15 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Testing
         public string Locale { get; set; } = "en-us";
 
         /// <summary>
+        /// Gets or sets the mock data for Microsoft.HttpRequest.
+        /// </summary>
+        /// <value>
+        /// A list of mocks.
+        /// </value>
+        [JsonProperty("httpRequestMocks")]
+        public List<HttpRequestMock> HttpRequestMocks { get; set; } = new List<HttpRequestMock>();
+
+        /// <summary>
         /// Gets or sets the test script actions.
         /// </summary>
         /// <value>
@@ -102,7 +115,8 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Testing
             var adapter = (TestAdapter)new TestAdapter(TestAdapter.CreateConversation(testName))
                 .UseStorage(storage)
                 .UseState(userState, convoState)
-                .Use(new TranscriptLoggerMiddleware(new TraceTranscriptLogger(traceActivity: false)));
+                .Use(new TranscriptLoggerMiddleware(new TraceTranscriptLogger(traceActivity: false)))
+                .Use(new MockHttpRequestMiddleware(HttpRequestMocks));
             
             adapter.OnTurnError += (context, err) => context.SendActivityAsync(err.Message);
             return adapter;
