@@ -1,0 +1,19 @@
+﻿{
+    "$schema": "../../testbot.schema",
+    "$kind": "Microsoft.AdaptiveDialog",
+    "triggers": [
+        {
+            "$kind": "Microsoft.OnBeginDialog",
+            "actions": [
+                {
+                    "$kind": "Microsoft.ReplaceDialog",
+                    "dialog": "replacesub0"
+                },
+                {
+                    "$kind": "Microsoft.SendActivity",
+                    "activity": "replace main"
+                }
+            ]
+        }
+    ]
+}

@@ -22,6 +22,8 @@
 
   <ItemGroup>
     <None Remove="Samples\QnAMakerBot\QnAMakerBot.main.dialog" />
+    <None Remove="Samples\ReplaceBug\replace.main.dialog" />
+    <None Remove="Samples\ReplaceBug\replacesub0.dialog" />
   </ItemGroup>
 
   <ItemGroup>
