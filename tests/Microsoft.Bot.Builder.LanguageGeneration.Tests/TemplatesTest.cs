@@ -472,6 +472,28 @@ namespace Microsoft.Bot.Builder.AI.LanguageGeneration.Tests
         }
 
         [TestMethod]
+        public void TestExpandFailedTemplate()
+        {
+            var templates = Templates.ParseFile(GetExampleFilePath("Expand.lg"));
+
+            var data = new Dictionary<string, object>()
+            {
+                { "Name", "NAME" },
+                { "Address", "ADDRESS" },
+            };
+
+            var input = new
+            {
+                Data = data
+            };
+
+            var good = (JObject)templates.Evaluate("PointOfInterestSuggestedActionName", input);
+            Assert.AreEqual(good["text"].ToString(), "NAME at ADDRESS");
+            var bad = templates.ExpandTemplate("PointOfInterestSuggestedActionName", input);
+            Assert.AreEqual(bad.Count, 0);
+        }
+
+        [TestMethod]
         public void TestExpandTemplate()
         {
             var templates = Templates.ParseFile(GetExampleFilePath("Expand.lg"));
