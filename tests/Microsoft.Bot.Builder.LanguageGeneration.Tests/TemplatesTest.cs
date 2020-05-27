@@ -487,9 +487,10 @@ namespace Microsoft.Bot.Builder.AI.LanguageGeneration.Tests
                 Data = data
             };
 
-            var good = (JObject)templates.Evaluate("PointOfInterestSuggestedActionName", input);
+            var name = "PointOfInterestSuggestedActionName";
+            var good = (JObject)templates.Evaluate(name, input);
             Assert.AreEqual(good["text"].ToString(), "NAME at ADDRESS");
-            var bad = templates.ExpandTemplate("PointOfInterestSuggestedActionName", input);
+            var bad = templates.ExpandTemplate(name, input);
             Assert.AreEqual(bad.Count, 0);
         }
 
