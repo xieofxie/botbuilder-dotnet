@@ -389,6 +389,18 @@ namespace Microsoft.Bot.Builder.AI.LanguageGeneration.Tests
             .Send("hello")
                 .AssertReply("[{\"Id\":0,\"Topic\":\"car\"},{\"Id\":1,\"Topic\":\"washing\"},{\"Id\":2,\"Topic\":\"food\"},{\"Id\":3,\"Topic\":\"laundry\"}]")
                 .AssertReply("This is an injected message")
+                .AssertReply("This is an injected message")
+            .StartTestAsync();
+
+            await CreateFlow(async (turnContext, cancellationToken) =>
+            {
+                turnContext.Activity.Locale = "en-GB";
+                await dm.OnTurnAsync(turnContext, cancellationToken: cancellationToken).ConfigureAwait(false);
+            })
+            .Send("hello")
+                .AssertReply("[{\"Id\":0,\"Topic\":\"car\"},{\"Id\":1,\"Topic\":\"washing\"},{\"Id\":2,\"Topic\":\"food\"},{\"Id\":3,\"Topic\":\"laundry\"}]")
+                .AssertReply("This is an injected message in en-GB")
+                .AssertReply("This is an injected message in en-GB")
             .StartTestAsync();
         }
 

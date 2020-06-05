@@ -28,8 +28,11 @@
         {
           "$kind": "Microsoft.SendActivity",
           "activity": "${user.message}"
+        },
+        {
+          "$kind": "Microsoft.SendActivity",
+          "activity": "${GetMessage()}"
         }
-
       ]
     }
   ]

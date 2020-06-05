@@ -9,9 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Fallback\datetime.dialog" />
-    <None Remove="Fallback\inject.dialog" />
-    <None Remove="Fallback\test.dialog" />
     <None Remove="lg\inject.lg" />
   </ItemGroup>
 
@@ -47,15 +44,6 @@
   </ItemGroup>
     
   <ItemGroup>
-    <Page Include="Fallback\datetime.dialog">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Page>
-    <Page Include="Fallback\inject.dialog">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Page>
-    <Page Include="Fallback\test.dialog">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
   </ItemGroup>
 
   <ItemGroup>
@@ -64,6 +52,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Fallback\datetime.dialog">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Fallback\inject.dialog">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Fallback\test.dialog">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="lg\subDialog.fr-fr.lg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
