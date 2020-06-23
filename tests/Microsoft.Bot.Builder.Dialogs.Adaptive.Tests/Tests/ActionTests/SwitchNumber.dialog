@@ -19,7 +19,7 @@
             ]
         },
         {
-            "value": "22",
+            "value": "21.0f",
             "actions": [
                 {
                     "$kind": "Microsoft.SendActivity",
@@ -28,11 +28,20 @@
             ]
         },
         {
-            "value": "23",
+            "value": "true   ",
             "actions": [
                 {
                     "$kind": "Microsoft.SendActivity",
                     "activity": "Age is 23"
+                }
+            ]
+        },
+        {
+            "value": "true",
+            "actions": [
+                {
+                    "$kind": "Microsoft.SendActivity",
+                    "activity": "Age is 24"
                 }
             ]
         }

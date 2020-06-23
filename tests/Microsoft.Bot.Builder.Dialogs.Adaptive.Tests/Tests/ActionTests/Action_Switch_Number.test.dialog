@@ -11,13 +11,13 @@
                     {
                         "$kind": "Microsoft.SetProperty",
                         "property": "user.age",
-                        "value": "=22"
+                        "value": "=21.0"
                     },
                     "SwitchNumber",
                     {
                         "$kind": "Microsoft.SetProperty",
                         "property": "user.age",
-                        "value": "23"
+                        "value": "=true"
                     },
                     "SwitchNumber"
                 ]
@@ -33,7 +33,7 @@
         },
         {
             "$kind": "Microsoft.Test.AssertReply",
-            "text": "Age is 22"
+            "text": "Age is 21"
         },
         {
             "$kind": "Microsoft.Test.AssertReply",
