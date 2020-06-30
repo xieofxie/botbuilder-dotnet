@@ -24,6 +24,15 @@
                 {
                     "$kind": "Microsoft.SendActivity",
                     "activity": "${settings.object['123']}"
+                },
+                {
+                    "$kind": "Microsoft.SetProperty",
+                    "property": "${turn.data}",
+                    "value": "${json({'123':'234'})}"
+                },
+                {
+                    "$kind": "Microsoft.SendActivity",
+                    "activity": "${turn.data}"
                 }
             ]
         }
