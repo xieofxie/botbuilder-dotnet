@@ -78,7 +78,15 @@
                     },
                     {
                         "$kind": "Microsoft.SendActivity",
-                        "activity": "${isString(dialog.name)}"
+                        "activity": "${isString(utcNow())}"
+                    },
+                    {
+                        "$kind": "Microsoft.SendActivity",
+                        "activity": "${isDateTime(dialog.time)}"
+                    },
+                    {
+                        "$kind": "Microsoft.SendActivity",
+                        "activity": "${isString(dialog.time)}"
                     }
                 ]
             }
@@ -99,6 +107,14 @@
         {
             "$kind": "Microsoft.Test.AssertReply",
             "text": "name"
+        },
+        {
+            "$kind": "Microsoft.Test.AssertReply",
+            "text": "True"
+        },
+        {
+            "$kind": "Microsoft.Test.AssertReply",
+            "text": "True"
         },
         {
             "$kind": "Microsoft.Test.AssertReply",
