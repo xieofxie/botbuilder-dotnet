@@ -70,6 +70,15 @@
                     {
                         "$kind": "Microsoft.SendActivity",
                         "activity": "${user.$instance.name}"
+                    },
+                    {
+                        "$kind": "Microsoft.SetProperty",
+                        "property": "dialog.time",
+                        "value": "${utcNow()}"
+                    },
+                    {
+                        "$kind": "Microsoft.SendActivity",
+                        "activity": "${isString(dialog.name)}"
                     }
                 ]
             }
@@ -90,6 +99,10 @@
         {
             "$kind": "Microsoft.Test.AssertReply",
             "text": "name"
+        },
+        {
+            "$kind": "Microsoft.Test.AssertReply",
+            "text": "False"
         }
     ]
 }
