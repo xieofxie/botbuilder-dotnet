@@ -449,6 +449,26 @@ namespace Microsoft.Bot.Builder.AI.LanguageGeneration.Tests
         }
 
         [Fact]
+        public async Task TestChangeLocale()
+        {
+            var resourceExplorer = new ResourceExplorer().LoadProject(GetProjectFolder(), monitorChanges: false);
+            DialogManager dm = new DialogManager()
+                .UseResourceExplorer(resourceExplorer)
+                .UseLanguageGeneration("test.lg");
+            dm.RootDialog = (AdaptiveDialog)resourceExplorer.LoadType<Dialog>("changelocale.dialog");
+            await CreateFlow(async (turnContext, cancellationToken) =>
+            {
+                await dm.OnTurnAsync(turnContext, cancellationToken: cancellationToken).ConfigureAwait(false);
+            })
+            .Send("hello")
+            .AssertReply("english-us en-US")
+            .AssertReply("english-gb en-GB")
+            .Send(new Activity { Type = ActivityTypes.Message, Text = "hola", Locale = "de-DE" })
+            .AssertReply("german de-DE")
+            .StartTestAsync();
+        }
+
+        [Fact]
         public async Task TestDateTimeFunctions()
         {
             var resourceExplorer = new ResourceExplorer().LoadProject(GetProjectFolder(), monitorChanges: false);
