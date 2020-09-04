@@ -3,17 +3,23 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
 namespace Microsoft.Bot.Builder.Azure
 {
+    /// <summary>
+    /// Helper methods for escaping keys used for Cosmos DB.
+    /// </summary>
     public static class CosmosDbKeyEscape
     {
-        // Older libraries had a max key length of 255.
-        // The limit is now 1023. In this library, 255 remains the default for backwards compat.
-        // To override this behavior, and use the longer limit, set CosmosDbPartitionedStorageOptions.CompatibilityMode to false.
-        // https://docs.microsoft.com/en-us/azure/cosmos-db/concepts-limits#per-item-limits
+        /// <summary>
+        /// Older libraries had a max key length of 255.
+        /// The limit is now 1023. In this library, 255 remains the default for backwards compat.
+        /// To override this behavior, and use the longer limit, set CosmosDbPartitionedStorageOptions.CompatibilityMode to false.
+        /// https://docs.microsoft.com/en-us/azure/cosmos-db/concepts-limits#per-item-limits.
+        /// </summary>
         public const int MaxKeyLength = 255;
 
         // The list of illegal characters for Cosmos DB Keys comes from this list on
@@ -25,7 +31,7 @@ namespace Microsoft.Bot.Builder.Azure
         // We are escaping illegal characters using a "*{AsciiCodeInHex}" pattern. This
         // means a key of "?test?" would be escaped as "*3ftest*3f".
         private static readonly Dictionary<char, string> _illegalKeyCharacterReplacementMap =
-                new Dictionary<char, string>(_illegalKeys.ToDictionary(c => c, c => '*' + ((int)c).ToString("x2")));
+                new Dictionary<char, string>(_illegalKeys.ToDictionary(c => c, c => '*' + ((int)c).ToString("x2", CultureInfo.InvariantCulture)));
 
         /// <summary>
         /// Converts the key into a DocumentID that can be used safely with Cosmos DB.
@@ -46,11 +52,10 @@ namespace Microsoft.Bot.Builder.Azure
         /// </summary>
         /// <param name="key">The key to escape.</param>
         /// <param name="suffix">The string to add at the end of all row keys.</param>
-        /// <param name="compatibilityMode ">True if running in compatability mode and keys should
+        /// <param name="compatibilityMode">True if running in compatability mode and keys should
         /// be truncated in order to support previous CosmosDb max key length of 255. 
         /// This behavior can be overridden by setting
-        /// <see cref="CosmosDbPartitionedStorageOptions.CompatibilityMode"/> to false.
-        /// </param>
+        /// <see cref="CosmosDbPartitionedStorageOptions.CompatibilityMode"/> to false.</param>
         /// <returns>An escaped key that can be used safely with CosmosDB.</returns>
         public static string EscapeKey(string key, string suffix, bool compatibilityMode)
         {
@@ -112,7 +117,7 @@ namespace Microsoft.Bot.Builder.Azure
 
             if (key.Length > MaxKeyLength)
             {
-                var hash = key.GetHashCode().ToString("x");
+                var hash = key.GetHashCode().ToString("x", CultureInfo.InvariantCulture);
                 key = key.Substring(0, MaxKeyLength - hash.Length) + hash;
             }
 

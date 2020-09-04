@@ -4,12 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Actions
 {
@@ -32,7 +29,9 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Actions
         /// Gets or sets the actions to execute.
         /// </summary>
         /// <value>The actions to execute.</value>
+#pragma warning disable CA2227 // Collection properties should be read only (we can't change this without breaking binary compat)
         public List<Dialog> Actions { get; set; } = new List<Dialog>();
+#pragma warning restore CA2227 // Collection properties should be read only
 
         public override async Task<DialogTurnResult> BeginDialogAsync(DialogContext dc, object options = null, CancellationToken cancellationToken = default)
         {
@@ -190,7 +189,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Actions
             // get the action for the offset
             dc.State.SetValue(OFFSETKEY, offset);
 
-            if (this.Actions == null || this.Actions.Count() <= offset)
+            if (this.Actions == null || this.Actions.Count <= offset)
             {
                 return await dc.EndDialogAsync(null, cancellationToken).ConfigureAwait(false);
             }

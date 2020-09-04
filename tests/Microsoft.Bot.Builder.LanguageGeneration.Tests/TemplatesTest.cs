@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using AdaptiveExpressions;
+using AdaptiveExpressions.BuiltinFunctions;
 using AdaptiveExpressions.Memory;
 using Microsoft.Bot.Builder.LanguageGeneration;
 using Newtonsoft.Json.Linq;
@@ -67,14 +68,23 @@ namespace Microsoft.Bot.Builder.AI.LanguageGeneration.Tests
         {
             var templates = Templates.ParseFile(GetExampleFilePath("Multiline.lg"));
             string evaled = templates.Evaluate("template1").ToString();
-            var generatedTemplates = Templates.ParseText(evaled);
+            var generatedTemplates = Templates.ParseResource(new LGResource(string.Empty, string.Empty, evaled));
             var result = generatedTemplates.Evaluate("generated1");
             Assert.Equal("hi", result);
 
             evaled = templates.Evaluate("template2", new { evaluateNow = "please input" }).ToString();
-            generatedTemplates = Templates.ParseText(evaled);
+            generatedTemplates = Templates.ParseResource(new LGResource(string.Empty, string.Empty, evaled));
             result = generatedTemplates.Evaluate("generated2", new { name = "jack" });
             Assert.Equal("please input jack", result.ToString().Trim());
+
+            evaled = templates.Evaluate("template3").ToString();
+            Assert.Equal("markdown\n## Manage the knowledge base\n", evaled.Replace("\r\n", "\n"));
+
+            evaled = templates.Evaluate("template4").ToString();
+            Assert.Equal("## Manage the knowledge base", evaled);
+
+            evaled = templates.Evaluate("template5").ToString();
+            Assert.Equal(string.Empty, evaled);
         }
 
         [Fact]
@@ -105,6 +115,19 @@ namespace Microsoft.Bot.Builder.AI.LanguageGeneration.Tests
 
             evaled = templates.Evaluate("template").ToString();
             Assert.True(evaled == "15", $"Evaled is {evaled}");
+
+            var evaledObj = templates.Evaluate("crtObj");
+            var json = @"{'a': 1,
+            'c': 3,
+            'b': 2}";
+            Assert.Equal(evaledObj, JObject.Parse(json));
+
+            var evaledArray = templates.Evaluate("crtArr");
+            var actualArr = new List<object>() { 1, 2, 3, 4 };
+            Assert.Equal(evaledArray, actualArr);
+
+            var evaledMultilineResult = templates.Evaluate("evalMultiLineObj");
+            Assert.Equal(evaledMultilineResult, "{\"a\":1,\"b\":2,\"c\":{\"d\":4,\"e\":5}}");
         }
 
         [Fact]
@@ -123,6 +146,10 @@ namespace Microsoft.Bot.Builder.AI.LanguageGeneration.Tests
 
             // - ${length(expandText(@answer))}
             var evaled = templates.Evaluate("template", scope);
+            Assert.Equal("hello vivian".Length, evaled);
+
+            // Parse text content
+            evaled = templates.EvaluateText("${length(expandText(@answer))}", scope);
             Assert.Equal("hello vivian".Length, evaled);
         }
 
@@ -456,7 +483,7 @@ namespace Microsoft.Bot.Builder.AI.LanguageGeneration.Tests
             Assert.True(evaled == "Hi 2" || evaled == "Hello 2");
 
             // Assert 6.lg of relative path is imported from text.
-            templates = Templates.ParseText("[import](./6.lg)\r\n# basicTemplate\r\n- Hi\r\n- Hello\r\n", GetExampleFilePath("xx.lg"));
+            templates = Templates.ParseResource(new LGResource(GetExampleFilePath("xx.lg"), GetExampleFilePath("xx.lg"), "[import](./6.lg)\r\n# basicTemplate\r\n- Hi\r\n- Hello\r\n"));
 
             Assert.Equal(8, templates.AllTemplates.Count());
             evaled = templates.Evaluate("basicTemplate", null).ToString();
@@ -1420,6 +1447,9 @@ namespace Microsoft.Bot.Builder.AI.LanguageGeneration.Tests
             var evaled = templates.EvaluateText("hello");
             Assert.Equal("hello", evaled);
 
+            evaled = templates.EvaluateText("${``}");
+            Assert.Equal(string.Empty, evaled);
+
             // test template reference
             evaled = templates.EvaluateText("${wPhrase()}");
             var options = new List<string> { "Hi", "Hello", "Hiya" };
@@ -1436,7 +1466,7 @@ namespace Microsoft.Bot.Builder.AI.LanguageGeneration.Tests
             { 
                 if (func == "custom")
                 {
-                    return ExpressionFunctions.Numeric("custom", (args) => (int)args[0] + (int)args[1]);
+                    return new NumericEvaluator("custom", (args) => (int)args[0] + (int)args[1]);
                 }
                 else
                 {
@@ -1476,12 +1506,33 @@ namespace Microsoft.Bot.Builder.AI.LanguageGeneration.Tests
         public void TestInjectLG()
         {
             var templates = Templates.ParseFile(GetExampleFilePath("./InjectionTest/inject.lg"));
-            
-            var (evaled, error) = Expression.Parse("foo.bar()").TryEvaluate(null);
-            
+
+            var (evaled, error) = Expression.Parse("general.greeting()").TryEvaluate(new { name = "Alice" });
+            Assert.Equal("hi Alice", evaled.ToString());
+
+            var memory1 = new StackedMemory();
+            memory1.Push(new SimpleObjectMemory(new { name = "Alice" }));
+            memory1.Push(new CustomizedMemory(new { name = "Bob" }));
+            (evaled, error) = Expression.Parse("general.greeting()").TryEvaluate(memory1);
+            Assert.Equal("hi Bob", evaled.ToString());
+
+            (evaled, error) = Expression.Parse("general.yolo(8, 7)").TryEvaluate(new { name = "Alice" });
+            Assert.Equal("Alice have 15 cookies!", evaled.ToString());
+
+            var memory2 = new StackedMemory();
+            memory2.Push(new SimpleObjectMemory(new { name = "Alice" }));
+            memory2.Push(new CustomizedMemory(new { name = "Bob" }));
+            (evaled, error) = Expression.Parse("general.yolo(12, 12)").TryEvaluate(memory2);
+            Assert.Equal("Bob have 24 cookies!", evaled.ToString());
+
+            (evaled, error) = Expression.Parse("general.addTwoNum(5,6)").TryEvaluate(new { a = 3, b = 1 });
+            Assert.Equal("11", evaled.ToString());
+
+            (evaled, error) = Expression.Parse("general.sumAll()").TryEvaluate(null);
+
             Assert.Equal("3", evaled.ToString());
 
-            (evaled, error) = Expression.Parse("foo.cool(2)").TryEvaluate(null);
+            (evaled, error) = Expression.Parse("general.cool(2)").TryEvaluate(null);
             Assert.Equal("3", evaled.ToString());
 
             (evaled, error) = Expression.Parse("common.looking()").TryEvaluate(null);

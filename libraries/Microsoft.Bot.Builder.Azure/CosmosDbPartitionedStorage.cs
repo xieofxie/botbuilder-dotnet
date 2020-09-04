@@ -15,14 +15,17 @@ namespace Microsoft.Bot.Builder.Azure
     /// <summary>
     /// Implements an CosmosDB based storage provider using partitioning for a bot.
     /// </summary>
-    public class CosmosDbPartitionedStorage : IStorage
+    public class CosmosDbPartitionedStorage : IStorage, IDisposable
     {
         private readonly JsonSerializer _jsonSerializer = JsonSerializer.Create(new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All });
 
         private Container _container;
         private readonly CosmosDbPartitionedStorageOptions _cosmosDbStorageOptions;
         private CosmosClient _client;
-        private bool _compatibilityModePartitionKey = false;
+        private bool _compatibilityModePartitionKey;
+
+        // To detect redundant calls to dispose
+        private bool _disposed;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CosmosDbPartitionedStorage"/> class.
@@ -38,29 +41,29 @@ namespace Microsoft.Bot.Builder.Azure
 
             if (cosmosDbStorageOptions.CosmosDbEndpoint == null)
             {
-                throw new ArgumentNullException(nameof(cosmosDbStorageOptions.CosmosDbEndpoint), "Service EndPoint for CosmosDB is required.");
+                throw new ArgumentException($"Service EndPoint for CosmosDB is required.", nameof(cosmosDbStorageOptions));
             }
 
             if (string.IsNullOrEmpty(cosmosDbStorageOptions.AuthKey))
             {
-                throw new ArgumentException("AuthKey for CosmosDB is required.", nameof(cosmosDbStorageOptions.AuthKey));
+                throw new ArgumentException("AuthKey for CosmosDB is required.", nameof(cosmosDbStorageOptions));
             }
 
             if (string.IsNullOrEmpty(cosmosDbStorageOptions.DatabaseId))
             {
-                throw new ArgumentException("DatabaseId is required.", nameof(cosmosDbStorageOptions.DatabaseId));
+                throw new ArgumentException("DatabaseId is required.", nameof(cosmosDbStorageOptions));
             }
 
             if (string.IsNullOrEmpty(cosmosDbStorageOptions.ContainerId))
             {
-                throw new ArgumentException("ContainerId is required.", nameof(cosmosDbStorageOptions.ContainerId));
+                throw new ArgumentException("ContainerId is required.", nameof(cosmosDbStorageOptions));
             }
 
             if (!string.IsNullOrWhiteSpace(cosmosDbStorageOptions.KeySuffix))
             {
                 if (cosmosDbStorageOptions.CompatibilityMode)
                 {
-                    throw new ArgumentException($"CompatibilityMode cannot be 'true' while using a KeySuffix.", nameof(cosmosDbStorageOptions.CompatibilityMode));
+                    throw new ArgumentException($"CompatibilityMode cannot be 'true' while using a KeySuffix.", nameof(cosmosDbStorageOptions));
                 }
 
                 // In order to reduce key complexity, we do not allow invalid characters in a KeySuffix
@@ -68,7 +71,7 @@ namespace Microsoft.Bot.Builder.Azure
                 var suffixEscaped = CosmosDbKeyEscape.EscapeKey(cosmosDbStorageOptions.KeySuffix);
                 if (!cosmosDbStorageOptions.KeySuffix.Equals(suffixEscaped, StringComparison.Ordinal))
                 {
-                    throw new ArgumentException($"Cannot use invalid Row Key characters: {cosmosDbStorageOptions.KeySuffix}", nameof(cosmosDbStorageOptions.KeySuffix));
+                    throw new ArgumentException($"Cannot use invalid Row Key characters: {cosmosDbStorageOptions.KeySuffix}", nameof(cosmosDbStorageOptions));
                 }
             }
 
@@ -91,6 +94,13 @@ namespace Microsoft.Bot.Builder.Azure
             _jsonSerializer = jsonSerializer ?? throw new ArgumentNullException(nameof(jsonSerializer));
         }
 
+        /// <summary>
+        /// Reads one or more items with matching keys from the Cosmos DB container.
+        /// </summary>
+        /// <param name="keys">A collection of Ids for each item to be retrieved.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
+        /// <returns>A dictionary containing the retrieved items.</returns>
+        /// <exception cref="ArgumentNullException">Exception thrown if the array of keys (Ids for the items to be retrieved) is null.</exception>
         public async Task<IDictionary<string, object>> ReadAsync(string[] keys, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (keys == null)
@@ -151,6 +161,15 @@ namespace Microsoft.Bot.Builder.Azure
             return storeItems;
         }
 
+        /// <summary>
+        /// Inserts or updates one or more items into the Cosmos DB container. 
+        /// </summary>
+        /// <param name="changes">A dictionary of items to be inserted or updated. The dictionary item key
+        /// is used as the ID for the inserted / updated item.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/>.</param>
+        /// <returns>A Task representing the work to be executed.</returns>
+        /// <exception cref="ArgumentNullException">Exception thrown if the changes dictionary is null.</exception>
+        /// <exception cref="Exception">Exception thrown is the etag is empty on any of the items within the changes dictionary.</exception>
         public async Task WriteAsync(IDictionary<string, object> changes, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (changes == null)
@@ -208,6 +227,13 @@ namespace Microsoft.Bot.Builder.Azure
             }
         }
 
+        /// <summary>
+        /// Deletes one or more items from the Cosmos DB container.
+        /// </summary>
+        /// <param name="keys">An array of Ids for the items to be deleted.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/>.</param>
+        /// <returns>A Task representing the work to be executed.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if the array of Ids to be deleted is null.</exception>
         public async Task DeleteAsync(string[] keys, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (keys == null)
@@ -242,6 +268,39 @@ namespace Microsoft.Bot.Builder.Azure
                     throw;
                 }
             }
+        }
+
+        /// <summary>
+        /// Disposes the object instance and releases any related objects owned by the class.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Disposes objects used by the class.
+        /// </summary>
+        /// <param name="disposing">A Boolean that indicates whether the method call comes from a Dispose method (its value is true) or from a finalizer (its value is false).</param>
+        /// <remarks>
+        /// The disposing parameter should be false when called from a finalizer, and true when called from the IDisposable.Dispose method.
+        /// In other words, it is true when deterministically called and false when non-deterministically called.
+        /// </remarks>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                // Dispose managed objects owned by the class here.
+                _client?.Dispose();
+            }
+
+            _disposed = true;
         }
 
         private PartitionKey GetPartitionKey(string key)

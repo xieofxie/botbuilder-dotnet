@@ -3,7 +3,7 @@
 #
 
 # "name" here defines the build number format. Build number is accessed via $(Build.BuildNumber)
-name: $(Date:yyMMdd)-$(Build.BuildId)
+name: $(Date:yyyyMMdd).$(Build.BuildId)
 
 pool:
   name: Hosted Windows 2019 with VS2019
@@ -14,7 +14,7 @@ pool:
 trigger: # ci trigger
   branches:
     include:
-     - master
+     - main
   paths:
     include:
       - '*'

@@ -49,18 +49,20 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Generators
         /// <value>
         /// Generators.
         /// </value>
+#pragma warning disable CA2227 // Collection properties should be read only (we can't change this without breaking binary compat)
         public ConcurrentDictionary<string, LanguageGenerator> LanguageGenerators { get; set; } = new ConcurrentDictionary<string, LanguageGenerator>(StringComparer.OrdinalIgnoreCase);
+#pragma warning restore CA2227 // Collection properties should be read only
 
         public static ImportResolverDelegate ResourceExplorerResolver(string locale, Dictionary<string, IList<Resource>> resourceMapping)
         {
-            return (string source, string id) =>
+            return (LGResource lgResource, string id) =>
             {
                 var fallbackLocale = LGResourceLoader.FallbackLocale(locale, resourceMapping.Keys.ToList());
                 var resources = resourceMapping[fallbackLocale];
 
                 var resourceName = Path.GetFileName(PathUtils.NormalizePath(id));
 
-                var resource = resources.FirstOrDefault(u => LGResourceLoader.ParseLGFileName(u.Id).prefix.ToLower() == LGResourceLoader.ParseLGFileName(resourceName).prefix.ToLower());
+                var resource = resources.FirstOrDefault(u => LGResourceLoader.ParseLGFileName(u.Id).prefix.ToLowerInvariant() == LGResourceLoader.ParseLGFileName(resourceName).prefix.ToLowerInvariant());
                 if (resource == null)
                 {
                     throw new Exception($"There is no matching LG resource for {resourceName}");
@@ -68,7 +70,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Generators
                 else
                 {
                     var content = resource.ReadTextAsync().GetAwaiter().GetResult();
-                    return (content, resource.Id);
+                    return new LGResource(resource.Id, resource.FullName, content);
                 }
             };
         }
@@ -76,7 +78,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Generators
         private void ResourceExplorer_Changed(object sender, IEnumerable<Resource> resources)
         {
             // reload changed LG files
-            foreach (var resource in resources.Where(r => Path.GetExtension(r.Id).ToLower() == ".lg"))
+            foreach (var resource in resources.Where(r => Path.GetExtension(r.Id).ToLowerInvariant() == ".lg"))
             {
                 LanguageGenerators[resource.Id] = GetTemplateEngineLanguageGenerator(resource);
             }
@@ -84,15 +86,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Generators
 
         private TemplateEngineLanguageGenerator GetTemplateEngineLanguageGenerator(Resource resource)
         {
-            var fileResource = resource as FileResource;
-            if (fileResource == null)
-            {
-                return new TemplateEngineLanguageGenerator(resource.ReadTextAsync().GetAwaiter().GetResult(), resource.Id, multilanguageResources);
-            }
-            else
-            {
-                return new TemplateEngineLanguageGenerator(fileResource.FullName, multilanguageResources);
-            }
+            return new TemplateEngineLanguageGenerator(resource, multilanguageResources);
         }
     }
 }

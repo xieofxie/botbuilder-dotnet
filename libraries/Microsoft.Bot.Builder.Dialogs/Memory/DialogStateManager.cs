@@ -84,7 +84,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Memory
                 if (key.IndexOfAny(Separators) == -1)
                 {
                     // Root is handled by SetMemory rather than SetValue
-                    var scope = GetMemoryScope(key) ?? throw new ArgumentOutOfRangeException(GetBadScopeMessage(key));
+                    var scope = GetMemoryScope(key) ?? throw new ArgumentOutOfRangeException(nameof(key), GetBadScopeMessage(key));
                     scope.SetMemory(_dialogContext, JToken.FromObject(value));
                 }
                 else
@@ -585,9 +585,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Memory
                         void CheckChildren(string property, object instance)
                         {
                             // Add new child segment
-#pragma warning disable CA1308 // Normalize strings to uppercase (we assume properties are lowercase). 
                             trackedPath += "_" + property.ToLowerInvariant();
-#pragma warning restore CA1308 // Normalize strings to uppercase
                             Update();
                             if (instance is object child)
                             {

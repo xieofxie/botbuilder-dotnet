@@ -109,5 +109,10 @@ namespace Microsoft.Bot.Schema
         [JsonProperty(PropertyName = "channelData")]
         public object ChannelData { get; set; }
 
+        /// <summary>
+        /// Gets or sets alternate text to be used for the Image property
+        /// </summary>
+        [JsonProperty(PropertyName = "imageAltText")]
+        public string ImageAltText { get; set; }
     }
 }

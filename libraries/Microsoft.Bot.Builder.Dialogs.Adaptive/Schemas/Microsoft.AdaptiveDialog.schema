@@ -1,5 +1,5 @@
 {
-    "$schema": "https://raw.githubusercontent.com/microsoft/botframework-sdk/master/schemas/component/component.schema",
+    "$schema": "https://schemas.botframework.com/schemas/component/v1.0/component.schema",
     "$role": "implements(Microsoft.IDialog)",
     "title": "Adaptive Dialog",
     "description": "Flexible, data driven dialog that can adapt to the conversation.",
@@ -11,7 +11,7 @@
             "description": "Optional dialog ID."
         },
         "autoEndDialog": {
-            "type": "boolean",
+            "$ref": "schema:#/definitions/booleanExpression",
             "title": "Auto end dialog",
             "description": "If set to true the dialog will automatically end when there are no further actions.  If set to false, remember to manually end the dialog using EndDialog action.",
             "default": true

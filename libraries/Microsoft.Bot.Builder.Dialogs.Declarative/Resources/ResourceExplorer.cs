@@ -4,14 +4,12 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder.Dialogs.Debugging;
-using Microsoft.Bot.Builder.Dialogs.Declarative.Converters;
 using Microsoft.Bot.Builder.Dialogs.Declarative.Debugging;
 using Microsoft.Bot.Builder.Dialogs.Declarative.Loaders;
 using Microsoft.Bot.Builder.Dialogs.Declarative.Observers;
@@ -32,9 +30,13 @@ namespace Microsoft.Bot.Builder.Dialogs.Declarative.Resources
         private readonly ConcurrentDictionary<string, Type> kindToType = new ConcurrentDictionary<string, Type>();
         private readonly ConcurrentDictionary<Type, List<string>> typeToKinds = new ConcurrentDictionary<Type, List<string>>();
         private List<ResourceProvider> resourceProviders = new List<ResourceProvider>();
+        private List<IComponentDeclarativeTypes> declarativeTypes;
         private CancellationTokenSource cancelReloadToken = new CancellationTokenSource();
         private ConcurrentBag<Resource> changedResources = new ConcurrentBag<Resource>();
         private bool typesLoaded = false;
+
+        // To detect redundant calls to dispose
+        private bool _disposed;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ResourceExplorer"/> class.
@@ -43,10 +45,24 @@ namespace Microsoft.Bot.Builder.Dialogs.Declarative.Resources
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ResourceExplorer"/> class.
+        /// </summary>
+        /// <param name="providers">The list of resource providers to initialize the current instance.</param>
         public ResourceExplorer(IEnumerable<ResourceProvider> providers)
-            : this()
+            : this(providers, null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ResourceExplorer"/> class.
+        /// </summary>
+        /// <param name="providers">The list of resource providers to initialize the current instance.</param>
+        /// <param name="declarativeTypes">A list of declarative types to use. Falls back to <see cref="ComponentRegistration.Components" /> if set to null.</param>
+        public ResourceExplorer(IEnumerable<ResourceProvider> providers, IEnumerable<IComponentDeclarativeTypes> declarativeTypes)
         {
             this.resourceProviders = providers.ToList();
+            this.declarativeTypes = declarativeTypes?.ToList();
         }
 
         /// <summary>
@@ -153,29 +169,22 @@ namespace Microsoft.Bot.Builder.Dialogs.Declarative.Resources
         /// <param name="resource">resource to bind to.</param>
         /// <param name="cancellationToken">the <see cref="CancellationToken"/> for the task.</param>
         /// <returns>task which will resolve to created type.</returns>
+#pragma warning disable CA1801 // Review unused parameters (we can't remove cancellationToken without breaking binary compat)
         public async Task<T> LoadTypeAsync<T>(Resource resource, CancellationToken cancellationToken = default)
+#pragma warning restore CA1801 // Review unused parameters
         {
             RegisterComponentTypes();
 
             string id = resource.Id;
-            if (resource is FileResource fileResource)
-            {
-                id = fileResource.FullName;
-            }
 
             try
             {
-                var sourceContext = new SourceContext();
-                var (json, range) = await ReadTokenRangeAsync(resource, sourceContext, cancellationToken).ConfigureAwait(false);
+                var sourceContext = new ResourceSourceContext();
+                var (jToken, range) = await ReadTokenRangeAsync(resource, sourceContext).ConfigureAwait(false);
+
                 using (new SourceScope(sourceContext, range))
                 {
-                    var result = Load<T>(json, sourceContext);
-                    if (result is Dialog dlg)
-                    {
-                        // dialog id's are resource ids
-                        dlg.Id = resource.Id;
-                    }
-
+                    var result = Load<T>(jToken, sourceContext);
                     return result;
                 }
             }
@@ -345,13 +354,8 @@ namespace Microsoft.Bot.Builder.Dialogs.Declarative.Resources
         /// </summary>
         public void Dispose()
         {
-            foreach (var resource in this.resourceProviders)
-            {
-                if (resource is IDisposable disposable)
-                {
-                    disposable.Dispose();
-                }
-            }
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -371,7 +375,9 @@ namespace Microsoft.Bot.Builder.Dialogs.Declarative.Resources
         /// <param name="sourceContext">source context to build debugger source map.</param>
         /// <param name="cancellationToken">the <see cref="CancellationToken"/> for the task.</param>
         /// <returns>resolved object the reference refers to.</returns>
+#pragma warning disable CA1801 // Review unused parameters (we can't remove cancellationToken without breaking binary compat)
         public async Task<JToken> ResolveRefAsync(JToken refToken, SourceContext sourceContext, CancellationToken cancellationToken = default)
+#pragma warning restore CA1801 // Review unused parameters
         {
             var refTarget = GetRefTarget(refToken);
 
@@ -390,7 +396,13 @@ namespace Microsoft.Bot.Builder.Dialogs.Declarative.Resources
                 }
             }
 
-            var (json, range) = await ReadTokenRangeAsync(resource, sourceContext, cancellationToken).ConfigureAwait(false);
+            // When we load a reference and then pass the JsonReader to the converters, 
+            // the JsonReader needs to be in the same state as when received from the 
+            // Json.Net runtime. Otherwise, the source ranges will look different and not look like
+            // the same content, introducing potential bugs.
+            // We explicitly pass advance: true in this case to mimic the behavior in Json.Net
+            // Json.Net: https://github.com/JamesNK/Newtonsoft.Json/blob/9be95e0f6aedf5cdc108b058bf71f0839911e0c9/Src/Newtonsoft.Json/Serialization/JsonSerializerInternalReader.cs#L1791
+            var (json, range) = await ReadTokenRangeAsync(resource, sourceContext, advanceJsonReader: true).ConfigureAwait(false);
 
             foreach (JProperty prop in refToken.Children<JProperty>())
             {
@@ -424,9 +436,79 @@ namespace Microsoft.Bot.Builder.Dialogs.Declarative.Resources
             return json;
         }
 
+        /// <summary>
+        /// Reads a <see cref="JToken"/> and <see cref="SourceRange"/> for a given resource.
+        /// </summary>
+        /// <param name="resource"><see cref="Resource"/> to read.</param>
+        /// <param name="sourceContext"><see cref="SourceContext"/> for the current operation.</param>
+        /// <param name="advanceJsonReader">Whether to advance the <see cref="JsonReader"/>.</param>
+        /// <returns>The resulting <see cref="JToken"/> and <see cref="SourceRange"/> for the requested resource.</returns>
+        internal async Task<(JToken, SourceRange)> ReadTokenRangeAsync(Resource resource, SourceContext sourceContext, bool advanceJsonReader = false)
+        {
+            var text = await resource.ReadTextAsync().ConfigureAwait(false);
+            using (var readerText = new StringReader(text))
+            using (var readerJson = new JsonTextReader(readerText))
+            {
+                if (advanceJsonReader)
+                {
+                    // Mimic the state in which Json.Net passes the readers. In some scenarios,
+                    // Json.Net advances de readers by one.
+                    // Example: https://github.com/JamesNK/Newtonsoft.Json/blob/9be95e0f6aedf5cdc108b058bf71f0839911e0c9/Src/Newtonsoft.Json/Serialization/JsonSerializerInternalReader.cs#L1791
+                    readerJson.Read(); // Move to first token
+                }
+
+                var (token, range) = SourceScope.ReadTokenRange(readerJson, sourceContext);
+
+                AutoAssignId(resource, token, sourceContext);
+                range.Path = resource.FullName ?? resource.Id;
+                return (token, range);
+            }
+        }
+
+        /// <summary>
+        /// Disposes objected used by the class.
+        /// </summary>
+        /// <param name="disposing">A Boolean that indicates whether the method call comes from a Dispose method (its value is true) or from a finalizer (its value is false).</param>
+        /// <remarks>
+        /// The disposing parameter should be false when called from a finalizer, and true when called from the IDisposable.Dispose method.
+        /// In other words, it is true when deterministically called and false when non-deterministically called.
+        /// </remarks>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                // Dispose managed objects owned by the class here.
+                foreach (var resource in this.resourceProviders)
+                {
+                    if (resource is IDisposable disposable)
+                    {
+                        disposable.Dispose();
+                    }
+                }
+
+                cancelReloadToken.Dispose();
+            }
+
+            _disposed = true;
+        }
+
+        /// <summary>
+        /// Handler for on changed events.
+        /// </summary>
+        /// <param name="resources">A collection of resources to pass to the event handler.</param>
         protected virtual void OnChanged(Resource[] resources)
         {
             Changed?.Invoke(this, resources);
+        }
+
+        private IEnumerable<IComponentDeclarativeTypes> GetComponentRegistrations()
+        {
+            return this.declarativeTypes ?? ComponentRegistration.Components.OfType<IComponentDeclarativeTypes>();
         }
 
         private void RegisterTypeInternal(string kind, Type type, ICustomDeserializer loader = null)
@@ -477,7 +559,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Declarative.Resources
                     // this can be reentrant, and we only want to do once.
                     this.typesLoaded = true;
 
-                    foreach (var component in ComponentRegistration.Components.OfType<IComponentDeclarativeTypes>())
+                    foreach (var component in GetComponentRegistrations())
                     {
                         if (component != null)
                         {
@@ -495,8 +577,8 @@ namespace Microsoft.Bot.Builder.Dialogs.Declarative.Resources
         private T Load<T>(JToken token, SourceContext sourceContext)
         {
             var converters = new List<JsonConverter>();
-            
-            // get converters
+
+            // Get converters
             foreach (var component in ComponentRegistration.Components.OfType<IComponentDeclarativeTypes>())
             {
                 var result = component.GetConverters(this, sourceContext);
@@ -504,6 +586,15 @@ namespace Microsoft.Bot.Builder.Dialogs.Declarative.Resources
                 {
                     converters.AddRange(result);
                 }
+            }
+
+            // Create a cycle detection observer
+            var cycleDetector = new CycleDetectionObserver();
+
+            // Register our cycle detector on the converters that support observer registration
+            foreach (var observableConverter in converters.Where(c => c is IObservableJsonConverter))
+            {
+                (observableConverter as IObservableJsonConverter).RegisterObserver(cycleDetector);
             }
 
             var serializer = JsonSerializer.Create(new JsonSerializerSettings()
@@ -521,24 +612,15 @@ namespace Microsoft.Bot.Builder.Dialogs.Declarative.Resources
                 }
             });
 
+            // Pass 1 of cycle detection. This pass fills the cycle detector cache excluding cycles.
+            var pass1Result = token.ToObject<T>(serializer);
+
+            cycleDetector.CycleDetectionPass = CycleDetectionPasses.PassTwo;
+
+            // Pass 2 of cycle detection. This pass stitches objects from the cache into the places
+            // where we found cycles.
+
             return token.ToObject<T>(serializer);
-        }
-
-        private async Task<(JToken, SourceRange)> ReadTokenRangeAsync(Resource resource, SourceContext sourceContext, CancellationToken cancellationToken = default)
-        {
-            var text = await resource.ReadTextAsync().ConfigureAwait(false);
-            using (var readerText = new StringReader(text))
-            using (var readerJson = new JsonTextReader(readerText))
-            {
-                var (token, range) = SourceScope.ReadTokenRange(readerJson, sourceContext);
-
-                if (resource is FileResource fileResource)
-                {
-                    range.Path = fileResource.FullName;
-                }
-
-                return (token, range);
-            }
         }
 
         private void ResourceProvider_Changed(object sender, IEnumerable<Resource> resources)
@@ -554,6 +636,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Declarative.Resources
                 {
                     cancelReloadToken.Cancel();
                     cancelReloadToken = new CancellationTokenSource();
+#pragma warning disable CA2008 // Do not create tasks without passing a TaskScheduler (this code looks problematic but excluding the rule for now, we need to analyze threading and re-entrance in more detail before trying to change it).
                     Task.Delay(1000, cancelReloadToken.Token)
                         .ContinueWith(t =>
                         {
@@ -566,6 +649,18 @@ namespace Microsoft.Bot.Builder.Dialogs.Declarative.Resources
                             changedResources = new ConcurrentBag<Resource>();
                             this.OnChanged(changed);
                         }).ContinueWith(t => t.Status);
+#pragma warning restore CA2008 // Do not create tasks without passing a TaskScheduler
+                }
+            }
+        }
+
+        private void AutoAssignId(Resource resource, JToken jToken, SourceContext sourceContext)
+        {
+            if (sourceContext is ResourceSourceContext resourceSourceContext)
+            {
+                if (jToken is JObject jObj && !jObj.ContainsKey("id") && !resourceSourceContext.DefaultIdMap.ContainsKey(jToken))
+                {
+                    resourceSourceContext.DefaultIdMap.Add(jToken, resource.Id);
                 }
             }
         }

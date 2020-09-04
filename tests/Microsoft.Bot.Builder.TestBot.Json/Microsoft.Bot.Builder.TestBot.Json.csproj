@@ -13,6 +13,14 @@
     <Content Include="**/*.lg" />
     <Content Include="**/*.lu" />
     <Content Include="**/*.schema" />
+    <Content Include="**/*.uischema" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Samples\sandwich\**" />
+    <Content Remove="Samples\sandwich\**" />
+    <EmbeddedResource Remove="Samples\sandwich\**" />
+    <None Remove="Samples\sandwich\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -39,10 +47,6 @@
 
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.4" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Samples\sandwich\sandwich.json" />
   </ItemGroup>
 
   <ItemGroup>

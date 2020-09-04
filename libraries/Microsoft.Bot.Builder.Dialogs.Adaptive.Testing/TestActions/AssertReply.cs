@@ -7,12 +7,23 @@ using Newtonsoft.Json;
 
 namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Testing.TestActions
 {
+    /// <summary>
+    /// Test Script action to assert that the bots' reply matches expectations.
+    /// </summary>
     [DebuggerDisplay("AssertReply{Exact ? \"[Exact]\" : string.Empty}:{GetConditionDescription()}")]
     public class AssertReply : AssertReplyActivity
     {
+        /// <summary>
+        /// Kind for the json object.
+        /// </summary>
         [JsonProperty("$kind")]
         public new const string Kind = "Microsoft.Test.AssertReply";
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AssertReply"/> class.
+        /// </summary>
+        /// <param name="path">path.</param>
+        /// <param name="line">line number.</param>
         [JsonConstructor]
         public AssertReply([CallerFilePath] string path = "", [CallerLineNumber] int line = 0)
             : base(path, line)
@@ -34,24 +45,27 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Testing.TestActions
         [JsonProperty("exact")]
         public bool Exact { get; set; } = true;
 
+        /// <inheritdoc/>
         public override void ValidateReply(Activity activity)
         {
             // if we have a reply
             if (!string.IsNullOrEmpty(this.Text))
             {
+                var description = this.Description != null ? this.Description + "\n" : string.Empty;
+                var message = $"${description}Text '{activity.Text}' didn't match expected text: {this.Text}'";
                 if (this.Exact)
                 {
                     // Normalize line endings to work on windows and mac
                     if (activity.AsMessageActivity()?.Text.Replace("\r", string.Empty) != this.Text.Replace("\r", string.Empty))
                     {
-                        throw new Exception(this.Description ?? $"Text '{activity.Text}' didn't match expected text: {this.Text}'");
+                        throw new Exception(message);
                     }
                 }
                 else
                 {
-                    if (activity.AsMessageActivity()?.Text.ToLower().Trim().Contains(this.Text.ToLower().Trim()) == false)
+                    if (activity.AsMessageActivity()?.Text.ToLowerInvariant().Trim().Contains(this.Text.ToLowerInvariant().Trim()) == false)
                     {
-                        throw new Exception(this.Description ?? $"Text '{activity.Text}' didn't match expected text: '{this.Text}'");
+                        throw new Exception(message);
                     }
                 }
             }
@@ -59,6 +73,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Testing.TestActions
             base.ValidateReply(activity);
         }
 
+        /// <inheritdoc/>
         public override string GetConditionDescription()
         {
             return $"{Text}";

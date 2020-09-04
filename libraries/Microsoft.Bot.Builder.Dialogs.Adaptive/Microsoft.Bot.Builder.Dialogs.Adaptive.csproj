@@ -8,7 +8,6 @@
     <Configurations>Debug;Release</Configurations>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <DocumentationFile>bin\$(Configuration)\netstandard2.0\Microsoft.Bot.Builder.Dialogs.Adaptive.xml</DocumentationFile>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -27,7 +26,9 @@
   <PropertyGroup>
     <!-- These documentation warnings excludes should be removed as part of https://github.com/microsoft/botbuilder-dotnet/issues/4052 -->
     <!-- SX1309: FieldNamesShouldBeginWithUnderscores should be fixed as part of https://github.com/microsoft/botframework-sdk/issues/5933 -->
-    <NoWarn>$(NoWarn);CS1591;SX1309</NoWarn>
+    <!-- CA2225: Operator overloads have named alternates, excluding for now, we should address this if we want to support other platforms than C#
+    see https://docs.microsoft.com/en-us/visualstudio/code-quality/ca2225?view=vs-2019 .-->
+    <NoWarn>$(NoWarn);CS1591;SX1309;CA2225</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -35,11 +36,11 @@
     <Content Include="**/*.lg" />
     <Content Include="**/*.lu" />
     <Content Include="**/*.schema" />
+    <Content Include="**/*.uischema" />
     <Content Include="**/*.qna" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AsyncUsageAnalyzers" Version="1.0.0-alpha003" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Bot.Builder.Dialogs.Declarative" Condition=" '$(IsBuildServer)' == '' " Version="$(LocalPackageVersion)" />
     <PackageReference Include="Microsoft.Bot.Builder.Dialogs.Declarative" Condition=" '$(IsBuildServer)' != '' " Version="$(ReleasePackageVersion)" />
     <PackageReference Include="Microsoft.Bot.Builder.LanguageGeneration" Condition=" '$(IsBuildServer)' == '' " Version="$(LocalPackageVersion)" />
@@ -53,7 +54,6 @@
     <PackageReference Include="Microsoft.Recognizers.Text.DateTime" Version="1.2.9" />
     <PackageReference Include="Microsoft.Recognizers.Text.Number" Version="1.2.9" />
     <PackageReference Include="Microsoft.Recognizers.Text.Sequence" Version="1.2.9" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
