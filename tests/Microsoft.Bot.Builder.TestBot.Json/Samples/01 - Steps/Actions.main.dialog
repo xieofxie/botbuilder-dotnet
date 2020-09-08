@@ -27,8 +27,8 @@
                 },
                 {
                     "$kind": "Microsoft.SetProperty",
-                    "property": "${turn.data}",
-                    "value": "${json({'123':'234'})}"
+                    "property": "turn.data",
+                    "value": "=json({'123':'234'})"
                 },
                 {
                     "$kind": "Microsoft.SendActivity",
