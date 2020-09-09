@@ -23,7 +23,17 @@ namespace AdaptiveExpressions.BuiltinFunctions
 
         private static EvaluateExpressionDelegate Evaluator()
         {
-            return FunctionUtils.Apply(args => Convert.ToInt64(args[0], CultureInfo.InvariantCulture));
+            return FunctionUtils.Apply(args =>
+            {
+                try
+                {
+                    return Convert.ToInt64(args[0], CultureInfo.InvariantCulture);
+                }
+                catch (FormatException)
+                {
+                    return args[0];
+                }
+            });
         }
     }
 }

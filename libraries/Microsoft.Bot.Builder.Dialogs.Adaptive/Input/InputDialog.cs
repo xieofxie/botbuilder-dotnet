@@ -442,7 +442,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Input
             return msg;
         }
 
-        private async Task<InputState> RecognizeInputAsync(DialogContext dc, int turnCount, CancellationToken cancellationToken = default(CancellationToken))
+        protected async Task<InputState> RecognizeInputAsync(DialogContext dc, int turnCount, CancellationToken cancellationToken = default(CancellationToken))
         {
             dynamic input = null;
 
@@ -519,7 +519,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Input
             }
         }
 
-        private async Task<DialogTurnResult> PromptUserAsync(DialogContext dc, InputState state, CancellationToken cancellationToken = default(CancellationToken))
+        protected async Task<DialogTurnResult> PromptUserAsync(DialogContext dc, InputState state, CancellationToken cancellationToken = default(CancellationToken))
         {
             var prompt = await this.OnRenderPromptAsync(dc, state, cancellationToken).ConfigureAwait(false);
             await dc.Context.SendActivityAsync(prompt, cancellationToken).ConfigureAwait(false);
