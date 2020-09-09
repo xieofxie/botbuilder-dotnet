@@ -1306,6 +1306,14 @@ namespace AdaptiveExpressions.Tests
             (value, error) = exp.TryEvaluate(mockMemory, options);
             AssertObjectEquals("foo is undefined", value);
 
+            exp = Expression.Parse("int('bad')");
+            (value, error) = exp.TryEvaluate(mockMemory, options);
+            Assert.True(error != null);
+
+            exp = Expression.Parse("float('bad')");
+            (value, error) = exp.TryEvaluate(mockMemory, options);
+            Assert.True(error != null);
+
             // in boolean context, substitution is not allowed, use raw value instead
             exp = Expression.Parse("if(foo, 1, 2)");
             (value, error) = exp.TryEvaluate(mockMemory, options);
