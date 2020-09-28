@@ -94,6 +94,15 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Testing
         public List<UserTokenMock> UserTokenMocks { get; } = new List<UserTokenMock>();
 
         /// <summary>
+        /// Gets or sets a value indicating whether this script is called from a parent but doesn't call another skill.
+        /// </summary>
+        /// <value>
+        /// If true then mock this script to be called as a leaf skill.
+        /// </value>
+        [JsonProperty("calledAsLeafSkill")]
+        public bool CalledAsLeafSkill { get; set; }
+
+        /// <summary>
         /// Gets the test script actions.
         /// </summary>
         /// <value>
@@ -175,6 +184,11 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Testing
                 await adapter.ProcessActivityAsync(
                            activity,
                            async (turnContext, cancellationToken) => await di.InspectAsync(turnContext, inspector).ConfigureAwait(false)).ConfigureAwait(false);
+            }
+
+            if (CalledAsLeafSkill)
+            {
+                adapter.Use(new MockSkillClaimMiddleware(MockSkillClaimMiddleware.MockCase.LeafSkill));
             }
 
             if (callback != null)
