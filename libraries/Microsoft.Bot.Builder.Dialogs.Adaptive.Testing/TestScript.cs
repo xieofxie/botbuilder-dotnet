@@ -4,12 +4,14 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder.Adapters;
 using Microsoft.Bot.Builder.Dialogs.Adaptive.Testing.HttpRequestMocks;
 using Microsoft.Bot.Builder.Dialogs.Adaptive.Testing.Mocks;
 using Microsoft.Bot.Builder.Dialogs.Adaptive.Testing.TestActions;
 using Microsoft.Bot.Builder.Dialogs.Adaptive.Testing.UserTokenMocks;
+using Microsoft.Bot.Builder.Dialogs.Debugging;
 using Microsoft.Bot.Builder.Dialogs.Declarative.Resources;
 using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Configuration;
@@ -156,8 +158,9 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Testing
         /// <param name="testName">Name of the test.</param>
         /// <param name="callback">The bot logic.</param>
         /// <param name="adapter">optional test adapter.</param>
+        /// <param name="debugPort">4712 is common.</param>
         /// <returns>Runs the exchange between the user and the bot.</returns>
-        public async Task ExecuteAsync(ResourceExplorer resourceExplorer, [CallerMemberName] string testName = null, BotCallbackHandler callback = null, TestAdapter adapter = null)
+        public async Task ExecuteAsync(ResourceExplorer resourceExplorer, [CallerMemberName] string testName = null, BotCallbackHandler callback = null, TestAdapter adapter = null, int debugPort = -1)
         {
             if (adapter == null)
             {
@@ -189,6 +192,12 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Testing
             if (CalledAsLeafSkill)
             {
                 adapter.Use(new MockSkillClaimMiddleware(MockSkillClaimMiddleware.MockCase.LeafSkill));
+            }
+
+            if (debugPort >= 0)
+            {
+                adapter.UseDebugger(debugPort, DebugSupport.SourceMap);
+                Thread.Sleep(5000);
             }
 
             if (callback != null)

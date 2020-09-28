@@ -191,6 +191,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Bot.Builder.Dialo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Bot.Builder.Dialogs.Adaptive.Teams.Tests", "tests\Microsoft.Bot.Builder.Dialogs.Adaptive.Teams.Tests\Microsoft.Bot.Builder.Dialogs.Adaptive.Teams.Tests.csproj", "{DD5071A9-BAE1-45EF-814C-D071BE63CD47}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeclarativeUT", "declarative_ut\DeclarativeUT.csproj", "{F066C43B-4625-4E81-B6F3-A18994439FEA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeclarativeTest", "DeclarativeTest\DeclarativeTest.csproj", "{D29C4A8B-16F6-4338-9DB5-05E11B216BAB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeclarativeTestLibrary", "DeclarativeTestLibrary\DeclarativeTestLibrary.csproj", "{A5013253-7669-4500-AD62-648C9F849891}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SSO", "SSO", "{AA545986-D3E6-406D-8BD5-305B809FB399}"
 	ProjectSection(SolutionItems) = preProject
 		tests\Skills\ReadMeForSSOTesting.md = tests\Skills\ReadMeForSSOTesting.md
@@ -788,6 +794,30 @@ Global
 		{DD5071A9-BAE1-45EF-814C-D071BE63CD47}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DD5071A9-BAE1-45EF-814C-D071BE63CD47}.Release-Windows|Any CPU.ActiveCfg = Release|Any CPU
 		{DD5071A9-BAE1-45EF-814C-D071BE63CD47}.Release-Windows|Any CPU.Build.0 = Release|Any CPU
+		{F066C43B-4625-4E81-B6F3-A18994439FEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F066C43B-4625-4E81-B6F3-A18994439FEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F066C43B-4625-4E81-B6F3-A18994439FEA}.Debug-Windows|Any CPU.ActiveCfg = Debug|Any CPU
+		{F066C43B-4625-4E81-B6F3-A18994439FEA}.Debug-Windows|Any CPU.Build.0 = Debug|Any CPU
+		{F066C43B-4625-4E81-B6F3-A18994439FEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F066C43B-4625-4E81-B6F3-A18994439FEA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F066C43B-4625-4E81-B6F3-A18994439FEA}.Release-Windows|Any CPU.ActiveCfg = Release|Any CPU
+		{F066C43B-4625-4E81-B6F3-A18994439FEA}.Release-Windows|Any CPU.Build.0 = Release|Any CPU
+		{D29C4A8B-16F6-4338-9DB5-05E11B216BAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D29C4A8B-16F6-4338-9DB5-05E11B216BAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D29C4A8B-16F6-4338-9DB5-05E11B216BAB}.Debug-Windows|Any CPU.ActiveCfg = Debug|Any CPU
+		{D29C4A8B-16F6-4338-9DB5-05E11B216BAB}.Debug-Windows|Any CPU.Build.0 = Debug|Any CPU
+		{D29C4A8B-16F6-4338-9DB5-05E11B216BAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D29C4A8B-16F6-4338-9DB5-05E11B216BAB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D29C4A8B-16F6-4338-9DB5-05E11B216BAB}.Release-Windows|Any CPU.ActiveCfg = Release|Any CPU
+		{D29C4A8B-16F6-4338-9DB5-05E11B216BAB}.Release-Windows|Any CPU.Build.0 = Release|Any CPU
+		{A5013253-7669-4500-AD62-648C9F849891}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5013253-7669-4500-AD62-648C9F849891}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5013253-7669-4500-AD62-648C9F849891}.Debug-Windows|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5013253-7669-4500-AD62-648C9F849891}.Debug-Windows|Any CPU.Build.0 = Debug|Any CPU
+		{A5013253-7669-4500-AD62-648C9F849891}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5013253-7669-4500-AD62-648C9F849891}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A5013253-7669-4500-AD62-648C9F849891}.Release-Windows|Any CPU.ActiveCfg = Release|Any CPU
+		{A5013253-7669-4500-AD62-648C9F849891}.Release-Windows|Any CPU.Build.0 = Release|Any CPU
 		{2367D12D-2A9B-4F52-8948-78C1EDE9059A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2367D12D-2A9B-4F52-8948-78C1EDE9059A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2367D12D-2A9B-4F52-8948-78C1EDE9059A}.Debug-Windows|Any CPU.ActiveCfg = Debug|Any CPU
