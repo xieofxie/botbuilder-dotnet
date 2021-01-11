@@ -344,6 +344,90 @@ namespace Microsoft.Bot.Builder.Dialogs.Tests
             Assert.DoesNotContain(dm.Dialogs.GetDialogs(), d => d.GetType() == typeof(SendActivity));
         }
 
+        [Fact]
+        public async Task DialogManager_ContainerRegistration_CorrectId()
+        {
+            var root = new AdaptiveDialog()
+            {
+                Triggers = new List<OnCondition>
+                {
+                    new OnBeginDialog()
+                    {
+                        Actions = new List<Dialog>
+                        {
+                            new SwitchCondition()
+                            {
+                                Condition = "1",
+                                Cases = new List<Case>()
+                                {
+                                    new Case()
+                                    {
+                                        Value = "1",
+                                        Actions = new List<Dialog>()
+                                        {
+                                            new AdaptiveDialog()
+                                            {
+                                                Triggers = new List<OnCondition>()
+                                                {
+                                                    new OnBeginDialog()
+                                                    {
+                                                        Actions = new List<Dialog>()
+                                                        {
+                                                            new SendActivity("Case 1")
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    new Case()
+                                    {
+                                        Value = "2",
+                                        Actions = new List<Dialog>()
+                                        {
+                                            new AdaptiveDialog()
+                                            {
+                                                Triggers = new List<OnCondition>()
+                                                {
+                                                    new OnBeginDialog()
+                                                    {
+                                                        Actions = new List<Dialog>()
+                                                        {
+                                                            new SendActivity("Case 2")
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            var storage = new MemoryStorage();
+            var convoState = new ConversationState(storage);
+            var userState = new UserState(storage);
+
+            var adapter = new TestAdapter();
+            adapter
+                .UseStorage(storage)
+                .UseBotState(userState, convoState);
+
+            // The inner adaptive dialog should be registered on the DialogManager after OnTurn
+            var dm = new DialogManager(root);
+
+            await new TestFlow(adapter, async (turnContext, cancellationToken) =>
+            {
+                await dm.OnTurnAsync(turnContext, cancellationToken: cancellationToken).ConfigureAwait(false);
+            })
+                .SendConversationUpdate()
+                .AssertReply("Case 1")
+                .StartTestAsync();
+        }
+
         [Theory]
         [InlineData(SkillFlowTestCase.RootBotOnly, false)]
         [InlineData(SkillFlowTestCase.RootBotConsumingSkill, false)]
