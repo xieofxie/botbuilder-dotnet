@@ -96,7 +96,7 @@ namespace Microsoft.Bot.Builder.Integration.AspNet.Core.Skills
         /// <returns>Async task with optional invokeResponse of type T.</returns>
         public virtual async Task<InvokeResponse<T>> PostActivityAsync<T>(string fromBotId, BotFrameworkSkill toSkill, Uri callbackUrl, Activity activity, CancellationToken cancellationToken)
         {
-            var originatingAudience = ChannelProvider != null && ChannelProvider.IsGovernment() ? GovernmentAuthenticationConstants.ToChannelFromBotOAuthScope : AuthenticationConstants.ToChannelFromBotOAuthScope;
+            var originatingAudience = ChannelProvider.GetToChannelFromBotOAuthScope();
             return await PostActivityAsync<T>(originatingAudience, fromBotId, toSkill, callbackUrl, activity, cancellationToken).ConfigureAwait(false);
         }
     }

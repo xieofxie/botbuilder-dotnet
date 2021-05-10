@@ -29,5 +29,11 @@ namespace Microsoft.Bot.Connector.Authentication
         /// </summary>
         /// <returns>True if this channel provider represents a channel on Public Azure.</returns>
         bool IsPublicAzure();
+
+        /// <summary>
+        /// Gets a value of whether this provider represents a channel on China Azure.
+        /// </summary>
+        /// <returns>True if this channel provider represents a channel on China Azure.</returns>
+        bool IsChinaAzure();
     }
 }

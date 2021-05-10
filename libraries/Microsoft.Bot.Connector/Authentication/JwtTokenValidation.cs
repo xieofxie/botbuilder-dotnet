@@ -251,7 +251,7 @@ namespace Microsoft.Bot.Connector.Authentication
                 return await EmulatorValidation.AuthenticateEmulatorToken(authHeader, credentials, channelProvider, httpClient, channelId, authConfig).ConfigureAwait(false);
             }
 
-            if (channelProvider == null || channelProvider.IsPublicAzure())
+            if (channelProvider == null || channelProvider.IsPublicAzure() || channelProvider.IsChinaAzure())
             {
                 // No empty or null check. Empty can point to issues. Null checks only.
                 if (serviceUrl != null)

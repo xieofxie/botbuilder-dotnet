@@ -1479,8 +1479,16 @@ namespace Microsoft.Bot.Builder
             // Get the password from the credential provider
             var appPassword = await CredentialProvider.GetAppPasswordAsync(appId).ConfigureAwait(false);
 
-            // Construct an AppCredentials using the app + password combination. If government, we create a government specific credential.
-            return ChannelProvider != null && ChannelProvider.IsGovernment() ? new MicrosoftGovernmentAppCredentials(appId, appPassword, HttpClient, Logger, oAuthScope) : new MicrosoftAppCredentials(appId, appPassword, HttpClient, Logger, oAuthScope);
+            return AppCredentials.BuildCredentials(ChannelProvider, appId, appPassword, HttpClient, Logger, oAuthScope);
+        }
+
+        /// <summary>
+        /// This method returns the correct Bot Framework OAuthScope for AppCredentials.
+        /// </summary>
+        /// <returns>Scope.</returns>
+        protected string GetBotFrameworkOAuthScope()
+        {
+            return ChannelProvider.GetToChannelFromBotOAuthScope();
         }
 
         /// <summary>
@@ -1532,9 +1540,13 @@ namespace Microsoft.Bot.Builder
             }
 
             // Is the activity from Azure Gov?
-            if (ChannelProvider != null && ChannelProvider.IsGovernment())
+            else if (ChannelProvider.IsGovernment())
             {
                 return CallerIdConstants.USGovChannel;
+            }
+            else if (ChannelProvider.IsChinaAzure())
+            {
+                return CallerIdConstants.ChinaAzureChannel;
             }
 
             // Return null so that the callerId is cleared.
@@ -1606,9 +1618,8 @@ namespace Microsoft.Bot.Builder
                 }
                 else
                 {
-                    var emptyCredentials = (ChannelProvider != null && ChannelProvider.IsGovernment()) ?
-                        MicrosoftGovernmentAppCredentials.Empty :
-                        MicrosoftAppCredentials.Empty;
+                    var emptyCredentials = AppCredentials.GetEmptyCredentials(ChannelProvider);
+
                     connectorClient = new ConnectorClient(new Uri(serviceUrl), emptyCredentials, customHttpClient: _httpClient, disposeHttpClient: _httpClient == null);
                 }
 
@@ -1655,16 +1666,6 @@ namespace Microsoft.Bot.Builder
             // Cache the credentials for later use
             _appCredentialMap[cacheKey] = appCredentials;
             return appCredentials;
-        }
-
-        /// <summary>
-        /// This method returns the correct Bot Framework OAuthScope for AppCredentials.
-        /// </summary>
-        private string GetBotFrameworkOAuthScope()
-        {
-            return ChannelProvider != null && ChannelProvider.IsGovernment() ?
-                GovernmentAuthenticationConstants.ToChannelFromBotOAuthScope :
-                AuthenticationConstants.ToChannelFromBotOAuthScope;
         }
 
         /// <summary>

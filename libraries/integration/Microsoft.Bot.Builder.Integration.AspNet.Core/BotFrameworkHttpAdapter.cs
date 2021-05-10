@@ -341,9 +341,7 @@ namespace Microsoft.Bot.Builder.Integration.AspNet.Core
         {
             if (claimsIdentity.AuthenticationType != AuthenticationConstants.AnonymousAuthType)
             {
-                var audience = ChannelProvider != null && ChannelProvider.IsGovernment() ?
-    GovernmentAuthenticationConstants.ToChannelFromBotOAuthScope :
-    AuthenticationConstants.ToChannelFromBotOAuthScope;
+                var audience = GetBotFrameworkOAuthScope();
 
                 if (SkillValidation.IsSkillClaim(claimsIdentity.Claims))
                 {

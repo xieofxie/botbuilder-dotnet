@@ -62,5 +62,14 @@ namespace Microsoft.Bot.Connector.Authentication
         {
             return string.IsNullOrEmpty(ChannelService);
         }
+
+        /// <summary>
+        /// Gets a value of whether this provider represents a channel on China Azure.
+        /// </summary>
+        /// <returns>True if this channel provider represents a channel on China Azure.</returns>
+        public bool IsChinaAzure()
+        {
+            return string.Equals(ChinaAuthenticationConstants.ChannelService, ChannelService, StringComparison.OrdinalIgnoreCase);
+        }
     }
 }

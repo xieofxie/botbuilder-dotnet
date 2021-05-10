@@ -70,9 +70,7 @@ namespace Microsoft.Bot.Builder.Skills
                 adapter,
                 bot,
                 conversationIdFactory,
-                () => ChannelProvider != null && ChannelProvider.IsGovernment()
-                    ? GovernmentAuthenticationConstants.ToChannelFromBotOAuthScope
-                    : AuthenticationConstants.ToChannelFromBotOAuthScope,
+                () => ChannelProvider.GetToChannelFromBotOAuthScope(),
                 logger ?? NullLogger.Instance);
         }
 

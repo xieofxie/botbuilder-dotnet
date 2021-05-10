@@ -127,9 +127,7 @@ namespace Microsoft.Bot.Connector.Authentication
                 throw new ArgumentNullException(nameof(authConfig));
             }
 
-            var openIdMetadataUrl = (channelProvider != null && channelProvider.IsGovernment()) ?
-                GovernmentAuthenticationConstants.ToBotFromEmulatorOpenIdMetadataUrl :
-                AuthenticationConstants.ToBotFromEmulatorOpenIdMetadataUrl;
+            var openIdMetadataUrl = channelProvider.GetToBotFromEmulatorOpenIdMetadataUrl();
 
             var tokenExtractor = new JwtTokenExtractor(
                     httpClient,

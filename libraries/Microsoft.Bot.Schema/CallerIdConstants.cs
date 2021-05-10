@@ -19,6 +19,11 @@ namespace Microsoft.Bot.Schema
         public const string USGovChannel = "urn:botframework:azureusgov";
 
         /// <summary>
+        ///  The caller ID for any Bot Framework China cloud channel.
+        /// </summary>
+        public const string ChinaAzureChannel = "urn:botframework:azurecn";
+
+        /// <summary>
         /// The caller ID prefix when a bot initiates a request to another bot.
         /// </summary>
         /// <remarks>

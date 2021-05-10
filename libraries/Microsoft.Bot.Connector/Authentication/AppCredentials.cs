@@ -179,6 +179,60 @@ namespace Microsoft.Bot.Connector.Authentication
         }
 
         /// <summary>
+        /// Logic to build an <see cref="AppCredentials"/> object to be used to acquire tokens
+        /// for this HttpClient based on channelProvider.
+        /// </summary>
+        /// <param name="channelProvider">The Channel Provider.</param>
+        /// <param name="appId">The Microsoft app ID.</param>
+        /// <param name="password">The Microsoft app password.</param>
+        /// <param name="customHttpClient">Optional <see cref="HttpClient"/> to be used when acquiring tokens.</param>
+        /// <param name="logger">Optional <see cref="ILogger"/> to gather telemetry data while acquiring and managing credentials.</param>
+        /// <param name="oAuthScope">The scope for the token.</param>
+        /// <returns>The app credentials to be used to acquire tokens.</returns>
+        public static AppCredentials BuildCredentials(IChannelProvider channelProvider, string appId, string password, HttpClient customHttpClient, ILogger logger, string oAuthScope)
+        {
+            // Construct an AppCredentials using the app + password combination. If government, we create a government specific credential.
+            if (channelProvider != null)
+            {
+                if (channelProvider.IsGovernment())
+                {
+                    return new MicrosoftGovernmentAppCredentials(appId, password, customHttpClient, logger, oAuthScope);
+                }
+
+                if (channelProvider.IsChinaAzure())
+                {
+                    return new MicrosoftChinaAppCredentials(appId, password, customHttpClient, logger, oAuthScope);
+                }
+            }
+
+            return new MicrosoftAppCredentials(appId, password, customHttpClient, logger, oAuthScope);
+        }
+
+        /// <summary>
+        /// Logic to get an empty <see cref="AppCredentials"/> object to be used to acquire tokens
+        /// for this HttpClient based on channelProvider.
+        /// </summary>
+        /// <param name="channelProvider">The Channel Provider.</param>
+        /// <returns>The app credentials to be used to acquire tokens.</returns>
+        public static AppCredentials GetEmptyCredentials(IChannelProvider channelProvider)
+        {
+            if (channelProvider != null)
+            {
+                if (channelProvider.IsGovernment())
+                {
+                    return MicrosoftGovernmentAppCredentials.Empty;
+                }
+
+                if (channelProvider.IsChinaAzure())
+                {
+                    return MicrosoftChinaAppCredentials.Empty;
+                }
+            }
+
+            return MicrosoftAppCredentials.Empty;
+        }
+
+        /// <summary>
         /// Apply the credentials to the HTTP request.
         /// </summary>
         /// <param name="request">The HTTP request.</param><param name="cancellationToken">Cancellation token.</param>

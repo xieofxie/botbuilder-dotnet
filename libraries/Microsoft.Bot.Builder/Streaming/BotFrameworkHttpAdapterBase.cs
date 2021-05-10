@@ -311,9 +311,7 @@ namespace Microsoft.Bot.Builder.Streaming
         /// </summary>
         private IConnectorClient CreateStreamingConnectorClient(Activity activity, StreamingRequestHandler requestHandler)
         {
-            var emptyCredentials = (ChannelProvider != null && ChannelProvider.IsGovernment()) ?
-                    MicrosoftGovernmentAppCredentials.Empty :
-                    MicrosoftAppCredentials.Empty;
+            var emptyCredentials = AppCredentials.GetEmptyCredentials(ChannelProvider);
 #pragma warning disable CA2000 // Dispose objects before losing scope (We need to make ConnectorClient disposable to fix this, ignoring it for now)
             var streamingClient = new StreamingHttpClient(requestHandler, Logger);
 #pragma warning restore CA2000 // Dispose objects before losing scope
