@@ -251,7 +251,7 @@ namespace Microsoft.Bot.Connector.Authentication
                 return await EmulatorValidation.AuthenticateEmulatorToken(authHeader, credentials, channelProvider, httpClient, channelId, authConfig).ConfigureAwait(false);
             }
 
-            if (channelProvider == null || channelProvider.IsPublicAzure() || channelProvider.IsChinaAzure())
+            if (channelProvider == null || channelProvider.IsPublicAzure())
             {
                 // No empty or null check. Empty can point to issues. Null checks only.
                 if (serviceUrl != null)
@@ -265,6 +265,11 @@ namespace Microsoft.Bot.Connector.Authentication
             if (channelProvider.IsGovernment())
             {
                 return await GovernmentChannelValidation.AuthenticateChannelToken(authHeader, credentials, serviceUrl, httpClient, channelId, authConfig).ConfigureAwait(false);
+            }
+
+            if (channelProvider.IsChinaAzure())
+            {
+                return await ChannelValidation.AuthenticateChannelToken(authHeader, credentials, serviceUrl, httpClient, channelId, authConfig, ChinaChannelValidation.ToBotFromChannelTokenValidationParameters).ConfigureAwait(false);
             }
 
             return await EnterpriseChannelValidation.AuthenticateChannelToken(authHeader, credentials, channelProvider, serviceUrl, httpClient, channelId, authConfig).ConfigureAwait(false);

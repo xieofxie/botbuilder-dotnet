@@ -54,14 +54,15 @@ namespace Microsoft.Bot.Connector.Authentication
         /// HttpClient is used for making those calls. Those calls generally require TLS connections, which are expensive to
         /// setup and teardown, so a shared HttpClient is recommended.</param>
         /// <param name="channelId">The ID of the channel to validate.</param>
+        /// <param name="parameters">The token validation parameters.</param>
         /// <returns>
         /// A valid ClaimsIdentity.
         /// </returns>
 #pragma warning disable UseAsyncSuffix // Use Async suffix (can't change this without breaking binary compat)
-        public static async Task<ClaimsIdentity> AuthenticateChannelToken(string authHeader, ICredentialProvider credentials, HttpClient httpClient, string channelId)
+        public static async Task<ClaimsIdentity> AuthenticateChannelToken(string authHeader, ICredentialProvider credentials, HttpClient httpClient, string channelId, TokenValidationParameters parameters = null)
 #pragma warning restore UseAsyncSuffix // Use Async suffix
         {
-            return await AuthenticateChannelToken(authHeader, credentials, httpClient, channelId, new AuthenticationConfiguration()).ConfigureAwait(false);
+            return await AuthenticateChannelToken(authHeader, credentials, httpClient, channelId, new AuthenticationConfiguration(), parameters).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -77,11 +78,12 @@ namespace Microsoft.Bot.Connector.Authentication
         /// setup and teardown, so a shared HttpClient is recommended.</param>
         /// <param name="channelId">The ID of the channel to validate.</param>
         /// <param name="authConfig">The authentication configuration.</param>
+        /// <param name="parameters">The token validation parameters.</param>
         /// <returns>
         /// A valid ClaimsIdentity.
         /// </returns>
 #pragma warning disable UseAsyncSuffix // Use Async suffix (can't change this without breaking binary compat)
-        public static async Task<ClaimsIdentity> AuthenticateChannelToken(string authHeader, ICredentialProvider credentials, HttpClient httpClient, string channelId, AuthenticationConfiguration authConfig)
+        public static async Task<ClaimsIdentity> AuthenticateChannelToken(string authHeader, ICredentialProvider credentials, HttpClient httpClient, string channelId, AuthenticationConfiguration authConfig, TokenValidationParameters parameters = null)
 #pragma warning restore UseAsyncSuffix // Use Async suffix
         {
             if (authConfig == null)
@@ -89,9 +91,11 @@ namespace Microsoft.Bot.Connector.Authentication
                 throw new ArgumentNullException(nameof(authConfig));
             }
 
+            parameters = parameters ?? ToBotFromChannelTokenValidationParameters;
+
             var tokenExtractor = new JwtTokenExtractor(
                 httpClient,
-                ToBotFromChannelTokenValidationParameters,
+                parameters,
                 OpenIdMetadataUrl,
                 AuthenticationConstants.AllowedSigningAlgorithms);
 
@@ -115,7 +119,7 @@ namespace Microsoft.Bot.Connector.Authentication
 
             // Look for the "aud" claim, but only if issued from the Bot Framework
             Claim audienceClaim = identity.Claims.FirstOrDefault(
-                c => c.Issuer == AuthenticationConstants.ToBotFromChannelTokenIssuer && c.Type == AuthenticationConstants.AudienceClaim);
+                c => c.Issuer == parameters.ValidIssuers.First() && c.Type == AuthenticationConstants.AudienceClaim);
 
             if (audienceClaim == null)
             {
@@ -151,12 +155,13 @@ namespace Microsoft.Bot.Connector.Authentication
         /// HttpClient is used for making those calls. Those calls generally require TLS connections, which are expensive to
         /// setup and teardown, so a shared HttpClient is recommended.</param>
         /// <param name="channelId">The ID of the channel to validate.</param>
+        /// <param name="parameters">The token validation parameters.</param>
         /// <returns>ClaimsIdentity.</returns>
 #pragma warning disable UseAsyncSuffix // Use Async suffix (can't change this without breaking binary compat)
-        public static async Task<ClaimsIdentity> AuthenticateChannelToken(string authHeader, ICredentialProvider credentials, string serviceUrl, HttpClient httpClient, string channelId)
+        public static async Task<ClaimsIdentity> AuthenticateChannelToken(string authHeader, ICredentialProvider credentials, string serviceUrl, HttpClient httpClient, string channelId, TokenValidationParameters parameters = null)
 #pragma warning restore UseAsyncSuffix // Use Async suffix
         {
-            return await AuthenticateChannelToken(authHeader, credentials, serviceUrl, httpClient, channelId, new AuthenticationConfiguration()).ConfigureAwait(false);
+            return await AuthenticateChannelToken(authHeader, credentials, serviceUrl, httpClient, channelId, new AuthenticationConfiguration(), parameters).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -170,9 +175,10 @@ namespace Microsoft.Bot.Connector.Authentication
         /// setup and teardown, so a shared HttpClient is recommended.</param>
         /// <param name="channelId">The ID of the channel to validate.</param>
         /// <param name="authConfig">The authentication configuration.</param>
+        /// <param name="parameters">The token validation parameters.</param>
         /// <returns>ClaimsIdentity.</returns>
 #pragma warning disable UseAsyncSuffix // Use Async suffix (can't change this without breaking binary compat)
-        public static async Task<ClaimsIdentity> AuthenticateChannelToken(string authHeader, ICredentialProvider credentials, string serviceUrl, HttpClient httpClient, string channelId, AuthenticationConfiguration authConfig)
+        public static async Task<ClaimsIdentity> AuthenticateChannelToken(string authHeader, ICredentialProvider credentials, string serviceUrl, HttpClient httpClient, string channelId, AuthenticationConfiguration authConfig, TokenValidationParameters parameters = null)
 #pragma warning restore UseAsyncSuffix // Use Async suffix
         {
             if (authConfig == null)
@@ -180,7 +186,7 @@ namespace Microsoft.Bot.Connector.Authentication
                 throw new ArgumentNullException(nameof(authConfig));
             }
 
-            var identity = await AuthenticateChannelToken(authHeader, credentials, httpClient, channelId, authConfig).ConfigureAwait(false);
+            var identity = await AuthenticateChannelToken(authHeader, credentials, httpClient, channelId, authConfig, parameters).ConfigureAwait(false);
 
             var serviceUrlClaim = identity.Claims.FirstOrDefault(claim => claim.Type == AuthenticationConstants.ServiceUrlClaim)?.Value;
             if (string.IsNullOrWhiteSpace(serviceUrlClaim))

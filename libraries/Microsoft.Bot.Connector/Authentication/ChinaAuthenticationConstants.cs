@@ -24,5 +24,10 @@ namespace Microsoft.Bot.Connector.Authentication
         /// TO CHINA CHANNEL FROM BOT: OAuth scope to request.
         /// </summary>
         public const string ToChannelFromBotOAuthScope = "https://api.botframework.azure.cn";
+
+        /// <summary>
+        /// TO BOT FROM CHANNEL: Token issuer.
+        /// </summary>
+        public const string ToBotFromChannelTokenIssuer = "https://api.botframework.azure.cn";
     }
 }
